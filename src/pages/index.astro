@@ -1,0 +1,48 @@
+---
+/*
+ * Page 1 — Listing.
+ *
+ * Commit 1 ships a placeholder hero so the build is green and the photo + token
+ * pipeline is wired end-to-end. Full sections (gallery, amenities, walk score,
+ * map preview, reviews, host card, footer) land in Commit 2 per the spec.
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>{tokens.LISTING_NAME}</title>
+    <meta name="description" content={tokens.META_DESCRIPTION} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main>
+      <section class="relative h-[80vh] min-h-[520px] overflow-hidden">
+        <img
+          src={tokens.HERO_PHOTO}
+          alt={tokens.GALLERY_ALT[0]}
+          fetchpriority="high"
+          decoding="async"
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div
+          class="absolute inset-0"
+          style="background: linear-gradient(180deg, rgba(15,14,12,0.05) 0%, rgba(15,14,12,0.55) 60%, rgba(15,14,12,0.85) 100%);"
+        ></div>
+        <div class="absolute inset-x-0 bottom-0 px-[var(--gutter)] pb-12 md:pb-16">
+          <div class="max-w-[var(--max-w)] mx-auto">
+            <p class="text-ink-muted text-sm tracking-[0.2em] uppercase mb-3">{tokens.LISTING_ADDRESS_LINE}</p>
+            <h1 class="text-5xl md:text-7xl mb-4">{tokens.LISTING_NAME}</h1>
+            <p class="text-ink-primary/90 text-xl md:text-2xl max-w-2xl mb-8">{tokens.LISTING_TAGLINE}</p>
+            <p class="text-ink-muted text-sm">Page 1 build lands in Commit 2 — scaffold &amp; pipeline verified.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
