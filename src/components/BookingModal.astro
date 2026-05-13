@@ -1,8 +1,10 @@
 ---
 import { tokens } from '../lib/tokens';
+import Honeycomb from './Honeycomb.astro';
+import DatePicker from './booking/DatePicker.astro';
 import OctCTA from './ui/OctCTA.astro';
 
-const inlinePrivacy = `Your details are sent to ${tokens.HOST_NAME} only to respond to this inquiry. We don't sell your data.`;
+const inlinePrivacy = `Your details are sent to ${tokens.HOST_NAME} only to respond to this inquiry. When you secure the booking on the next step, a CAD $${tokens.DEPOSIT_AMOUNT_CAD} authorization (not a charge) will be placed on your card. We don't sell your data. Cancellation policy and privacy notice in the footer.`;
 const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} about availability and Okanagan travel tips. Optional — leaving this unchecked won't affect your inquiry. Unsubscribe anytime.`;
 ---
 <div
@@ -12,23 +14,26 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
   aria-modal="true"
   aria-labelledby="booking-title"
 >
-  <div class="relative bg-bg-surface w-full max-w-xl mx-3 sm:mx-4 my-auto border border-ink-faint/30">
+  <div class="relative bg-bg-surface w-full max-w-2xl mx-3 sm:mx-4 my-auto border border-ink-faint/30 overflow-hidden">
+    <!-- Honeycomb watermark — matches the home page section treatment -->
+    <Honeycomb unique="modal" opacity={0.05} />
+
     <button
       type="button"
       id="booking-close"
-      class="absolute top-3 right-3 text-ink-muted hover:text-ink-primary p-2"
+      class="absolute top-3 right-3 text-ink-muted hover:text-ink-primary p-2 z-20"
       aria-label="Close booking form"
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
 
-    <div class="px-6 sm:px-8 pt-7 pb-6">
+    <div class="relative z-10 px-6 sm:px-8 pt-7 pb-6">
       <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Inquiry</p>
       <h3 id="booking-title" class="text-2xl sm:text-3xl mb-1">Check Availability</h3>
       <p class="text-ink-muted text-sm">From <span class="text-ink-primary">${tokens.NIGHTLY_RATE_FROM}</span> {tokens.CURRENCY} / night · {tokens.MIN_NIGHTS}-night minimum</p>
     </div>
 
-    <form id="booking-form" novalidate class="px-6 sm:px-8 pb-7 space-y-4">
+    <form id="booking-form" novalidate class="relative z-10 px-6 sm:px-8 pb-7 space-y-4">
       <!-- honeypot -->
       <div class="hidden" aria-hidden="true">
         <label>Leave blank: <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
@@ -50,20 +55,16 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         <input type="tel" name="phone" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
       </label>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Check-in *</span>
-          <input type="date" name="checkin" required class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Check-out *</span>
-          <input type="date" name="checkout" required class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Guests *</span>
-          <input type="number" name="guests" required min="1" max={tokens.MAX_GUESTS} value="2" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
+      <!-- Custom range picker — emits hidden `checkin` and `checkout` inputs -->
+      <div class="block">
+        <span class="text-ink-muted text-xs uppercase tracking-[0.18em] mb-1.5 block">Dates *</span>
+        <DatePicker />
       </div>
+
+      <label class="block">
+        <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Guests *</span>
+        <input type="number" name="guests" required min="1" max={tokens.MAX_GUESTS} value="2" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
+      </label>
 
       <label class="block">
         <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Message (optional)</span>
@@ -80,7 +81,7 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       </label>
 
       <div class="pt-2">
-        <OctCTA type="submit" size="md" variant="ghost" fullWidth>Send Inquiry</OctCTA>
+        <OctCTA type="submit" size="md" variant="ghost" fullWidth>Continue to Secure</OctCTA>
       </div>
 
       <div id="booking-status" class="hidden text-sm" role="status" aria-live="polite"></div>
@@ -89,7 +90,8 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
 </div>
 
 <script is:inline define:vars={{
-  webhook: tokens.BOOKING_WEBHOOK_URL,
+  apiUrl: tokens.BOOKING_API_URL,
+  legacyWebhook: tokens.BOOKING_WEBHOOK_URL,
   hostName: tokens.HOST_NAME,
   hostFirst: tokens.HOST_FIRST_NAME,
   hostEmail: tokens.HOST_EMAIL,
@@ -99,10 +101,11 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
   templateVer: tokens.TEMPLATE_VERSION,
   maxGuests: tokens.MAX_GUESTS,
   minNights: tokens.MIN_NIGHTS,
+  depositAmount: tokens.DEPOSIT_AMOUNT_CAD,
   inlinePrivacy,
   marketingLabel
 }}>
-  // @ts-nocheck — define:vars injects these at runtime; TS doesn't see them.
+  // @ts-nocheck — define:vars injects at runtime; TS doesn't see them.
   (function () {
     const modal = document.getElementById('booking-modal');
     const form = document.getElementById('booking-form');
@@ -113,6 +116,9 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
     let openedAt = 0;
     let lastFocus = null;
 
+    const hasApi = () => /^https:\/\//i.test(apiUrl);
+    const hasLegacy = () => /^https:\/\//i.test(legacyWebhook);
+
     function open() {
       lastFocus = document.activeElement;
       openedAt = Date.now();
@@ -120,9 +126,9 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       modal.classList.add('flex');
       document.body.style.overflow = 'hidden';
       modal.querySelector('input[name="name"]')?.focus();
-      // Show "unavailable" state if webhook not HTTPS
+      // If NEITHER booking system is configured, show degraded message + disable submit
       const submitBtn = form.querySelector('button[type="submit"]');
-      if (!/^https:\/\//i.test(webhook)) {
+      if (!hasApi() && !hasLegacy()) {
         status.className = 'text-sm text-accent border border-accent/40 p-3';
         status.textContent = `Booking is temporarily unavailable. Please email ${hostFirst} directly at ${hostEmail}.`;
         status.classList.remove('hidden');
@@ -197,21 +203,75 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         return;
       }
 
-      if (!/^https:\/\//i.test(webhook)) {
+      if (!hasApi() && !hasLegacy()) {
         status.className = 'text-sm text-accent';
         status.textContent = `Booking is temporarily unavailable. Email ${hostFirst} at ${hostEmail}.`;
         status.classList.remove('hidden');
         return;
       }
 
-      const payload = {
-        request_id: (crypto?.randomUUID && crypto.randomUUID()) || String(Date.now()),
+      const requestId =
+        (typeof crypto !== 'undefined' && crypto.randomUUID && crypto.randomUUID()) ||
+        String(Date.now()) + '-' + Math.random().toString(36).slice(2, 10);
+
+      status.className = 'text-sm text-ink-muted';
+      status.textContent = 'Sending…';
+      status.classList.remove('hidden');
+
+      if (hasApi()) {
+        // v1.1: POST /book → redirect to /pay for the auth-hold
+        const payload = {
+          request_id: requestId,
+          listing_id: listingId,
+          name,
+          email,
+          phone: phone || null,
+          checkin,
+          checkout,
+          guests,
+          message: message || null,
+          marketing_opt_in: marketing,
+          consent_text_shown: inlinePrivacy,
+          honeypot_company: '',
+          opened_at: openedAt
+        };
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 8000);
+          const r = await fetch(`${apiUrl.replace(/\/+$/, '')}/book`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Idempotency-Key': requestId
+            },
+            body: JSON.stringify(payload),
+            signal: ctrl.signal
+          });
+          clearTimeout(t);
+          if (!r.ok) throw new Error(`status ${r.status}`);
+          const body = await r.json();
+          if (!body.booking_id) throw new Error('missing booking_id');
+          location.assign(`/pay?id=${encodeURIComponent(body.booking_id)}`);
+        } catch (_) {
+          status.className = 'text-sm text-accent border border-accent/40 p-3';
+          status.textContent = `We couldn't reach the booking system. Please email ${hostFirst} directly at ${hostEmail}.`;
+        }
+        return;
+      }
+
+      // Legacy fallback (v1.0): POST to webhook, show inline success — no /pay redirect
+      const legacyPayload = {
+        request_id: requestId,
         source: 'str-booking-site:listing-page',
         template_version: templateVer,
         listing_id: listingId,
         listing_name: listingName,
-        name, email, phone: phone || null,
-        checkin, checkout, guests,
+        name,
+        email,
+        phone: phone || null,
+        checkin,
+        checkout,
+        guests,
         message: message || null,
         consent_text_shown: inlinePrivacy,
         marketing_opt_in: marketing,
@@ -220,18 +280,13 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         user_agent: navigator.userAgent,
         page_url: location.href
       };
-
-      status.className = 'text-sm text-ink-muted';
-      status.textContent = 'Sending…';
-      status.classList.remove('hidden');
-
       try {
         const ctrl = new AbortController();
         const t = setTimeout(() => ctrl.abort(), 8000);
-        const r = await fetch(webhook, {
+        const r = await fetch(legacyWebhook, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(legacyPayload),
           signal: ctrl.signal
         });
         clearTimeout(t);

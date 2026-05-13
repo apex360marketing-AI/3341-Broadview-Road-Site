@@ -57,6 +57,10 @@ export type Tokens = {
   WALKSCORE_WSAPIKEY: string;
 
   BOOKING_WEBHOOK_URL: string;
+  BOOKING_API_URL: string;
+  DEPOSIT_AMOUNT_CAD: number;
+  DEPOSIT_LABEL: string;
+  STRIPE_PUBLISHABLE_KEY: string;
   LIVE_FEED_URL: string;
   LIVE_FEED_HOST: string;
   TOS_URL: string;
