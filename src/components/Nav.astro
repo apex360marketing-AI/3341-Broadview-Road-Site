@@ -1,5 +1,10 @@
 ---
 import { tokens } from '../lib/tokens';
+import HexPulse from './menu/HexPulse.astro';
+import CompassBloom from './menu/CompassBloom.astro';
+import HoneycombBloom from './menu/HoneycombBloom.astro';
+import ParticleConstellation from './menu/ParticleConstellation.astro';
+import CommandCursor from './menu/CommandCursor.astro';
 ---
 <!-- Sticky header. Brand mark on the LEFT (Compass dial + VALORA). Nav links
      on the RIGHT. The other 4 dials moved to the dedicated /dials page. -->
@@ -36,17 +41,16 @@ import { tokens } from '../lib/tokens';
       </span>
     </a>
 
-    <!-- ===== RIGHT: nav links ===== -->
-    <div class="flex items-center gap-7 sm:gap-8 text-sm tracking-wide">
-      <a href="#stay" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline">The Stay</a>
-      <a href="/area" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline">The Area</a>
-      <span
-        class="text-[#C0FF00]/50 hidden lg:inline cursor-not-allowed select-none"
-        title="Live feed + curated local guide — currently sample data; goes live when the operator deploys the events Worker"
-      >
-        On The Radar<sup class="text-[9px] tracking-[0.2em] uppercase ml-1 opacity-80">soon</sup>
-      </span>
-      <a href="#book" class="text-[var(--accent-2)] uppercase tracking-[0.18em] text-xs hover:text-[#7DD8D8] transition-colors" data-action="open-booking">Book</a>
+    <!-- ===== RIGHT: 5-menu chooser bar (TEMPORARY) =====
+         Side-by-side preview of all 5 menu-icon concepts. Click each to try
+         its dropdown. After picking a winner we keep one and remove the rest. -->
+    <div class="nav-chooser hidden lg:flex items-center gap-3">
+      <span class="nav-chooser-label">PICK ONE:</span>
+      <HexPulse />
+      <CompassBloom />
+      <HoneycombBloom />
+      <ParticleConstellation />
+      <CommandCursor />
     </div>
   </div>
 
@@ -62,6 +66,16 @@ import { tokens } from '../lib/tokens';
     /* Compass dial — paired with VALORA. Static teal, locked (no hover change). */
     .brand-link svg {
       color: var(--accent-2);
+    }
+
+    /* Chooser-bar label — only visible while all 5 concepts are mounted side-by-side.
+       Goes away when one is chosen. */
+    .nav-chooser-label {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--ink-muted);
+      opacity: 0.6;
+      margin-right: 4px;
     }
   </style>
 </nav>

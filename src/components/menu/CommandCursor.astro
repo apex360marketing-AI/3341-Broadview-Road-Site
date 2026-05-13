@@ -1,0 +1,189 @@
+---
+/**
+ * Concept 5 — Command Cursor
+ * Trigger: a blinking text cursor "|". Most explicit AI signal.
+ * Open: 4 menu items "type themselves out" with a `>` prefix in monospace —
+ * staggered typewriter cadence, like an AI suggesting options.
+ */
+import { MENU_ITEMS } from './items';
+const id = 'commandcursor';
+const panelId = `${id}-panel`;
+---
+<div class="cc-menu" data-menu-id={id}>
+  <button
+    type="button"
+    class="cc-trigger"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={panelId}
+    aria-label="Open menu — Command Cursor"
+    title="Command Cursor"
+  >
+    <span class="cc-num" aria-hidden="true">5</span>
+    <span class="cc-cursor" aria-hidden="true">|</span>
+  </button>
+
+  <div class="cc-panel" id={panelId} role="menu" hidden>
+    <div class="cc-prompt" aria-hidden="true">
+      <span class="cc-prompt-prefix">$</span>
+      <span class="cc-prompt-text">menu</span>
+      <span class="cc-prompt-blink">_</span>
+    </div>
+    {MENU_ITEMS.map((item, i) => (
+      <div class="cc-row" style={`--cc-i: ${i}`}>
+        <span class="cc-arrow" aria-hidden="true">&gt;</span>
+        {item.dataAction ? (
+          <button type="button" class="cc-item" role="menuitem" data-action={item.dataAction}>{item.label}</button>
+        ) : item.soon ? (
+          <span class="cc-item cc-item-soon" role="menuitem" aria-disabled="true">{item.label}<span class="cc-soon">soon</span></span>
+        ) : (
+          <a class="cc-item" role="menuitem" href={item.href}>{item.label}</a>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .cc-menu { position: relative; font-family: 'ui-monospace', 'SF Mono', 'Menlo', monospace; }
+  .cc-trigger {
+    position: relative;
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 1px solid rgba(91, 194, 194, 0.30);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-2);
+    font-family: inherit;
+    transition: border-color 250ms ease, color 250ms ease;
+  }
+  .cc-trigger:hover, .cc-trigger[aria-expanded="true"] { color: #fff; border-color: var(--accent-2); }
+  .cc-num {
+    position: absolute;
+    top: 2px; left: 4px;
+    font-size: 9px;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    font-family: var(--font-sans);
+  }
+  .cc-cursor {
+    font-size: 20px;
+    line-height: 1;
+    animation: cc-blink 1.05s steps(2) infinite;
+  }
+  @keyframes cc-blink { 50% { opacity: 0.2; } }
+  .cc-trigger[aria-expanded="true"] .cc-cursor { animation: none; }
+
+  .cc-panel {
+    position: absolute;
+    top: calc(100% + 10px); right: 0;
+    width: 240px;
+    background: #0F0E0C;
+    border: 1px solid rgba(91, 194, 194, 0.45);
+    padding: 12px 10px;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 220ms ease, transform 220ms ease;
+    box-shadow: 0 14px 30px rgba(15, 14, 12, 0.65), 0 0 22px rgba(91, 194, 194, 0.20);
+    z-index: 50;
+    font-family: inherit;
+  }
+  .cc-panel[hidden] { display: none; }
+  .cc-panel.cc-open { opacity: 1; transform: translateY(0); }
+
+  .cc-prompt {
+    color: var(--ink-muted);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px dashed rgba(91, 194, 194, 0.15);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .cc-prompt-prefix { color: var(--accent-2); }
+  .cc-prompt-blink { animation: cc-blink 1.05s steps(2) infinite; }
+
+  .cc-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 220ms ease, transform 220ms ease;
+    transition-delay: calc(var(--cc-i) * 110ms + 80ms);
+  }
+  .cc-panel.cc-open .cc-row { opacity: 1; transform: translateY(0); }
+
+  .cc-arrow { color: var(--accent-2); font-size: 13px; line-height: 1; }
+  .cc-item {
+    flex: 1;
+    display: block;
+    padding: 6px 8px;
+    color: var(--ink-primary);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+    text-decoration: none;
+    transition: color 180ms ease, background 180ms ease;
+  }
+  .cc-item:hover, .cc-item:focus-visible { color: var(--accent-2); background: rgba(91, 194, 194, 0.08); outline: none; }
+  .cc-item-soon { color: var(--ink-muted); opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+  .cc-soon { float: right; font-size: 10px; color: var(--accent-2); margin-top: 1px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cc-cursor, .cc-prompt-blink { animation: none; }
+    .cc-panel, .cc-row { transition: opacity 100ms ease; transform: none !important; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function(){
+    const root = document.querySelector('[data-menu-id="commandcursor"]');
+    if (!root) return;
+    const trigger = root.querySelector('.cc-trigger');
+    const panel = root.querySelector('.cc-panel');
+    const items = root.querySelectorAll('.cc-item:not(.cc-item-soon)');
+    let openedAt = 0;
+
+    function open() {
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('cc-open'));
+      openedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('menu:opened', { detail: { id: 'commandcursor' } }));
+      setTimeout(() => items[0]?.focus(), 540);
+    }
+    function close() {
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('cc-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 220);
+    }
+    trigger.addEventListener('click', () => {
+      trigger.getAttribute('aria-expanded') === 'true' ? close() : open();
+    });
+    document.addEventListener('click', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (Date.now() - openedAt < 200) return;
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') { close(); trigger.focus(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i + 1) % items.length]?.focus(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i - 1 + items.length) % items.length]?.focus(); }
+    });
+    window.addEventListener('menu:opened', (e) => {
+      if (e.detail?.id !== 'commandcursor' && trigger.getAttribute('aria-expanded') === 'true') close();
+    });
+  })();
+</script>

@@ -1,0 +1,201 @@
+---
+/**
+ * Concept 4 — Particle Constellation
+ * Trigger: 4 drifting dots in a soft cluster. Hover: dots snap into a hex formation.
+ * Open: dots slide outward and the panel reveals items with a staggered fly-in.
+ */
+import { MENU_ITEMS } from './items';
+const id = 'particleconstellation';
+const panelId = `${id}-panel`;
+---
+<div class="pc-menu" data-menu-id={id}>
+  <button
+    type="button"
+    class="pc-trigger"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={panelId}
+    aria-label="Open menu — Particle Constellation"
+    title="Particle Constellation"
+  >
+    <span class="pc-num" aria-hidden="true">4</span>
+    <span class="pc-dot pc-dot-1" aria-hidden="true"></span>
+    <span class="pc-dot pc-dot-2" aria-hidden="true"></span>
+    <span class="pc-dot pc-dot-3" aria-hidden="true"></span>
+    <span class="pc-dot pc-dot-4" aria-hidden="true"></span>
+  </button>
+
+  <div class="pc-panel" id={panelId} role="menu" hidden>
+    {MENU_ITEMS.map((item, i) => (
+      <div class="pc-row" style={`--pc-i: ${i}`}>
+        <span class="pc-bullet" aria-hidden="true"></span>
+        {item.dataAction ? (
+          <button type="button" class="pc-item" role="menuitem" data-action={item.dataAction}>{item.label}</button>
+        ) : item.soon ? (
+          <span class="pc-item pc-item-soon" role="menuitem" aria-disabled="true">{item.label}<span class="pc-soon">SOON</span></span>
+        ) : (
+          <a class="pc-item" role="menuitem" href={item.href}>{item.label}</a>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .pc-menu { position: relative; }
+  .pc-trigger {
+    position: relative;
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 1px solid rgba(91, 194, 194, 0.25);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 250ms ease;
+  }
+  .pc-trigger:hover, .pc-trigger[aria-expanded="true"] { border-color: var(--accent-2); }
+  .pc-num {
+    position: absolute;
+    top: -2px; left: -2px;
+    width: 14px; height: 14px;
+    background: var(--bg-base);
+    border: 1px solid rgba(91, 194, 194, 0.3);
+    border-radius: 50%;
+    font-size: 8px;
+    line-height: 12px;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .pc-dot {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--accent-2);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent-2);
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Default drifting positions (animation orbits the center) */
+  .pc-dot-1 { top: 30%; left: 30%; animation: pc-drift-1 4s ease-in-out infinite; }
+  .pc-dot-2 { top: 30%; right: 30%; animation: pc-drift-2 4.4s ease-in-out infinite; }
+  .pc-dot-3 { bottom: 30%; left: 30%; animation: pc-drift-3 4.2s ease-in-out infinite; }
+  .pc-dot-4 { bottom: 30%; right: 30%; animation: pc-drift-4 4.6s ease-in-out infinite; }
+
+  @keyframes pc-drift-1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(2px, -3px); } }
+  @keyframes pc-drift-2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-2px, 2px); } }
+  @keyframes pc-drift-3 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(3px, 2px); } }
+  @keyframes pc-drift-4 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-2px, -3px); } }
+
+  /* On hover: lock dots into tight hex formation (closer to center) */
+  .pc-trigger:hover .pc-dot-1 { animation: none; transform: translate(2px, 2px); }
+  .pc-trigger:hover .pc-dot-2 { animation: none; transform: translate(-2px, 2px); }
+  .pc-trigger:hover .pc-dot-3 { animation: none; transform: translate(2px, -2px); }
+  .pc-trigger:hover .pc-dot-4 { animation: none; transform: translate(-2px, -2px); }
+
+  /* Open: dots fly outward to corners */
+  .pc-trigger[aria-expanded="true"] .pc-dot-1 { animation: none; transform: translate(-8px, -8px); opacity: 0.5; }
+  .pc-trigger[aria-expanded="true"] .pc-dot-2 { animation: none; transform: translate(8px, -8px); opacity: 0.5; }
+  .pc-trigger[aria-expanded="true"] .pc-dot-3 { animation: none; transform: translate(-8px, 8px); opacity: 0.5; }
+  .pc-trigger[aria-expanded="true"] .pc-dot-4 { animation: none; transform: translate(8px, 8px); opacity: 0.5; }
+
+  .pc-panel {
+    position: absolute;
+    top: calc(100% + 10px); right: 0;
+    width: 220px;
+    background: #1F2024;
+    border: 1px solid rgba(91, 194, 194, 0.35);
+    padding: 8px;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 14px 30px rgba(15, 14, 12, 0.55), 0 0 22px rgba(91, 194, 194, 0.25);
+    z-index: 50;
+  }
+  .pc-panel[hidden] { display: none; }
+  .pc-panel.pc-open { opacity: 1; transform: translateY(0); }
+
+  .pc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--pc-i) * 80ms + 120ms);
+  }
+  .pc-panel.pc-open .pc-row { opacity: 1; transform: translateX(0); }
+
+  .pc-bullet {
+    width: 5px; height: 5px;
+    background: var(--accent-2);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-2);
+    flex-shrink: 0;
+  }
+  .pc-item {
+    flex: 1;
+    display: block;
+    padding: 8px 10px;
+    color: var(--ink-primary);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .pc-item:hover, .pc-item:focus-visible { background: rgba(91, 194, 194, 0.12); color: var(--accent-2); outline: none; }
+  .pc-item-soon { color: var(--ink-muted); opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+  .pc-soon { float: right; font-size: 9px; color: var(--accent-2); letter-spacing: 0.18em; margin-top: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pc-dot, .pc-panel, .pc-row { transition: opacity 100ms ease; transform: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function(){
+    const root = document.querySelector('[data-menu-id="particleconstellation"]');
+    if (!root) return;
+    const trigger = root.querySelector('.pc-trigger');
+    const panel = root.querySelector('.pc-panel');
+    const items = root.querySelectorAll('.pc-item:not(.pc-item-soon)');
+    let openedAt = 0;
+
+    function open() {
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('pc-open'));
+      openedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('menu:opened', { detail: { id: 'particleconstellation' } }));
+      setTimeout(() => items[0]?.focus(), 440);
+    }
+    function close() {
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('pc-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 280);
+    }
+    trigger.addEventListener('click', () => {
+      trigger.getAttribute('aria-expanded') === 'true' ? close() : open();
+    });
+    document.addEventListener('click', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (Date.now() - openedAt < 200) return;
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') { close(); trigger.focus(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i + 1) % items.length]?.focus(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i - 1 + items.length) % items.length]?.focus(); }
+    });
+    window.addEventListener('menu:opened', (e) => {
+      if (e.detail?.id !== 'particleconstellation' && trigger.getAttribute('aria-expanded') === 'true') close();
+    });
+  })();
+</script>

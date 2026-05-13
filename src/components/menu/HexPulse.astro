@@ -1,0 +1,180 @@
+---
+/**
+ * Concept 1 — Hex Pulse
+ * Trigger: 3 nested hexagons. Idle = subtle outer-ring pulse.
+ * Open: outer hex rotates 30deg, panel scales in from top with a hex grid backdrop.
+ */
+import { MENU_ITEMS } from './items';
+const id = 'hexpulse';
+const panelId = `${id}-panel`;
+---
+<div class="hp-menu" data-menu-id={id}>
+  <button
+    type="button"
+    class="hp-trigger"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={panelId}
+    aria-label="Open menu — Hex Pulse"
+    title="Hex Pulse"
+  >
+    <span class="hp-num" aria-hidden="true">1</span>
+    <svg width="22" height="22" viewBox="0 0 40 40" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.3">
+        <polygon class="hp-hex hp-hex-3" points="20,4 33,12 33,28 20,36 7,28 7,12"/>
+        <polygon class="hp-hex hp-hex-2" points="20,9 29,14 29,26 20,31 11,26 11,14" opacity="0.7"/>
+        <polygon class="hp-hex hp-hex-1" points="20,14 25,17 25,23 20,26 15,23 15,17" opacity="0.5"/>
+      </g>
+    </svg>
+  </button>
+
+  <div class="hp-panel" id={panelId} role="menu" hidden>
+    <div class="hp-panel-grid" aria-hidden="true"></div>
+    {MENU_ITEMS.map((item) => (
+      item.dataAction ? (
+        <button type="button" class="hp-item" role="menuitem" data-action={item.dataAction}>{item.label}</button>
+      ) : item.soon ? (
+        <span class="hp-item hp-item-soon" role="menuitem" aria-disabled="true">{item.label}<span class="hp-soon">SOON</span></span>
+      ) : (
+        <a class="hp-item" role="menuitem" href={item.href}>{item.label}</a>
+      )
+    ))}
+  </div>
+</div>
+
+<style>
+  .hp-menu { position: relative; }
+  .hp-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--accent-2);
+    background: transparent;
+    border: 1px solid rgba(91, 194, 194, 0.30);
+    cursor: pointer;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    transition: border-color 250ms ease, color 250ms ease;
+  }
+  .hp-trigger:hover, .hp-trigger[aria-expanded="true"] { color: #fff; border-color: var(--accent-2); }
+  .hp-num {
+    position: absolute;
+    top: 2px; left: 4px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    opacity: 0.6;
+  }
+
+  .hp-hex { transform-origin: 20px 20px; transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .hp-hex-3 { animation: hp-pulse 3.6s ease-in-out infinite; }
+  @keyframes hp-pulse {
+    0%, 100% { stroke-opacity: 0.55; }
+    50%      { stroke-opacity: 1; }
+  }
+  .hp-trigger[aria-expanded="true"] .hp-hex-3 { transform: rotate(30deg); animation: none; }
+  .hp-trigger[aria-expanded="true"] .hp-hex-2 { transform: rotate(-15deg); }
+
+  .hp-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 220px;
+    background: #1F2024;
+    border: 1px solid rgba(91, 194, 194, 0.35);
+    padding: 8px;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: top right;
+    transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 14px 30px rgba(15, 14, 12, 0.55), 0 0 22px rgba(91, 194, 194, 0.25);
+    z-index: 50;
+  }
+  .hp-panel[hidden] { display: none; }
+  .hp-panel.hp-open { opacity: 1; transform: translateY(0) scale(1); }
+
+  .hp-panel-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='24' viewBox='0 0 28 24'><g fill='none' stroke='%235BC2C2' stroke-width='0.6'><polygon points='7,0 14,4 14,12 7,16 0,12 0,4'/><polygon points='21,12 28,16 28,24 21,28 14,24 14,16'/></g></svg>");
+  }
+
+  .hp-item {
+    position: relative;
+    display: block;
+    padding: 10px 14px;
+    color: var(--ink-primary);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .hp-item:hover, .hp-item:focus-visible { background: rgba(91, 194, 194, 0.12); color: var(--accent-2); outline: none; }
+  .hp-item-soon { color: var(--ink-muted); opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+  .hp-soon {
+    float: right;
+    font-size: 9px;
+    color: var(--accent-2);
+    letter-spacing: 0.18em;
+    margin-top: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hp-hex, .hp-panel { transition: opacity 100ms ease; transform: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function(){
+    const root = document.querySelector('[data-menu-id="hexpulse"]');
+    if (!root) return;
+    const trigger = root.querySelector('.hp-trigger');
+    const panel = root.querySelector('.hp-panel');
+    const items = root.querySelectorAll('.hp-item:not(.hp-item-soon)');
+    let openedAt = 0;
+
+    function open() {
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('hp-open'));
+      openedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('menu:opened', { detail: { id: 'hexpulse' } }));
+      setTimeout(() => items[0]?.focus(), 280);
+    }
+    function close() {
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('hp-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 280);
+    }
+    function toggle() {
+      trigger.getAttribute('aria-expanded') === 'true' ? close() : open();
+    }
+    trigger.addEventListener('click', toggle);
+    document.addEventListener('click', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (Date.now() - openedAt < 200) return;
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') { close(); trigger.focus(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i + 1) % items.length]?.focus(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i - 1 + items.length) % items.length]?.focus(); }
+    });
+    window.addEventListener('menu:opened', (e) => {
+      if (e.detail?.id !== 'hexpulse' && trigger.getAttribute('aria-expanded') === 'true') close();
+    });
+  })();
+</script>

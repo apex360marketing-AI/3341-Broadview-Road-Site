@@ -1,0 +1,187 @@
+---
+/**
+ * Concept 3 — Honeycomb Bloom
+ * Trigger: single hex cell with slow inner-glow breathing.
+ * Open: cell scales + rotates slightly. Panel items each sit in a hex-outlined chip.
+ */
+import { MENU_ITEMS } from './items';
+const id = 'honeycombbloom';
+const panelId = `${id}-panel`;
+---
+<div class="hb-menu" data-menu-id={id}>
+  <button
+    type="button"
+    class="hb-trigger"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={panelId}
+    aria-label="Open menu — Honeycomb Bloom"
+    title="Honeycomb Bloom"
+  >
+    <span class="hb-num" aria-hidden="true">3</span>
+    <span class="hb-cell" aria-hidden="true"></span>
+  </button>
+
+  <div class="hb-panel" id={panelId} role="menu" hidden>
+    {MENU_ITEMS.map((item, i) => (
+      <div class="hb-chip" style={`--hb-i: ${i}`}>
+        {item.dataAction ? (
+          <button type="button" class="hb-item" role="menuitem" data-action={item.dataAction}>{item.label}</button>
+        ) : item.soon ? (
+          <span class="hb-item hb-item-soon" role="menuitem" aria-disabled="true">{item.label}<span class="hb-soon">SOON</span></span>
+        ) : (
+          <a class="hb-item" role="menuitem" href={item.href}>{item.label}</a>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .hb-menu { position: relative; }
+  .hb-trigger {
+    position: relative;
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .hb-num {
+    position: absolute;
+    top: 2px; left: 4px;
+    font-size: 9px;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    z-index: 2;
+  }
+  .hb-cell {
+    width: 32px; height: 32px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: linear-gradient(135deg, rgba(91, 194, 194, 0.18), rgba(91, 194, 194, 0.35));
+    box-shadow: inset 0 0 0 1.2px var(--accent-2), 0 0 16px rgba(91, 194, 194, 0.35);
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 600ms ease, filter 600ms ease;
+    animation: hb-breathe 3.4s ease-in-out infinite;
+  }
+  @keyframes hb-breathe {
+    0%, 100% { filter: brightness(0.9); }
+    50%      { filter: brightness(1.25); }
+  }
+  .hb-trigger:hover .hb-cell { transform: rotate(30deg) scale(1.08); }
+  .hb-trigger[aria-expanded="true"] .hb-cell {
+    transform: rotate(180deg) scale(0.7);
+    box-shadow: inset 0 0 0 1.2px var(--accent-2), 0 0 28px rgba(91, 194, 194, 0.55);
+    animation: none;
+  }
+
+  .hb-panel {
+    position: absolute;
+    top: calc(100% + 10px); right: 0;
+    width: 230px;
+    padding: 6px;
+    display: grid;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.9) translateY(-8px);
+    transform-origin: top right;
+    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 50;
+  }
+  .hb-panel[hidden] { display: none; }
+  .hb-panel.hb-open { opacity: 1; transform: scale(1) translateY(0); }
+
+  .hb-chip {
+    position: relative;
+    background: #1F2024;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    transition: background 200ms ease;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--hb-i) * 60ms + 120ms);
+  }
+  .hb-chip::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: #1F2024;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    z-index: 0;
+  }
+  .hb-chip {
+    background: linear-gradient(135deg, rgba(91, 194, 194, 0.6), rgba(91, 194, 194, 0.2));
+  }
+  .hb-panel.hb-open .hb-chip { opacity: 1; transform: scale(1); }
+
+  .hb-item {
+    position: relative;
+    z-index: 1;
+    display: block;
+    padding: 12px 22px;
+    color: var(--ink-primary);
+    background: transparent;
+    border: 0;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+  .hb-item:hover, .hb-item:focus-visible { color: var(--accent-2); outline: none; }
+  .hb-item-soon { color: var(--ink-muted); opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+  .hb-soon { display: block; font-size: 8px; color: var(--accent-2); letter-spacing: 0.2em; margin-top: 2px; opacity: 0.7; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hb-cell, .hb-panel, .hb-chip { transition: opacity 100ms ease; transform: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function(){
+    const root = document.querySelector('[data-menu-id="honeycombbloom"]');
+    if (!root) return;
+    const trigger = root.querySelector('.hb-trigger');
+    const panel = root.querySelector('.hb-panel');
+    const items = root.querySelectorAll('.hb-item:not(.hb-item-soon)');
+    let openedAt = 0;
+
+    function open() {
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('hb-open'));
+      openedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('menu:opened', { detail: { id: 'honeycombbloom' } }));
+      setTimeout(() => items[0]?.focus(), 480);
+    }
+    function close() {
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('hb-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 320);
+    }
+    trigger.addEventListener('click', () => {
+      trigger.getAttribute('aria-expanded') === 'true' ? close() : open();
+    });
+    document.addEventListener('click', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (Date.now() - openedAt < 200) return;
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') { close(); trigger.focus(); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i + 1) % items.length]?.focus(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); const i = Array.from(items).indexOf(document.activeElement); items[(i - 1 + items.length) % items.length]?.focus(); }
+    });
+    window.addEventListener('menu:opened', (e) => {
+      if (e.detail?.id !== 'honeycombbloom' && trigger.getAttribute('aria-expanded') === 'true') close();
+    });
+  })();
+</script>
