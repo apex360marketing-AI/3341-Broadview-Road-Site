@@ -12,4 +12,4 @@ lastUpdated: '2026-05-12'
 - **Pool safety:** the pool is not lifeguarded. Children must be supervised at all times by a responsible adult. Use at your own risk.
 - **Wood-burning fireplace** is for ambience and warmth — please use the supplied wood and follow the posted instructions. Fully extinguish before leaving the property or going to bed.
 - **Trash & recycling:** bins are in the side yard. Please separate per the posted guide.
-- **Treat the home as you would your own.** Damage will be assessed against the security deposit.
+- **Treat the home as you would your own.** Damage will be assessed and charged to the card on file if any issue is found during check-out inspection. Documented photographs will be provided for any damage claim.

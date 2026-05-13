@@ -89,6 +89,8 @@ Operators who want to lock off the entire house and offer all 7 bedrooms can ove
 - **Sample reviews ship with a visible "Sample data" badge** until `REVIEWS_ARE_REAL` is set to `true`.
 - **No AI-generated faces.** `HOST_PHOTO_URL` empty → component renders a typographic monogram avatar.
 - **Photos EXIF-stripped at build time** so GPS in metadata can't reveal exact address.
+- **Card data is Stripe SAQ-A scope.** Stripe Elements (iframe) on /pay; PAN/CVC never touches Valora origin or logs.
+- **Booking PII flow:** browser → Worker → GHL. Worker logs status + booking_id + duration only — never request bodies.
 
 Full audit findings are in the conversation history under "Trust Audit Punch List" (Stage 2). Do not reverse any of them without re-running `safety-consent-trust-auditor`.
 
@@ -134,12 +136,50 @@ npm run preview           # serve /dist locally
 
 ---
 
-## Out of scope (won't ship in v1)
+## Out of scope (won't ship in v1.x)
 
-- Real availability calendar / payment processing (booking is lead-capture only)
 - CMS / admin UI / multi-listing dashboard
 - Dynamic / seasonal pricing engine
 - i18n / multi-language
 - Mobile native app
-- Backend, database, auth (other than the small Worker for the live feed)
+- Backend database / auth beyond the Worker
 - Analytics / cookies / consent banner (default off)
+
+## v1.1 scope additions (lifted from out-of-scope)
+
+- **Real availability calendar** — Worker hits the host's GHL Calendar
+  API server-side; site never sees GHL. KV-cached 5 min. Graceful
+  degraded mode when GHL is unreachable.
+- **Payment processing — auth-hold** — Stripe Elements on /pay
+  collects card; Worker creates a manual-capture PaymentIntent. Card
+  data NEVER touches Valora's origin (PCI SAQ-A scope preserved).
+  Default deposit: one night ($595 CAD), released 7 days after the
+  host fails to confirm.
+
+## v1.1 CSP trade-off (intentional)
+
+The strict `default-src 'self'` posture is weakened on **/pay only**
+to allow Stripe Elements:
+  - `script-src + https://js.stripe.com`
+  - `frame-src + https://js.stripe.com https://hooks.stripe.com`
+  - `connect-src + https://api.stripe.com https://m.stripe.network +
+    BOOKING_API_URL`
+  - `img-src + https://*.stripe.com`
+
+Other pages add only the Worker URL to `connect-src` (for /availability
+and /book calls). This is the cost of payment processing — accepted.
+
+## Follow-ups after v1.1
+
+Items that were scoped out of v1.1 by mutual agreement; revisit at v1.2:
+
+- **R7** — Enable Stripe Radar (fraud) on the Stripe account.
+  Dashboard task, not code.
+- **R8** — 6-day host-reminder workflow for expiring auth-holds.
+  Lives in the GHL workflow side, not code.
+- **R10** — "Powered by Stripe" badge on /pay (trust signal).
+- **Mobile menu** — the 5-menu chooser bar in Nav is desktop-only.
+  After a winning concept is picked, build the matching mobile menu.
+- **Test cleanup** — pre-existing `haversine.test.ts:49` and
+  `normalize.test.ts:127` failures predate v1.1 (category enum
+  change, rounding-mode change). Triage in a follow-up.
