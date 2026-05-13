@@ -61,7 +61,6 @@ function formatDist(mi: number) {
               >
                 <span class="nb-base" aria-hidden="true"></span>
                 <span class="nb-glow" aria-hidden="true"></span>
-                <span class="nb-shimmer" aria-hidden="true"></span>
                 <span class="relative z-10 block">
                   <span class="flex items-center justify-between gap-3 mb-3">
                     <span class="flex items-center gap-2.5 text-[var(--accent-2)]">
@@ -105,8 +104,7 @@ function formatDist(mi: number) {
     filter: drop-shadow(0 6px 14px rgba(15, 14, 12, 0.30));
   }
   .nb-base,
-  .nb-glow,
-  .nb-shimmer {
+  .nb-glow {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -131,12 +129,6 @@ function formatDist(mi: number) {
     opacity: 0;
     transition: opacity 400ms ease;
   }
-  .nb-shimmer {
-    z-index: 2;
-    background: linear-gradient(110deg, transparent 30%, rgba(91, 194, 194, 0.22) 50%, transparent 70%);
-    transform: translateX(-110%);
-    transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
 
   .nb-card:hover {
     transform: translateY(-2px);
@@ -150,13 +142,11 @@ function formatDist(mi: number) {
     box-shadow: inset 0 0 0 1.4px #5BC2C2;
   }
   .nb-card:hover .nb-glow { opacity: 1; }
-  .nb-card:hover .nb-shimmer { transform: translateX(210%); }
 
   @media (prefers-reduced-motion: reduce) {
-    .nb-card, .nb-base, .nb-glow, .nb-shimmer {
+    .nb-card, .nb-base, .nb-glow {
       transition-duration: 0.01ms !important;
     }
-    .nb-shimmer { display: none; }
   }
 </style>
 

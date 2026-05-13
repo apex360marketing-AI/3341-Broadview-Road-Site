@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { tokens } from '../lib/tokens';
 import Nav from '../components/Nav.astro';
+import Honeycomb from '../components/Honeycomb.astro';
 import NearbyGrid from '../components/area/NearbyGrid.astro';
 import OnTheRadar from '../components/area/OnTheRadar.astro';
 import Footer from '../components/Footer.astro';
@@ -25,12 +26,20 @@ import ScrollDirection from '../components/ScrollDirection.astro';
   <body class="bg-bg-base text-ink-primary font-sans">
     <Nav />
 
-    <main class="pt-24 md:pt-28">
+    <main class="pt-24 md:pt-28 relative">
+      <!-- Page-level honeycomb parallax layer — fixed wrapper holds an inner
+           layer that drifts slowly on scroll. Sits behind everything. -->
+      <div class="area-bg-layer" aria-hidden="true">
+        <div class="area-bg-inner">
+          <Honeycomb unique="area-bg" opacity={0.05} />
+        </div>
+      </div>
+
       <!-- Area page hero — compact intro, sets the tone -->
-      <section class="py-14 md:py-20">
+      <section class="py-14 md:py-20 relative">
         <div class="max-w-3xl mx-auto px-[var(--gutter)] text-center">
-          <p class="text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-7 opacity-80">The Area</p>
-          <h1 class="text-5xl md:text-7xl font-light leading-[1.02] mb-7 tracking-[0.02em]">
+          <p class="area-header-parallax text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-7 opacity-80">The Area</p>
+          <h1 class="area-header-parallax text-5xl md:text-7xl font-light leading-[1.02] mb-7 tracking-[0.02em]">
             More than <span class="italic text-[var(--accent-2)]">a stay.</span>
           </h1>
           <p class="text-ink-muted text-lg md:text-2xl font-serif italic leading-relaxed">
@@ -39,8 +48,8 @@ import ScrollDirection from '../components/ScrollDirection.astro';
         </div>
       </section>
 
-      <div class="reveal"><OnTheRadar /></div>
-      <div class="reveal"><NearbyGrid /></div>
+      <OnTheRadar />
+      <NearbyGrid />
     </main>
 
     <Footer />
@@ -48,21 +57,80 @@ import ScrollDirection from '../components/ScrollDirection.astro';
     <StickyBookBar />
     <ScrollDirection />
 
+    <style>
+      /* Page-level honeycomb parallax layer. The fixed wrapper clips to the
+         viewport; the inner layer is taller than the viewport and translates
+         vertically on scroll, giving the pattern a slow drift behind content.
+         Pointer-events disabled so it never intercepts clicks. */
+      .area-bg-layer {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .area-bg-inner {
+        position: absolute;
+        top: -20%;
+        left: 0;
+        right: 0;
+        bottom: -20%;
+        will-change: transform;
+      }
+
+      /* Section-header parallax — script sets --parallax-y based on each
+         element's distance from viewport center. ±18px max, GPU-accelerated. */
+      .area-header-parallax {
+        transform: translate3d(0, var(--parallax-y, 0px), 0);
+        will-change: transform;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .area-bg-inner,
+        .area-header-parallax {
+          transform: none !important;
+          will-change: auto;
+        }
+      }
+    </style>
+
     <script>
-      // Reveal-on-scroll matching the listing page
+      // Layered parallax: background honeycomb drifts slowly, section headers
+      // translate as they cross viewport center. rAF-throttled, reduced-motion
+      // honored. No entry-reveal animation — cards appear immediately on load.
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!reduced && 'IntersectionObserver' in window) {
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('revealed');
-              io.unobserve(entry.target);
-            }
+      if (!reduced) {
+        const bgInner = document.querySelector<HTMLElement>('.area-bg-inner');
+        const headers = Array.from(
+          document.querySelectorAll<HTMLElement>('.area-header-parallax')
+        );
+        let rafId: number | null = null;
+
+        const update = () => {
+          const y = window.scrollY;
+          const vh = window.innerHeight;
+
+          if (bgInner) {
+            bgInner.style.transform = `translate3d(0, ${y * 0.25}px, 0)`;
+          }
+
+          headers.forEach((el) => {
+            const rect = el.getBoundingClientRect();
+            const center = rect.top + rect.height / 2;
+            const dist = center - vh / 2;
+            if (Math.abs(dist) > vh * 1.2) return;
+            const offset = -(dist / vh) * 18;
+            el.style.setProperty('--parallax-y', `${offset}px`);
           });
-        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
-      } else {
-        document.querySelectorAll('.reveal').forEach((el) => el.classList.add('revealed'));
+        };
+
+        const onScroll = () => {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
       }
     </script>
   </body>
