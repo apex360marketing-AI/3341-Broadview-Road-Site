@@ -38,6 +38,13 @@ export interface Env {
   RADIUS_KM: string;
   LISTING_LAT: string;
   LISTING_LNG: string;
+
+  // Booking-flow config (added v1.1)
+  GHL_API_KEY?: string;
+  GHL_CALENDAR_ID?: string;
+  GHL_LOCATION_ID?: string;
+  STRIPE_SECRET_KEY?: string;
+  BOOKING_ALLOWED_ORIGIN?: string;
 }
 
 export type ProviderStatus = "ok" | "fail" | "stub";

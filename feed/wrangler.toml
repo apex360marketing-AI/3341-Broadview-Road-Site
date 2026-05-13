@@ -14,9 +14,26 @@ id = "REPLACE_AFTER_CREATE"
 crons = ["0 0,6,12,18 * * *"]
 
 # Non-secret vars. Listing coords + radius live here so they can be tweaked
-# without a code change. Secrets (API tokens, REFRESH_KEY) are set via
-# `wrangler secret put` and never committed.
+# without a code change. Secrets (API tokens, REFRESH_KEY, GHL_API_KEY,
+# STRIPE_SECRET_KEY) are set via `wrangler secret put` and never committed.
+#
+# Required secrets (run `wrangler secret put <NAME>`):
+#   REFRESH_KEY           — auth for POST /refresh (existing)
+#   GHL_API_KEY           — Private Integration key with calendars.read +
+#                           calendars/events.write + contacts.write scopes
+#   STRIPE_SECRET_KEY     — Stripe secret key (sk_test_... or sk_live_...)
+#
+# Optional secrets (provider keys for the events feed):
+#   EVENTBRITE_TOKEN, PREDICTHQ_TOKEN, TICKETMASTER_API_KEY,
+#   FEED_MANUAL_OVERRIDE
 [vars]
 RADIUS_KM = "30"
 LISTING_LAT = "49.8344"
 LISTING_LNG = "-119.6217"
+
+# Booking-flow vars — set per-listing before deploy.
+# BOOKING_ALLOWED_ORIGIN must EXACTLY match the production site origin
+# (no trailing slash). For local dev append additional origins comma-separated.
+GHL_CALENDAR_ID = ""
+GHL_LOCATION_ID = ""
+BOOKING_ALLOWED_ORIGIN = ""

@@ -1,10 +1,18 @@
 /**
  * Worker entry point.
  *
- * Routes:
- *   GET  /feed     — public, CORS *, browser-cached for 15 min
- *   GET  /health   — public, ops/monitoring
- *   POST /refresh  — X-Refresh-Key header auth + per-IP rate-limited (6/hour)
+ * Public routes (CORS `*`):
+ *   GET  /feed      — events aggregation, browser-cached 15 min
+ *   GET  /health    — ops / monitoring
+ *
+ * Operator route (X-Refresh-Key header auth + per-IP rate-limited):
+ *   POST /refresh   — re-aggregate event providers
+ *
+ * Booking routes (Origin-allowlisted via BOOKING_ALLOWED_ORIGIN):
+ *   GET  /availability
+ *   POST /book
+ *   GET  /booking/:id
+ *   POST /booking/:id/secure
  *
  * Plus a cron trigger (00/06/12/18 UTC, see wrangler.toml) that runs refresh().
  */
@@ -12,6 +20,13 @@ import { refresh, readCachedFeed, type Env } from "./refresh";
 import { checkRefreshKey } from "./auth";
 import { checkRateLimit } from "./ratelimit";
 import { SCHEMA_VERSION, type FeedPayload } from "./schema";
+import { checkOrigin } from "./booking/origin";
+import {
+  handleAvailability,
+  handleBook,
+  handleGetBooking,
+  handleSecure
+} from "./booking/handlers";
 
 const COLD_START_BUDGET_MS = 3_000;
 
@@ -21,6 +36,8 @@ const CORS_HEADERS: HeadersInit = {
   "Access-Control-Allow-Headers": "X-Refresh-Key, Content-Type",
   "Access-Control-Max-Age": "86400",
 };
+
+const BOOKING_PATH_PREFIX = /^\/(availability|book|booking)(\/|$)/;
 
 /** Status header values explained:
  *   ok      — fresh data (refreshed within the last 12h)
@@ -36,12 +53,56 @@ function pickFeedStatus(payload: FeedPayload | null): "ok" | "stale" | "cold" {
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
+    const isBookingPath = BOOKING_PATH_PREFIX.test(url.pathname);
 
+    // CORS preflight — booking endpoints need Origin-tuned headers
     if (req.method === "OPTIONS") {
+      if (isBookingPath) {
+        const origin = checkOrigin(req, env.BOOKING_ALLOWED_ORIGIN);
+        if (!origin.ok) {
+          return new Response(null, { status: 403, headers: origin.cors });
+        }
+        return new Response(null, { status: 204, headers: origin.cors });
+      }
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
     try {
+      // ===== Booking routes (Origin-allowlisted) =====
+      if (isBookingPath) {
+        const origin = checkOrigin(req, env.BOOKING_ALLOWED_ORIGIN);
+        if (!origin.ok) {
+          return new Response(
+            JSON.stringify({ error: "forbidden", reason: origin.reason }),
+            { status: 403, headers: { ...origin.cors, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (url.pathname === "/availability" && req.method === "GET") {
+          return await handleAvailability(req, env, origin);
+        }
+        if (url.pathname === "/book" && req.method === "POST") {
+          return await handleBook(req, env, origin);
+        }
+
+        const bookingMatch = url.pathname.match(/^\/booking\/([A-Za-z0-9-]{8,64})(\/secure)?$/);
+        if (bookingMatch) {
+          const bookingId = bookingMatch[1];
+          if (bookingMatch[2] === "/secure" && req.method === "POST") {
+            return await handleSecure(req, env, origin, bookingId);
+          }
+          if (!bookingMatch[2] && req.method === "GET") {
+            return await handleGetBooking(req, env, origin, bookingId);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ error: "method_not_allowed" }),
+          { status: 405, headers: { ...origin.cors, "Content-Type": "application/json" } }
+        );
+      }
+
+      // ===== Public + operator routes =====
       if (url.pathname === "/feed" && req.method === "GET") {
         return await handleFeed(env);
       }
