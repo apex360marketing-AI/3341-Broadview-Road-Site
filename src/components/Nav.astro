@@ -51,64 +51,17 @@ import { tokens } from '../lib/tokens';
   </div>
 
   <style>
-    /* VALORA brand-mark — silver/chrome sweep on hover. The "thin teal line"
-       is a -webkit-text-stroke that traces the EXACT outline of each letter
-       (not a baseline underline). The lime halo (#C0FF00) is a tight
-       drop-shadow that hugs each letter shape. */
+    /* VALORA brand-mark — locked at the previous hover state: transparent fill
+       with a 0.7px teal stroke tracing each letter's outline. No hover change. */
     .brand-text {
       color: var(--ink-primary);
-      background: linear-gradient(120deg,
-        #C8CBD0 0%,
-        #F4F6F8 18%,
-        #8A95A1 32%,
-        #EDE6D6 48%,
-        #5BC2C2 62%,
-        #8A95A1 78%,
-        #C8CBD0 100%);
-      background-size: 250% 100%;
-      background-position: 100% 50%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: var(--ink-primary);
-      -webkit-text-stroke: 0 transparent;
-      transition:
-        letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1),
-        background-position 900ms cubic-bezier(0.16, 1, 0.3, 1),
-        filter 450ms cubic-bezier(0.16, 1, 0.3, 1),
-        -webkit-text-fill-color 350ms ease,
-        -webkit-text-stroke-color 350ms ease,
-        -webkit-text-stroke-width 350ms ease;
-      filter: drop-shadow(0 0 0 transparent);
-    }
-    .brand-link:hover .brand-text {
-      letter-spacing: 0.085em;
-      background-position: 0% 50%;
       -webkit-text-fill-color: transparent;
-      /* Thin teal line traced around each letter's outline. No halo. */
       -webkit-text-stroke: 0.7px var(--accent-2);
     }
 
-    /* Compass dial — paired with VALORA. Cream at rest (matches VALORA's
-       resting fill), teal on hover (matches VALORA's chrome sweep terminus),
-       same lime halo. Hovering EITHER element fires both because they share
-       the .brand-link parent. */
+    /* Compass dial — paired with VALORA. Static teal, locked (no hover change). */
     .brand-link svg {
-      color: #C0FF00;
-      transition: color 450ms cubic-bezier(0.16, 1, 0.3, 1),
-                  filter 450ms cubic-bezier(0.16, 1, 0.3, 1);
-      filter: drop-shadow(0 0 0 transparent);
-    }
-    .brand-link:hover svg {
-      color: #FFFFFF;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .brand-text {
-        transition: -webkit-text-fill-color 200ms ease, -webkit-text-stroke-color 200ms ease;
-        background: none;
-      }
-      .brand-link:hover .brand-text {
-        -webkit-text-fill-color: var(--accent-2);
-      }
+      color: var(--accent-2);
     }
   </style>
 </nav>
