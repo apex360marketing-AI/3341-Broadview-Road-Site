@@ -1,0 +1,167 @@
+---
+/*
+ * BookingRow — one octagonal row card per booking. Modeled on the public
+ * QuickFacts card (cream outline at rest → teal outline + dark grey fill +
+ * shimmer on hover) so the dashboard reads as the same brand family.
+ *
+ * Server-rendered as an empty shell; the list view in dashboard.astro
+ * populates it client-side after fetching /bookings.
+ */
+import StatusBadge from './StatusBadge.astro';
+---
+<!--
+  Template row — `display: none` until cloned into the live list.
+  Each .booking-row carries the booking_id in data-id; the dashboard script
+  fills the text content and status badge from the API response.
+-->
+<template id="booking-row-template">
+  <li class="booking-row relative" data-id="">
+    <button type="button" class="bw-card text-left w-full">
+      <span class="bw-base" aria-hidden="true"></span>
+      <span class="bw-glow" aria-hidden="true"></span>
+      <span class="bw-shimmer" aria-hidden="true"></span>
+      <span class="bw-content">
+        <span class="bw-main">
+          <span class="bw-name" data-field="name">—</span>
+          <span class="bw-meta">
+            <span data-field="dates">—</span>
+            <span class="bw-sep">·</span>
+            <span data-field="guests">— guests</span>
+            <span class="bw-sep">·</span>
+            <span data-field="nights">— nights</span>
+          </span>
+        </span>
+        <span class="bw-side">
+          <span class="bw-deposit" data-field="deposit">—</span>
+          <span class="bw-badge"><StatusBadge status="pending" /></span>
+        </span>
+      </span>
+    </button>
+  </li>
+</template>
+
+<style>
+  .bw-card {
+    --mx: 50%;
+    --my: 50%;
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 96px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    isolation: isolate;
+    transition:
+      letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 6px 16px rgba(15, 14, 12, 0.30));
+  }
+  .bw-base,
+  .bw-glow,
+  .bw-shimmer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    clip-path: polygon(
+      14px 0, calc(100% - 14px) 0,
+      100% 14px, 100% calc(100% - 14px),
+      calc(100% - 14px) 100%, 14px 100%,
+      0 calc(100% - 14px), 0 14px
+    );
+  }
+  .bw-base {
+    z-index: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1.2px rgba(237, 230, 214, 0.45);
+    transition:
+      background-color 350ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bw-glow {
+    z-index: 1;
+    background: radial-gradient(280px circle at var(--mx) var(--my), #5BC2C2 0%, transparent 62%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bw-shimmer {
+    z-index: 2;
+    background: linear-gradient(110deg, transparent 30%, rgba(91, 194, 194, 0.22) 50%, transparent 70%);
+    transform: translateX(-110%);
+    transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bw-content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    pointer-events: none;
+  }
+  .bw-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+  .bw-name {
+    color: var(--ink-primary);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bw-meta {
+    color: var(--ink-muted);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bw-sep { color: var(--ink-faint); }
+  .bw-side {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .bw-deposit {
+    color: var(--ink-primary);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .bw-card:hover {
+    filter:
+      drop-shadow(0 12px 24px rgba(15, 14, 12, 0.45))
+      drop-shadow(0 0 22px rgba(91, 194, 194, 0.40));
+  }
+  .bw-card:hover .bw-base {
+    background: #1F2024;
+    box-shadow: inset 0 0 0 1.4px #5BC2C2;
+  }
+  .bw-card:hover .bw-glow { opacity: 1; }
+  .bw-card:hover .bw-shimmer { transform: translateX(210%); }
+  .bw-card:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bw-card, .bw-base, .bw-glow, .bw-shimmer {
+      transition-duration: 0.01ms !important;
+    }
+    .bw-shimmer { display: none; }
+  }
+</style>

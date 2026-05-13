@@ -1,0 +1,294 @@
+---
+/*
+ * Owner portal — main dashboard. Renders the list shell + detail modal;
+ * a single client-side script handles tab switching, fetching, rendering,
+ * and click → open-detail.
+ *
+ * Phase 1 is intentionally READ-ONLY. The detail drawer reserves an action
+ * slot for Phase 2 (Confirm / Decline) but does not render the buttons yet.
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+import OwnerNav from '../components/OwnerNav.astro';
+import OwnerFooter from '../components/OwnerFooter.astro';
+import BookingsList from '../components/BookingsList.astro';
+import BookingDetail from '../components/BookingDetail.astro';
+
+const apiOrigin = (() => {
+  try {
+    return new URL(tokens.OWNER_API_URL).origin;
+  } catch {
+    return '';
+  }
+})();
+const connectSrc = ["'self'", apiOrigin].filter(Boolean).join(' ');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src ${connectSrc}; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'`} />
+    <title>{tokens.LISTING_NAME} — Owner dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <OwnerNav />
+
+    <main class="pt-24 md:pt-28">
+      <header class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] pt-4 pb-2">
+        <p class="text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-2 opacity-80">Bookings</p>
+        <h1 class="text-3xl md:text-5xl font-light leading-[1.05]">
+          What's <span class="italic text-[var(--accent-2)]">on the books.</span>
+        </h1>
+      </header>
+
+      <BookingsList />
+    </main>
+
+    <BookingDetail />
+    <OwnerFooter />
+
+    <script is:inline define:vars={{ apiUrl: tokens.OWNER_API_URL }}>
+      // @ts-nocheck
+      (function () {
+        const KEY = 'owner-portal:key';
+        const stored = sessionStorage.getItem(KEY);
+        if (!stored) {
+          location.replace('/');
+          return;
+        }
+        if (!/^https?:\/\//i.test(apiUrl)) {
+          document.getElementById('list-loading')?.classList.add('hidden');
+          const err = document.getElementById('list-error');
+          if (err) {
+            err.classList.remove('hidden');
+            err.firstChild && (err.firstChild.textContent = 'Portal API URL is not configured. ');
+          }
+          return;
+        }
+
+        const base = apiUrl.replace(/\/+$/, '');
+        const headers = { 'X-Admin-Key': stored, 'Accept': 'application/json' };
+
+        const tabsEl = document.querySelectorAll('[data-status]');
+        const loadingEl = document.getElementById('list-loading');
+        const emptyEl = document.getElementById('list-empty');
+        const errorEl = document.getElementById('list-error');
+        const rowsEl = document.getElementById('list-rows');
+        const countEl = document.getElementById('list-count');
+        const truncatedEl = document.getElementById('list-truncated');
+        const retryBtn = document.getElementById('list-retry');
+        const rowTpl = document.getElementById('booking-row-template');
+
+        const detailModal = document.getElementById('detail-modal');
+        const detailClose = document.getElementById('detail-close');
+
+        let currentStatus = 'pending';
+        let lastFocus = null;
+
+        function setActiveTab(status) {
+          currentStatus = status;
+          tabsEl.forEach((t) => {
+            const active = t.getAttribute('data-status') === status;
+            t.classList.toggle('tab-active', active);
+            t.setAttribute('aria-selected', String(active));
+          });
+        }
+
+        function showState(state) {
+          loadingEl?.classList.toggle('hidden', state !== 'loading');
+          emptyEl?.classList.toggle('hidden', state !== 'empty');
+          errorEl?.classList.toggle('hidden', state !== 'error');
+          rowsEl?.classList.toggle('hidden', state !== 'list');
+        }
+
+        function fmtDate(iso) {
+          if (!iso) return '—';
+          try {
+            return new Date(iso + 'T00:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+          } catch {
+            return iso;
+          }
+        }
+
+        function fmtMoney(cents, currency) {
+          if (typeof cents !== 'number') return '—';
+          const dollars = cents / 100;
+          return new Intl.NumberFormat('en-CA', {
+            style: 'currency',
+            currency: currency || 'CAD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(dollars);
+        }
+
+        function renderRows(bookings) {
+          if (!rowsEl || !rowTpl) return;
+          rowsEl.innerHTML = '';
+          bookings.forEach((b) => {
+            const frag = rowTpl.content.cloneNode(true);
+            const li = frag.querySelector('.booking-row');
+            li.setAttribute('data-id', b.booking_id);
+            li.querySelector('[data-field="name"]').textContent = b.name || '—';
+            li.querySelector('[data-field="dates"]').textContent =
+              `${fmtDate(b.checkin)} → ${fmtDate(b.checkout)}`;
+            li.querySelector('[data-field="guests"]').textContent =
+              `${b.guests} guest${b.guests === 1 ? '' : 's'}`;
+            li.querySelector('[data-field="nights"]').textContent =
+              `${b.nights} night${b.nights === 1 ? '' : 's'}`;
+            li.querySelector('[data-field="deposit"]').textContent =
+              fmtMoney(b.deposit_amount, b.currency);
+
+            // Status badge swap — the template ships a 'pending' badge; we
+            // replace it if the row's actual status differs.
+            const badgeWrap = li.querySelector('.bw-badge');
+            const actualBadge = makeBadge(b.status);
+            if (badgeWrap && actualBadge) badgeWrap.replaceChildren(actualBadge);
+
+            li.querySelector('button').addEventListener('click', () => openDetail(b.booking_id));
+            rowsEl.appendChild(frag);
+          });
+        }
+
+        // Build a status badge in JS so we don't have to ship 3 hidden DOM
+        // copies — but we need to stay style-compatible with StatusBadge.astro.
+        function makeBadge(status) {
+          const label = status === 'pending' ? 'Pending'
+            : status === 'secured' ? 'Secured'
+            : status === 'expired' ? 'Expired'
+            : status;
+          const span = document.createElement('span');
+          span.className = `status-badge status-${status}`;
+          span.setAttribute('data-status', status);
+          const base = document.createElement('span');
+          base.className = 'sb-base';
+          base.setAttribute('aria-hidden', 'true');
+          const lbl = document.createElement('span');
+          lbl.className = 'sb-label';
+          lbl.textContent = label;
+          span.append(base, lbl);
+          return span;
+        }
+
+        async function load(status) {
+          showState('loading');
+          try {
+            const r = await fetch(`${base}/bookings?status=${encodeURIComponent(status)}`, { headers });
+            if (r.status === 401) {
+              sessionStorage.removeItem(KEY);
+              location.replace('/');
+              return;
+            }
+            if (!r.ok) throw new Error('http_' + r.status);
+            const body = await r.json();
+            const bookings = Array.isArray(body.bookings) ? body.bookings : [];
+            if (countEl) countEl.textContent = `${bookings.length} record${bookings.length === 1 ? '' : 's'}`;
+            if (truncatedEl) truncatedEl.classList.toggle('hidden', !body.truncated);
+            if (bookings.length === 0) {
+              showState('empty');
+              return;
+            }
+            renderRows(bookings);
+            showState('list');
+          } catch (e) {
+            showState('error');
+          }
+        }
+
+        tabsEl.forEach((t) => {
+          t.addEventListener('click', () => {
+            const status = t.getAttribute('data-status');
+            if (status === currentStatus) return;
+            setActiveTab(status);
+            load(status);
+          });
+        });
+        retryBtn?.addEventListener('click', () => load(currentStatus));
+
+        // ===== Detail modal =====
+        async function openDetail(id) {
+          if (!detailModal) return;
+          lastFocus = document.activeElement;
+          detailModal.classList.remove('hidden');
+          detailModal.classList.add('flex');
+          document.body.style.overflow = 'hidden';
+          // Reset all fields to em-dash while loading
+          detailModal.querySelectorAll('[data-field]').forEach((el) => { el.textContent = '…'; });
+          try {
+            const r = await fetch(`${base}/bookings/${encodeURIComponent(id)}`, { headers });
+            if (r.status === 401) {
+              sessionStorage.removeItem(KEY);
+              location.replace('/');
+              return;
+            }
+            if (!r.ok) throw new Error('http_' + r.status);
+            const d = await r.json();
+            populateDetail(d);
+          } catch (_) {
+            const title = detailModal.querySelector('[data-field="name"]');
+            if (title) title.textContent = "Couldn't load this booking";
+          }
+        }
+
+        function populateDetail(d) {
+          if (!detailModal) return;
+          const set = (sel, val) => {
+            const el = detailModal.querySelector(`[data-field="${sel}"]`);
+            if (el) el.textContent = val ?? '—';
+          };
+          set('name', d.name);
+          set('booking_id', d.booking_id);
+          set('checkin', d.checkin);
+          set('checkout', d.checkout);
+          set('nights', String(d.nights));
+          set('guests', String(d.guests));
+          set('email', d.email);
+          set('phone', d.phone || 'no phone');
+          set('deposit', fmtMoney(d.deposit_amount, d.currency));
+          set('hold_status',
+            d.status === 'secured' && d.hold_expires_at
+              ? `Hold in place until ${new Date(d.hold_expires_at).toLocaleDateString('en-CA')}`
+              : d.status === 'pending'
+              ? `Not secured yet — pending until ${new Date(d.expires_at).toLocaleString('en-CA')}`
+              : 'No hold'
+          );
+          set('message', d.message || '(no message)');
+          set('marketing_opt_in', d.marketing_opt_in ? 'Yes' : 'No');
+          set('consent_text_shown', d.consent_text_shown);
+          set('created_at', new Date(d.created_at).toLocaleString('en-CA'));
+          set('payment_intent_id', d.payment_intent_id || '—');
+          set('ghl_contact_id', d.ghl_contact_id || '—');
+          set('ghl_appointment_id', d.ghl_appointment_id || '—');
+
+          // Replace the badge area
+          const badgeHost = document.getElementById('detail-badge');
+          if (badgeHost) badgeHost.replaceChildren(makeBadge(d.status));
+        }
+
+        function closeDetail() {
+          if (!detailModal) return;
+          detailModal.classList.add('hidden');
+          detailModal.classList.remove('flex');
+          document.body.style.overflow = '';
+          lastFocus?.focus?.();
+        }
+        detailClose?.addEventListener('click', closeDetail);
+        detailModal?.addEventListener('click', (e) => {
+          if (e.target === detailModal) closeDetail();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (detailModal?.classList.contains('hidden')) return;
+          if (e.key === 'Escape') closeDetail();
+        });
+
+        // Initial load
+        setActiveTab('pending');
+        load('pending');
+      })();
+    </script>
+  </body>
+</html>

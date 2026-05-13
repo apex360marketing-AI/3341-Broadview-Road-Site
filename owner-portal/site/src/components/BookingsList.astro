@@ -1,0 +1,104 @@
+---
+/*
+ * BookingsList — tabbed list view. Segmented control across the top
+ * (Pending / Secured / Expired) styled as small octagonal chips, then
+ * a stack of <BookingRow /> entries below.
+ *
+ * Server-renders the shell only — dashboard.astro is the script owner
+ * that fetches /bookings and populates the rows.
+ */
+import BookingRow from './BookingRow.astro';
+---
+<section class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] pt-8 pb-16">
+
+  <!-- Segmented tabs -->
+  <div class="flex items-center gap-2 mb-6" role="tablist" aria-label="Booking status">
+    <button
+      type="button"
+      role="tab"
+      aria-selected="true"
+      class="tab tab-active"
+      data-status="pending"
+    ><span class="tab-base" aria-hidden="true"></span><span class="tab-label">Pending</span></button>
+    <button
+      type="button"
+      role="tab"
+      aria-selected="false"
+      class="tab"
+      data-status="secured"
+    ><span class="tab-base" aria-hidden="true"></span><span class="tab-label">Secured</span></button>
+    <button
+      type="button"
+      role="tab"
+      aria-selected="false"
+      class="tab"
+      data-status="expired"
+    ><span class="tab-base" aria-hidden="true"></span><span class="tab-label">Expired</span></button>
+
+    <span class="ml-auto text-ink-faint text-[10px] tracking-[0.28em] uppercase" id="list-count">—</span>
+  </div>
+
+  <!-- States: loading / empty / error / list -->
+  <div id="list-loading" class="text-ink-muted text-sm py-10 text-center">Loading bookings…</div>
+
+  <div id="list-empty" class="hidden text-ink-muted text-sm py-10 text-center">
+    No bookings in this view yet.
+  </div>
+
+  <div id="list-error" class="hidden border border-accent/40 p-4 text-sm text-accent" role="alert">
+    Couldn't load bookings. <button type="button" id="list-retry" class="underline">Retry</button>
+  </div>
+
+  <ul id="list-rows" class="hidden space-y-4"></ul>
+
+  <p id="list-truncated" class="hidden text-ink-faint text-[10px] tracking-[0.22em] uppercase mt-6 text-center">
+    Showing the most recent 100. Older bookings expire from the cache.
+  </p>
+</section>
+
+<!-- Row template lives here so it's in the DOM once -->
+<BookingRow />
+
+<style>
+  .tab {
+    position: relative;
+    height: 32px;
+    padding: 0 14px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    isolation: isolate;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    transition: color 200ms ease;
+  }
+  .tab-base {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    clip-path: polygon(
+      10px 0, calc(100% - 10px) 0,
+      100% 10px, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 10px 100%,
+      0 calc(100% - 10px), 0 10px
+    );
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(237, 230, 214, 0.30);
+    transition:
+      background-color 250ms ease,
+      box-shadow 250ms ease;
+  }
+  .tab-label { position: relative; z-index: 1; }
+  .tab:hover { color: var(--ink-primary); }
+  .tab:hover .tab-base {
+    box-shadow: inset 0 0 0 1px rgba(91, 194, 194, 0.55);
+  }
+  .tab-active { color: var(--accent-2); }
+  .tab-active .tab-base {
+    background: rgba(91, 194, 194, 0.08);
+    box-shadow: inset 0 0 0 1px var(--accent-2);
+  }
+  .tab:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+</style>

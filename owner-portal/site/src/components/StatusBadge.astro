@@ -1,0 +1,79 @@
+---
+/*
+ * StatusBadge — small octagonal pill that mirrors the QuickFacts/OctCTA
+ * brand language. Color coded but quietly — uses the same teal accent
+ * surface as the rest of the site for "live" states; ink-faint for
+ * neutral/past states.
+ *
+ * Phase 1 statuses (matching feed/src/booking/types.ts):
+ *   pending   — awaiting card auth-hold (yellow-ish ink, teal outline)
+ *   secured   — hold in place, awaiting host confirmation (teal solid)
+ *   expired   — pending TTL elapsed / hold released (muted)
+ */
+type Status = 'pending' | 'secured' | 'expired';
+type Props = { status: Status };
+const { status } = Astro.props;
+
+const LABEL: Record<Status, string> = {
+  pending: 'Pending',
+  secured: 'Secured',
+  expired: 'Expired'
+};
+---
+<span class={`status-badge status-${status}`} data-status={status}>
+  <span class="sb-base" aria-hidden="true"></span>
+  <span class="sb-label">{LABEL[status]}</span>
+</span>
+
+<style>
+  .status-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 14px;
+    isolation: isolate;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .sb-base {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0 calc(100% - 8px), 0 8px
+    );
+  }
+  .sb-label {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Pending — cream outline, ink-primary text (awaiting action) */
+  .status-pending .sb-base {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(237, 230, 214, 0.55);
+  }
+  .status-pending .sb-label { color: var(--ink-primary); }
+
+  /* Secured — teal filled (hold in place, ready for host decision) */
+  .status-secured .sb-base {
+    background: rgba(91, 194, 194, 0.10);
+    box-shadow: inset 0 0 0 1px var(--accent-2);
+  }
+  .status-secured .sb-label { color: var(--accent-2); }
+
+  /* Expired — muted, faint outline */
+  .status-expired .sb-base {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(92, 84, 74, 0.5);
+  }
+  .status-expired .sb-label { color: var(--ink-faint); }
+</style>

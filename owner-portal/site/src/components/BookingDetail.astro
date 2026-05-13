@@ -1,0 +1,110 @@
+---
+/*
+ * BookingDetail — modal/drawer that shows the full record for one booking.
+ * Phase 1: read-only. Phase 2 will add Confirm / Decline action buttons
+ * inside the action-bar slot that's reserved at the bottom.
+ *
+ * Visually echoes the public BookingModal — same dark surface, honeycomb
+ * watermark, close affordance, tracking-uppercase micro-labels.
+ */
+import Honeycomb from './Honeycomb.astro';
+import StatusBadge from './StatusBadge.astro';
+---
+<div
+  id="detail-modal"
+  class="fixed inset-0 z-50 bg-bg-base/95 backdrop-blur-sm hidden items-start sm:items-center justify-center overflow-y-auto py-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="detail-title"
+>
+  <div class="relative bg-bg-surface w-full max-w-2xl mx-3 sm:mx-4 my-auto border border-ink-faint/30 overflow-hidden">
+    <Honeycomb unique="detail" opacity={0.05} />
+
+    <button
+      type="button"
+      id="detail-close"
+      class="absolute top-3 right-3 text-ink-muted hover:text-ink-primary p-2 z-20"
+      aria-label="Close booking detail"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="relative z-10 px-6 sm:px-8 pt-7 pb-3">
+      <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Booking</p>
+      <h3 id="detail-title" class="text-2xl sm:text-3xl mb-1" data-field="name">—</h3>
+      <p class="text-ink-muted text-xs tracking-[0.18em] uppercase" data-field="booking_id">—</p>
+      <div class="mt-3" id="detail-badge">
+        <!-- Status badge swapped in by JS; pre-render a hidden one to ship the styles -->
+        <span style="display:none"><StatusBadge status="pending" /></span>
+        <span style="display:none"><StatusBadge status="secured" /></span>
+        <span style="display:none"><StatusBadge status="expired" /></span>
+      </div>
+    </div>
+
+    <div class="relative z-10 px-6 sm:px-8 pb-6 space-y-5">
+
+      <!-- Stay summary -->
+      <div class="bg-bg-base/60 border border-ink-faint/30 p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Check-in</p>
+          <p class="text-ink-primary font-medium" data-field="checkin">—</p>
+        </div>
+        <div>
+          <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Check-out</p>
+          <p class="text-ink-primary font-medium" data-field="checkout">—</p>
+        </div>
+        <div>
+          <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Nights</p>
+          <p class="text-ink-primary font-medium" data-field="nights">—</p>
+        </div>
+        <div>
+          <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Guests</p>
+          <p class="text-ink-primary font-medium" data-field="guests">—</p>
+        </div>
+      </div>
+
+      <!-- Guest -->
+      <div class="text-sm">
+        <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-2">Guest</p>
+        <p class="text-ink-primary" data-field="email">—</p>
+        <p class="text-ink-muted mt-1" data-field="phone">—</p>
+      </div>
+
+      <!-- Deposit / hold -->
+      <div class="text-sm">
+        <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-2">Deposit</p>
+        <p class="text-ink-primary" data-field="deposit">—</p>
+        <p class="text-ink-muted text-xs mt-1" data-field="hold_status">—</p>
+      </div>
+
+      <!-- Message -->
+      <div class="text-sm" id="detail-message-block">
+        <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-2">Message</p>
+        <p class="text-ink-primary leading-relaxed whitespace-pre-line" data-field="message">—</p>
+      </div>
+
+      <!-- Consent / audit -->
+      <details class="border-l-2 border-ink-faint/40 pl-4 py-1 text-xs">
+        <summary class="cursor-pointer text-ink-muted tracking-[0.18em] uppercase text-[10px]">Consent &amp; audit</summary>
+        <div class="mt-3 text-ink-muted leading-relaxed space-y-2">
+          <p><span class="text-ink-primary">Marketing opt-in:</span> <span data-field="marketing_opt_in">—</span></p>
+          <p><span class="text-ink-primary">Consent text shown:</span></p>
+          <p class="italic" data-field="consent_text_shown">—</p>
+          <p><span class="text-ink-primary">Created:</span> <span data-field="created_at">—</span></p>
+          <p><span class="text-ink-primary">PaymentIntent:</span> <code class="text-ink-faint" data-field="payment_intent_id">—</code></p>
+          <p><span class="text-ink-primary">GHL contact:</span> <code class="text-ink-faint" data-field="ghl_contact_id">—</code></p>
+          <p><span class="text-ink-primary">GHL appointment:</span> <code class="text-ink-faint" data-field="ghl_appointment_id">—</code></p>
+        </div>
+      </details>
+
+      <!-- Action bar — Phase 1: empty placeholder. Phase 2 will mount the
+           Confirm / Decline OctCTAs here. Reserving the slot keeps the
+           component shape stable across phases. -->
+      <div id="detail-actions" class="pt-2 border-t border-ink-faint/20 hidden">
+        <p class="text-ink-faint text-[10px] tracking-[0.22em] uppercase">
+          Actions arrive in Phase 2
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

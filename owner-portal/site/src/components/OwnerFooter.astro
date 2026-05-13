@@ -1,0 +1,13 @@
+---
+/*
+ * Minimal owner-portal footer. Internal-use disclaimer, portal version.
+ * No public links — this is operator-only chrome.
+ */
+import { tokens } from '../lib/tokens';
+---
+<footer class="relative border-t border-[var(--accent-2)]/15 mt-10">
+  <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-ink-faint text-[10px] tracking-[0.22em] uppercase">
+    <p>Internal use only · Owner portal</p>
+    <p>{tokens.LISTING_NAME} · v{tokens.PORTAL_VERSION}</p>
+  </div>
+</footer>

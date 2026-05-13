@@ -1,0 +1,33 @@
+# owner-portal worker — wrangler config.
+#
+# IMPORTANT: This worker shares the SAME KV namespace as ../../feed/ (so it can
+# read the public worker's booking:* records). The `id` below is a placeholder
+# the operator must replace with the same KV namespace id that ../../feed/wrangler.toml
+# uses in production. The public worker is otherwise untouched.
+
+name = "valora-owner-portal"
+main = "src/index.ts"
+compatibility_date = "2025-05-13"
+compatibility_flags = ["nodejs_compat"]
+
+# Set BEFORE first deploy: `wrangler kv:namespace list` to find the existing
+# FEED_KV id used by ../../feed/, then paste it here. We deliberately keep
+# `id` empty so a misconfigured deploy fails loudly rather than silently
+# writing to a fresh namespace.
+[[kv_namespaces]]
+binding = "FEED_KV"
+id = ""
+# preview_id is optional; useful for `wrangler dev` against a separate KV.
+# preview_id = ""
+
+# Plain (non-secret) configuration.
+[vars]
+# Comma-separated list of origins that the owner-portal SITE may serve from.
+# In production this should be ONLY your owner subdomain, e.g.
+#   BOOKING_ALLOWED_ORIGIN = "https://owner.valora.example"
+# Dev can override to a localhost origin via `wrangler dev --var`.
+BOOKING_ALLOWED_ORIGIN = ""
+
+# Secrets — set via `wrangler secret put`:
+#   ADMIN_KEY           — the dashboard password
+#   STRIPE_SECRET_KEY   — only needed in Phase 2 for capture/cancel

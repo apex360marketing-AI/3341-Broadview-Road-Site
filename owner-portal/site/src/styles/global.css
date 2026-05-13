@@ -1,0 +1,69 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/*
+ * Subset of the public site's global.css — the dashboard does NOT use the
+ * reveal/parallax classes from the marketing site, so they're omitted.
+ * Honeycomb body watermark + base typography + focus styles are kept for
+ * brand parity.
+ */
+
+@theme {
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-2: var(--accent-2);
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}
+
+html {
+  background-color: var(--bg-base);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: 96px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='48' viewBox='0 0 56 48'><g fill='none' stroke='%23EDE6D6' stroke-opacity='0.022' stroke-width='0.6'><polygon points='14,0 28,8 28,24 14,32 0,24 0,8'/><polygon points='42,24 56,32 56,48 42,56 28,48 28,32'/></g></svg>");
+  background-repeat: repeat;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 200ms var(--ease);
+}
+a:hover { color: var(--accent-hover); }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg-base);
+}

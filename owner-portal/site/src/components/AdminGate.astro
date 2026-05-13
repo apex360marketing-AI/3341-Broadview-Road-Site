@@ -1,0 +1,116 @@
+---
+/*
+ * AdminGate — single-password unlock. Server-renders the form; the actual
+ * verification is a `POST /auth` round-trip to the owner worker (which
+ * does a constant-time compare against the ADMIN_KEY secret).
+ *
+ * On success the key is written to sessionStorage and the page redirects
+ * to /dashboard. On failure the input shakes and an inline error appears.
+ *
+ * No CAPTCHA — the worker rate-limits per-IP. No third-party scripts.
+ */
+import { tokens } from '../lib/tokens';
+import Honeycomb from './Honeycomb.astro';
+import OctCTA from './OctCTA.astro';
+
+const apiConfigured = /^https?:\/\//i.test(tokens.OWNER_API_URL);
+---
+<section class="relative pt-32 pb-20 min-h-[80vh] flex items-start justify-center">
+  <Honeycomb unique="gate" opacity={0.04} />
+  <div class="relative z-10 w-full max-w-md mx-auto px-[var(--gutter)]">
+    <p class="text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-3 opacity-80 text-center">Owner Portal</p>
+    <h1 class="text-4xl md:text-5xl font-light leading-[1.05] mb-8 text-center">
+      Sign <span class="italic text-[var(--accent-2)]">in.</span>
+    </h1>
+
+    {!apiConfigured && (
+      <div class="border border-accent/40 p-4 mb-6 text-sm text-accent">
+        <strong>Portal not configured.</strong>
+        <p class="text-ink-muted text-xs mt-1 leading-relaxed">Set <code class="text-ink-primary">OWNER_API_URL</code> in <code class="text-ink-primary">owner-portal/site/tokens.json</code> to your owner worker URL.</p>
+      </div>
+    )}
+
+    <form id="gate-form" novalidate class="space-y-4">
+      <label class="block">
+        <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Owner key</span>
+        <input
+          type="password"
+          name="key"
+          id="gate-key"
+          required
+          autocomplete="current-password"
+          spellcheck="false"
+          class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent"
+        />
+      </label>
+
+      <div id="gate-error" class="hidden text-accent text-sm border border-accent/40 p-3" role="alert">
+        Key not recognised.
+      </div>
+
+      <div class="pt-2">
+        <OctCTA type="submit" size="md" variant="ghost" fullWidth id="gate-submit">Unlock</OctCTA>
+      </div>
+
+      <p class="text-ink-faint text-[10px] leading-relaxed italic text-center pt-2">
+        Owner-only. Repeated failures are rate-limited by the portal worker.
+      </p>
+    </form>
+  </div>
+</section>
+
+<script is:inline define:vars={{ apiUrl: tokens.OWNER_API_URL }}>
+  // @ts-nocheck
+  (function () {
+    const KEY = 'owner-portal:key';
+    const form = document.getElementById('gate-form');
+    const input = document.getElementById('gate-key');
+    const submit = document.getElementById('gate-submit');
+    const error = document.getElementById('gate-error');
+
+    // If already authenticated, skip the gate.
+    if (sessionStorage.getItem(KEY)) {
+      location.replace('/dashboard');
+      return;
+    }
+
+    if (!form || !input || !error) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      error.classList.add('hidden');
+      const candidate = String(input.value || '').trim();
+      if (!candidate) return;
+      if (!/^https?:\/\//i.test(apiUrl)) {
+        error.textContent = 'Portal API URL is not configured.';
+        error.classList.remove('hidden');
+        return;
+      }
+      submit?.setAttribute('disabled', 'true');
+      try {
+        const r = await fetch(apiUrl.replace(/\/+$/, '') + '/auth', {
+          method: 'POST',
+          headers: { 'X-Admin-Key': candidate }
+        });
+        if (r.status === 204) {
+          sessionStorage.setItem(KEY, candidate);
+          location.assign('/dashboard');
+          return;
+        }
+        if (r.status === 429) {
+          error.textContent = 'Too many attempts — wait a minute and try again.';
+        } else {
+          error.textContent = 'Key not recognised.';
+        }
+        error.classList.remove('hidden');
+        input.value = '';
+        input.focus();
+      } catch (_) {
+        error.textContent = "Couldn't reach the portal worker.";
+        error.classList.remove('hidden');
+      } finally {
+        submit?.removeAttribute('disabled');
+      }
+    });
+  })();
+</script>

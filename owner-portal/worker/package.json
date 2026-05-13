@@ -1,0 +1,19 @@
+{
+  "name": "owner-portal-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "VALORA owner-portal Cloudflare Worker — admin API (separate from feed/).",
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240614.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0",
+    "wrangler": "^3.78.0"
+  }
+}

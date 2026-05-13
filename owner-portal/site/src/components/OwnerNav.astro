@@ -1,0 +1,71 @@
+---
+/*
+ * Simplified nav for the owner portal — compass mark + VALORA wordmark on
+ * the LEFT, "OWNER" label + optional logout on the RIGHT. No 5-concept
+ * chooser bar (that lives only on the public marketing site).
+ *
+ * The logout button is rendered server-side but only made visible by JS
+ * when sessionStorage carries the admin key — so the gate page sees no
+ * logout, the dashboard does.
+ */
+import { tokens } from '../lib/tokens';
+---
+<nav class="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#1F2024]/90 border-b border-[var(--accent-2)]/20">
+  <div class="relative max-w-[var(--max-w)] mx-auto px-[var(--gutter)] h-20 flex items-center justify-between">
+
+    <!-- LEFT: brand mark + portal label -->
+    <a href="/" class="brand-link flex items-center gap-3 md:gap-4 group">
+      <svg width="32" height="32" viewBox="0 0 60 60" aria-hidden="true" class="shrink-0">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="currentColor" stroke-opacity="0.30" stroke-width="0.7"/>
+        <g stroke="currentColor" stroke-opacity="0.7" stroke-width="1.3" stroke-linecap="round">
+          <line x1="30" y1="0.5" x2="30" y2="3.5"/><line x1="30" y1="56.5" x2="30" y2="59.5"/>
+          <line x1="0.5" y1="30" x2="3.5" y2="30"/><line x1="56.5" y1="30" x2="59.5" y2="30"/>
+        </g>
+        <g class="dial-compass" style="transform-box: fill-box; transform-origin: center;">
+          <circle cx="30" cy="30" r="22" fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="0.6"/>
+          <g stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <line x1="30" y1="9" x2="30" y2="13"/><line x1="30" y1="47" x2="30" y2="51"/>
+            <line x1="9" y1="30" x2="13" y2="30"/><line x1="47" y1="30" x2="51" y2="30"/>
+          </g>
+          <path d="M27.5 13.5 L30 10.5 L32.5 13.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <circle cx="30" cy="30" r="2.4" fill="currentColor"/>
+        <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
+      </svg>
+      <span class="brand-stack inline-flex items-baseline gap-3 leading-none">
+        <span class="brand-text font-serif text-2xl md:text-[2rem] font-light tracking-[0.05em]">{tokens.LISTING_NAME}</span>
+        <span class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase opacity-80">{tokens.PORTAL_LABEL}</span>
+      </span>
+    </a>
+
+    <!-- RIGHT: logout (revealed by JS when an admin key is present) -->
+    <button
+      type="button"
+      id="owner-logout"
+      class="hidden text-[10px] tracking-[0.28em] uppercase text-ink-muted hover:text-[var(--accent-2)] transition-colors"
+      aria-label="Log out of owner portal"
+    >Log out</button>
+  </div>
+
+  <style>
+    .brand-text {
+      color: var(--ink-primary);
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 0.7px var(--accent-2);
+    }
+    .brand-link svg { color: var(--accent-2); }
+  </style>
+</nav>
+
+<script>
+  // Reveal logout when the admin key is present in sessionStorage.
+  const KEY = 'owner-portal:key';
+  const btn = document.getElementById('owner-logout');
+  if (btn && sessionStorage.getItem(KEY)) {
+    btn.classList.remove('hidden');
+  }
+  btn?.addEventListener('click', () => {
+    sessionStorage.removeItem(KEY);
+    location.assign('/');
+  });
+</script>
