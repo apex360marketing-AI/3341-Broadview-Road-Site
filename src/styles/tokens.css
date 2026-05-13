@@ -1,0 +1,53 @@
+/*
+ * tokens.css — single-file rebrand surface.
+ *
+ * Brand swap = edit the values in :root below.
+ * Mirrors the PALETTE_* and FONT_* keys in tokens.json.
+ * tokens.json is the source of truth at build time; values here
+ * are the runtime fallback the browser sees.
+ */
+
+:root {
+  /* surfaces */
+  --bg-base: #0F0E0C;       /* deepest — page bg */
+  --bg-surface: #1F2024;    /* cool dark grey — major content sections (carries the honeycomb watermark) */
+  --bg-elevated: #262A2E;   /* one step lighter — cards, modal */
+
+  /* ink */
+  --ink-primary: #EDE6D6;
+  --ink-muted: #A29A8B;
+  --ink-faint: #5C544A;
+
+  /* accent — bright teal, pulled from the home's actual exterior trim color
+     and the Okanagan pool/lake palette. Carries primary brand identity. */
+  --accent: #5BC2C2;
+  --accent-hover: #7DD8D8;
+  --accent-deep: #3FA6A6;
+
+  /* secondary accent — same bright teal as primary so the brand reads as a
+     single signature color. Roles still distinguishable by component context. */
+  --accent-2: #5BC2C2;
+
+  /* type */
+  --font-serif: 'Fraunces', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* layout */
+  --max-w: 1280px;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --section-y: clamp(3rem, 8vw, 6rem);
+  --radius: 4px;
+  --radius-lg: 12px;
+
+  /* motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

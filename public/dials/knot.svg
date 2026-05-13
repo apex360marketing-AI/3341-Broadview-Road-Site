@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 60 60" aria-label="Knot Lissajous scroll dial">
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#7DD8D8" stroke-opacity="0.22" stroke-width="0.6"/>
+  <path id="knot" d="" fill="none" stroke="#7DD8D8" stroke-width="0.9" stroke-opacity="0.92" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="30" cy="30" r="1.4" fill="#7DD8D8"/>
+  <script><![CDATA[
+    (function(){
+      var knot = document.getElementById('knot');
+      var win = (typeof window !== 'undefined' && window.parent && window.parent !== window) ? window.parent : window;
+      var raf = null;
+      function buildPath(delta){
+        var cx=30, cy=30, sx=22, sy=22, a=7, b=6, N=280, d='';
+        for (var i=0; i<=N; i++){
+          var t = (i/N) * Math.PI * 2;
+          var x = cx + sx * Math.sin(a * t + delta);
+          var y = cy + sy * Math.sin(b * t);
+          d += (i===0 ? 'M ' : ' L ') + x.toFixed(2) + ',' + y.toFixed(2);
+        }
+        return d;
+      }
+      function paint(){
+        var y = win.scrollY || 0;
+        knot.setAttribute('d', buildPath(y * 0.008));
+      }
+      win.addEventListener('scroll', function(){
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(paint);
+      }, { passive: true });
+      paint();
+    })();
+  ]]></script>
+</svg>

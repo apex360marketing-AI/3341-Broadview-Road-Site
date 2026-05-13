@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+feed/node_modules/
+
+# build output
+dist/
+.astro/
+feed/dist/
+.wrangler/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# seed data — large originals + sale-listing source kept out of git
+seed/
+*.zip
+
+# logs
+*.log
+npm-debug.log*
+
+# test coverage
+coverage/
+feed/coverage/

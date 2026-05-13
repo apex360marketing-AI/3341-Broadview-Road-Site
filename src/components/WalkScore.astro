@@ -1,0 +1,49 @@
+---
+import { tokens } from '../lib/tokens';
+
+const hasKey = !!tokens.WALKSCORE_WSAPIKEY;
+const badgeUrl = hasKey
+  ? `https://www.walkscore.com/badge.php?wsid=${encodeURIComponent(tokens.WALKSCORE_WSAPIKEY)}&address=${encodeURIComponent(tokens.LISTING_ADDRESS_LINE)}&format=json`
+  : '';
+---
+{hasKey && (
+  <section class="py-16 md:py-20 border-t border-ink-faint/30">
+    <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+      <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">The neighbourhood</p>
+      <h2 class="text-3xl md:text-4xl mb-8">How walkable, how rideable.</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
+        <div class="bg-bg-surface p-6 text-center">
+          <div class="text-accent text-5xl font-serif" data-walkscore="walk">—</div>
+          <div class="text-ink-muted text-xs uppercase tracking-[0.2em] mt-2">Walk Score</div>
+        </div>
+        <div class="bg-bg-surface p-6 text-center">
+          <div class="text-accent text-5xl font-serif" data-walkscore="transit">—</div>
+          <div class="text-ink-muted text-xs uppercase tracking-[0.2em] mt-2">Transit</div>
+        </div>
+        <div class="bg-bg-surface p-6 text-center">
+          <div class="text-accent text-5xl font-serif" data-walkscore="bike">—</div>
+          <div class="text-ink-muted text-xs uppercase tracking-[0.2em] mt-2">Bike</div>
+        </div>
+      </div>
+      <p class="text-ink-faint text-xs mt-4">Walkability data via <a href="https://www.walkscore.com" rel="nofollow noopener" target="_blank">Walk Score</a>.</p>
+    </div>
+    <script is:inline define:vars={{ url: badgeUrl }}>
+      (async function () {
+        try {
+          const r = await fetch(url, { mode: 'cors' });
+          if (!r.ok) throw new Error('walkscore-fetch-failed');
+          const data = await r.json();
+          const set = (k, v) => {
+            const el = document.querySelector(`[data-walkscore="${k}"]`);
+            if (el && typeof v === 'number') el.textContent = String(v);
+          };
+          set('walk', data.walkscore);
+          set('transit', data.transit?.score);
+          set('bike', data.bike?.score);
+        } catch (_) {
+          // Graceful: leave the em-dashes; section still reads as intentional.
+        }
+      })();
+    </script>
+  </section>
+)}

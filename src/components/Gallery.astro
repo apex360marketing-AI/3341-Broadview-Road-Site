@@ -1,0 +1,182 @@
+---
+import { tokens } from '../lib/tokens';
+const photos = tokens.GALLERY_PHOTOS;
+const alt = tokens.GALLERY_ALT;
+---
+<section class="py-10 md:py-14">
+  <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+    <div class="flex items-end justify-between mb-8 md:mb-12">
+      <div>
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">The space</p>
+        <h2 class="text-2xl md:text-4xl max-w-3xl leading-tight">
+          POOL <span class="text-[var(--accent-2)]">&mdash;</span> COVERED DECK <span class="text-[var(--accent-2)]">&mdash;</span> GAMES <span class="text-[var(--accent-2)]">&mdash;</span> OUTDOOR MOVIE THEATRE
+        </h2>
+        <p class="text-ink-muted text-base md:text-lg mt-3 font-serif italic">What more could you <span class="text-accent">need</span>?</p>
+      </div>
+      <button
+        type="button"
+        class="hidden md:inline text-accent text-sm uppercase tracking-[0.18em] hover:text-[var(--accent-2)] transition-colors whitespace-nowrap ml-6"
+        data-action="open-lightbox"
+        data-index="0"
+      >
+        Open all {photos.length} <span class="text-[#C0FF00] hover:text-white transition-colors">→</span>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-12 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[220px]" id="gallery-grid">
+      {photos.slice(0, 12).map((src, i) => {
+        const span = i === 0
+          ? 'col-span-12 row-span-2 md:col-span-8 md:row-span-2'
+          : i === 1
+          ? 'col-span-6 row-span-1 md:col-span-4 md:row-span-1'
+          : i === 2
+          ? 'col-span-6 row-span-1 md:col-span-4 md:row-span-1'
+          : i === 11
+          ? 'col-span-12 md:col-span-8 row-span-1'
+          : i % 5 === 3
+          ? 'col-span-12 md:col-span-8 row-span-1'
+          : 'col-span-6 md:col-span-4 row-span-1';
+        return (
+          <button
+            type="button"
+            class={`gallery-tile group relative overflow-hidden bg-bg-surface ${span} focus-visible:outline-2 focus-visible:outline-accent`}
+            data-action="open-lightbox"
+            data-index={i}
+            aria-label={`Open photo ${i + 1}: ${alt[i]}`}
+          >
+            <img
+              src={src}
+              alt={alt[i]}
+              loading={i < 3 ? 'eager' : 'lazy'}
+              decoding="async"
+              class="gallery-img w-full h-full object-cover"
+            />
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div
+  id="lightbox"
+  class="fixed inset-0 z-50 bg-bg-base/95 backdrop-blur-sm hidden items-center justify-center"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Photo gallery"
+>
+  <button
+    type="button"
+    id="lightbox-close"
+    class="absolute top-4 right-4 text-ink-primary hover:text-accent p-2 z-10"
+    aria-label="Close gallery"
+  >
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <button
+    type="button"
+    id="lightbox-prev"
+    class="absolute left-4 top-1/2 -translate-y-1/2 text-[#C0FF00] hover:text-white transition-colors p-3 z-10"
+    aria-label="Previous photo"
+  >
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 6l-6 6 6 6"/></svg>
+  </button>
+  <button
+    type="button"
+    id="lightbox-next"
+    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#C0FF00] hover:text-white transition-colors p-3 z-10"
+    aria-label="Next photo"
+  >
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+  <figure class="max-w-[92vw] max-h-[88vh] flex flex-col items-center gap-3">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[80vh] object-contain" />
+    <figcaption id="lightbox-caption" class="text-ink-muted text-sm"></figcaption>
+  </figure>
+</div>
+
+<style>
+  /* Gallery hover — tile pops forward via scale + heavy shadow + z-lift.
+     Image inside also scales (Ken-Burns micro-zoom) + brightness/saturation
+     boost so the photo reads more vibrant under the cursor. */
+  .gallery-tile {
+    z-index: 0;
+    transition:
+      transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gallery-tile:hover {
+    z-index: 20;
+    transform: scale(1.06);
+    box-shadow:
+      0 30px 60px -12px rgba(0, 0, 0, 0.75),
+      0 14px 28px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(91, 194, 194, 0.35);
+  }
+  .gallery-img {
+    transition:
+      transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gallery-tile:hover .gallery-img {
+    transform: scale(1.10);
+    filter: brightness(1.08) saturate(1.10);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-tile, .gallery-img {
+      transition: none !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ photos, alt }}>
+  (function () {
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+    if (!lightbox || !img || !caption) return;
+
+    let current = 0;
+    let lastFocus = null;
+
+    function show(i) {
+      current = ((i % photos.length) + photos.length) % photos.length;
+      img.src = photos[current];
+      img.alt = alt[current] || '';
+      caption.textContent = `${current + 1} / ${photos.length} — ${alt[current] || ''}`;
+    }
+
+    function open(i) {
+      lastFocus = document.activeElement;
+      show(i);
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('lightbox-close')?.focus();
+    }
+
+    function close() {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      document.body.style.overflow = '';
+      lastFocus?.focus();
+    }
+
+    document.querySelectorAll('[data-action="open-lightbox"]').forEach((el) => {
+      el.addEventListener('click', () => open(parseInt(el.getAttribute('data-index') || '0', 10)));
+    });
+    document.getElementById('lightbox-close')?.addEventListener('click', close);
+    document.getElementById('lightbox-prev')?.addEventListener('click', () => show(current - 1));
+    document.getElementById('lightbox-next')?.addEventListener('click', () => show(current + 1));
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.classList.contains('hidden')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+  })();
+</script>

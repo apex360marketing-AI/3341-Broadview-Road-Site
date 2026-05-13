@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+
+const dials = [
+  { num: 1, name: 'Compass', file: 'compass.svg', desc: 'Industrial gauge with 12 ticks + chevron pointer. Whole rotor turns proportionally to scroll delta.' },
+  { num: 2, name: 'Progress', file: 'progress.svg', desc: 'Circular arc fills 0→100% as the visitor scrolls. Live percentage in the center.' },
+  { num: 3, name: 'Morph', file: 'morph.svg', desc: 'Organic 36-vertex blob whose silhouette flows with scroll. 3 stacked sine waves perturb the radius.' },
+  { num: 4, name: 'Atom', file: 'atom.svg', desc: '3 elliptical orbits at different angles. Planet dots orbit at 0.5×, -0.85×, 1.3× scroll delta (parallax).' },
+  { num: 5, name: 'Knot', file: 'knot.svg', desc: 'Live Lissajous parametric curve (a=7, b=6). The δ phase evolves with scroll, redrawing the woven pattern.' }
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scroll Dials — {tokens.LISTING_NAME}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-16 md:py-24">
+
+      <a href="/" class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase hover:text-[#7DD8D8] transition-colors">← Back to {tokens.LISTING_NAME}</a>
+
+      <h1 class="font-serif text-4xl md:text-6xl mt-8 mb-3 font-light tracking-[0.04em]">Scroll Dials</h1>
+      <p class="text-ink-muted text-lg max-w-2xl mb-8 font-serif italic">
+        Each dial is a self-contained SVG with embedded scroll-driven behavior. Scroll this page — they all animate live below. Use the buttons below to grab the files.
+      </p>
+
+      <!-- Download-all CTA -->
+      <div class="mb-12 inline-flex flex-wrap gap-3">
+        <a
+          href="/valora-dials.zip"
+          download="valora-dials.zip"
+          class="inline-flex items-center gap-2 text-[var(--accent-2)] text-[11px] tracking-[0.20em] uppercase border border-[var(--accent-2)]/60 hover:border-[var(--accent-2)] hover:bg-[var(--accent-2)]/5 transition-colors px-5 py-3"
+        >
+          ⤓ Download All 5 (ZIP)
+        </a>
+        <a
+          href="/dials/README.txt"
+          target="_blank"
+          class="inline-flex items-center gap-2 text-ink-muted text-[11px] tracking-[0.20em] uppercase border border-ink-faint/40 hover:border-ink-muted hover:text-ink-primary transition-colors px-5 py-3"
+        >
+          Usage README
+        </a>
+      </div>
+
+      <!-- Spacer so visitor can scroll meaningfully and see the dials respond -->
+      <div class="h-[60vh]"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {dials.map((d) => (
+          <div class="border border-[var(--accent-2)]/25 p-6 flex flex-col items-center gap-4">
+            <div class="w-32 h-32 flex items-center justify-center">
+              <object type="image/svg+xml" data={`/dials/${d.file}`} width="120" height="120" aria-label={`Dial ${d.num} — ${d.name}`}></object>
+            </div>
+            <div class="text-center">
+              <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-1 opacity-80">Dial {d.num}</p>
+              <h2 class="font-serif text-2xl mb-2">{d.name}</h2>
+              <p class="text-ink-muted text-sm leading-relaxed mb-5">{d.desc}</p>
+              <div class="flex gap-3 justify-center">
+                <a
+                  href={`/dials/${d.file}`}
+                  download
+                  class="text-[var(--accent-2)] text-[11px] tracking-[0.18em] uppercase border border-[var(--accent-2)]/55 hover:border-[var(--accent-2)] hover:bg-[var(--accent-2)]/5 transition-colors px-4 py-2"
+                >Download SVG</a>
+                <a
+                  href={`/dials/${d.file}`}
+                  target="_blank"
+                  class="text-ink-muted text-[11px] tracking-[0.18em] uppercase border border-ink-faint/40 hover:border-ink-muted hover:text-ink-primary transition-colors px-4 py-2"
+                >Open</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-16 max-w-3xl border-t border-ink-faint/30 pt-10">
+        <h3 class="font-serif text-2xl mb-4">How to use on another site</h3>
+        <p class="text-ink-muted text-sm leading-relaxed mb-4">
+          The SVGs include an embedded script that listens to the <em>parent window's</em> scroll. To make them animate, embed via <code class="text-[var(--accent-2)]">&lt;object&gt;</code> or <code class="text-[var(--accent-2)]">&lt;iframe&gt;</code>, not <code class="text-[var(--accent-2)]">&lt;img&gt;</code>:
+        </p>
+        <pre class="text-[12px] text-ink-primary bg-bg-surface border border-[var(--accent-2)]/25 p-4 overflow-x-auto"><code>&lt;object type="image/svg+xml" data="/path/to/compass.svg" width="120" height="120"&gt;&lt;/object&gt;</code></pre>
+        <p class="text-ink-faint text-xs mt-4 italic">
+          For static/print use, embed via <code>&lt;img&gt;</code> — they'll display the visual without animation.
+        </p>
+      </div>
+
+      <!-- More scroll runway so the dials have room to react -->
+      <div class="h-[80vh]"></div>
+    </main>
+
+    <a href="/" class="block text-center text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase hover:text-[#7DD8D8] transition-colors py-12">← Back to {tokens.LISTING_NAME}</a>
+  </body>
+</html>

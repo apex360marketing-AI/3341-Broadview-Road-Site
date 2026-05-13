@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 60 60" aria-label="Atom orbits scroll dial">
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#7DD8D8" stroke-opacity="0.18" stroke-width="0.5"/>
+  <ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="#7DD8D8" stroke-opacity="0.45" stroke-width="0.7"/>
+  <g transform="rotate(60 30 30)"><ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="#7DD8D8" stroke-opacity="0.45" stroke-width="0.7"/></g>
+  <g transform="rotate(120 30 30)"><ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="#7DD8D8" stroke-opacity="0.45" stroke-width="0.7"/></g>
+  <g id="atom1" style="transform-box:view-box;transform-origin:50% 50%;"><circle cx="52" cy="30" r="2.2" fill="#7DD8D8"/></g>
+  <g id="atom2" style="transform-box:view-box;transform-origin:50% 50%;"><g transform="rotate(60 30 30)"><circle cx="52" cy="30" r="2" fill="#7DD8D8"/></g></g>
+  <g id="atom3" style="transform-box:view-box;transform-origin:50% 50%;"><g transform="rotate(120 30 30)"><circle cx="52" cy="30" r="1.8" fill="#7DD8D8"/></g></g>
+  <circle cx="30" cy="30" r="2.6" fill="#7DD8D8"/>
+  <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
+  <script><![CDATA[
+    (function(){
+      var a1 = document.getElementById('atom1');
+      var a2 = document.getElementById('atom2');
+      var a3 = document.getElementById('atom3');
+      var win = (typeof window !== 'undefined' && window.parent && window.parent !== window) ? window.parent : window;
+      var rot = 0, lastY = win.scrollY || 0, raf = null;
+      win.addEventListener('scroll', function(){
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function(){
+          var y = win.scrollY || 0;
+          rot += (y - lastY);
+          lastY = y;
+          a1.style.transform = 'rotate(' + (rot * 0.5) + 'deg)';
+          a2.style.transform = 'rotate(' + (rot * -0.85) + 'deg)';
+          a3.style.transform = 'rotate(' + (rot * 1.3) + 'deg)';
+        });
+      }, { passive: true });
+    })();
+  ]]></script>
+</svg>

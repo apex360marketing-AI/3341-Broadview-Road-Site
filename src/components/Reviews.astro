@@ -1,0 +1,61 @@
+---
+import { tokens } from '../lib/tokens';
+import Icon from './ui/Icon.astro';
+import Honeycomb from './Honeycomb.astro';
+
+const reviews = tokens.REVIEWS;
+const isSample = !tokens.REVIEWS_ARE_REAL;
+---
+<section class="relative py-10 md:py-14 bg-bg-surface overflow-hidden">
+  <Honeycomb opacity={0.04} />
+  <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+    <div class="flex items-end justify-between mb-8 md:mb-12 gap-4 flex-wrap">
+      <div class="brand-link inline-block group cursor-default">
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">Guest notes</p>
+        <h2 class="brand-text text-3xl md:text-5xl uppercase tracking-[0.04em] font-light">CUSTOMER SPOTLIGHT</h2>
+      </div>
+      {isSample && (
+        <div class="inline-flex items-center gap-2 border border-[var(--accent-2)]/60 text-[var(--accent-2)] text-xs uppercase tracking-[0.18em] px-3 py-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--accent-2)] animate-pulse"></span>
+          Sample data — replace before publishing
+        </div>
+      )}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      {reviews.map((r) => (
+        <figure class="bg-bg-base p-7 md:p-8 border border-ink-faint/20 flex flex-col">
+          <div class="flex items-center gap-1 text-accent mb-4">
+            {Array.from({ length: r.stars }).map(() => (<Icon name="star" size={16} />))}
+          </div>
+          <blockquote class="font-serif text-lg md:text-xl text-ink-primary leading-relaxed mb-6 flex-1">
+            "{r.body}"
+          </blockquote>
+          <figcaption class="flex items-center gap-3 mt-auto">
+            <!-- Reviewer avatar — pointy-top hexagon (matches the host card + brand DNA) -->
+            <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" class="shrink-0">
+              <polygon
+                points="18,1 34,10 34,26 18,35 2,26 2,10"
+                fill="var(--bg-elevated)"
+                stroke="var(--accent-2)"
+                stroke-width="0.9"
+                stroke-opacity="0.55"
+              />
+              <text
+                x="18" y="22"
+                text-anchor="middle"
+                fill="var(--accent-2)"
+                font-family="var(--font-serif)"
+                font-size="11"
+              >{r.initials}</text>
+            </svg>
+            <div>
+              <div class="text-ink-primary text-sm">{r.firstName}</div>
+              <div class="text-ink-muted text-xs">{r.date}</div>
+            </div>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>

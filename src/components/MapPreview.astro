@@ -1,0 +1,176 @@
+---
+import { tokens } from '../lib/tokens';
+import OctCTA from './ui/OctCTA.astro';
+const isApprox = tokens.LISTING_LOCATION_DISPLAY === 'approximate';
+---
+<section class="py-10 md:py-14 border-t border-ink-faint/30">
+  <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+    <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">Where you'll be</p>
+    <h2 class="text-3xl md:text-5xl mb-8">{tokens.LISTING_ADDRESS_LINE}</h2>
+
+    <div id="map-container" class="relative bg-bg-surface aspect-[16/9] md:aspect-[21/9] overflow-hidden">
+      <!-- Static SVG preview (default state — zero JS, zero third-party hits) -->
+      <svg
+        id="map-static"
+        viewBox="0 0 800 360"
+        xmlns="http://www.w3.org/2000/svg"
+        class="absolute inset-0 w-full h-full"
+        aria-label="Approximate location map preview"
+        role="img"
+      >
+        <defs>
+          <!-- Bright teal core glow + soft inner hue -->
+          <radialGradient id="tealCore" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#5BC2C2" stop-opacity="0.42" />
+            <stop offset="55%" stop-color="#4A8B8B" stop-opacity="0.18" />
+            <stop offset="100%" stop-color="#4A8B8B" stop-opacity="0" />
+          </radialGradient>
+          <!-- Outer ring glow for prominence -->
+          <radialGradient id="tealRingGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="78%" stop-color="#5BC2C2" stop-opacity="0" />
+            <stop offset="92%" stop-color="#5BC2C2" stop-opacity="0.55" />
+            <stop offset="100%" stop-color="#5BC2C2" stop-opacity="0" />
+          </radialGradient>
+          <linearGradient id="lakeFade" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#4A8B8B" stop-opacity="0" />
+            <stop offset="100%" stop-color="#4A8B8B" stop-opacity="0.22" />
+          </linearGradient>
+          <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M44 0H0V44" fill="none" stroke="#5C544A" stroke-opacity="0.18" stroke-width="0.6" />
+          </pattern>
+        </defs>
+
+        <rect width="800" height="360" fill="#1A1815" />
+        <rect width="800" height="360" fill="url(#grid)" />
+
+        <!-- Okanagan Lake — soft teal band on the east edge -->
+        <path d="M640 0 C 660 90, 670 200, 680 360 L800 360 L800 0 Z" fill="url(#lakeFade)" />
+        <text x="725" y="200" text-anchor="middle" fill="#4A8B8B" fill-opacity="0.7" font-family="serif" font-style="italic" font-size="11" letter-spacing="2">Okanagan Lake</text>
+
+        <!-- Abstract neighborhood lines -->
+        <g stroke="#5C544A" stroke-opacity="0.45" stroke-width="1.2" fill="none">
+          <path d="M40 280 L240 240 L420 260 L640 220 L780 240" />
+          <path d="M120 60 L240 90 L320 80 L520 130 L700 100" />
+          <path d="M380 0 L420 360" stroke-opacity="0.25" />
+        </g>
+
+        <!-- ===== Approximate-area indicator (tightened to ~90px so it reads as "close to the address") ===== -->
+        <!-- Outer ring glow — bright halo that draws the eye -->
+        <circle cx="400" cy="180" r="118" fill="url(#tealRingGlow)" />
+        <!-- Inner teal hue (semi-transparent fill, see-through) -->
+        <circle cx="400" cy="180" r="90" fill="url(#tealCore)" />
+        <!-- Bright outer stroke (the "prominent" ring) -->
+        <circle cx="400" cy="180" r="90" fill="none" stroke="#5BC2C2" stroke-width="2.5" stroke-opacity="0.95">
+          <animate attributeName="stroke-opacity" values="0.7;1;0.7" dur="3.4s" repeatCount="indefinite" />
+        </circle>
+        <!-- Subtle inner dotted ring for editorial detail -->
+        <circle cx="400" cy="180" r="72" fill="none" stroke="#5BC2C2" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="2 6" />
+        <!-- Center pin -->
+        <circle cx="400" cy="180" r="3" fill="#5BC2C2" />
+
+        <text x="400" y="135" text-anchor="middle" fill="#EDE6D6" font-family="serif" font-size="18" font-style="italic">
+          {tokens.LISTING_ADDRESS_LINE}
+        </text>
+        <text x="400" y="248" text-anchor="middle" fill="#5BC2C2" fill-opacity="0.85" font-family="sans-serif" font-size="10" letter-spacing="3">
+          APPROXIMATE AREA
+        </text>
+      </svg>
+
+      <div class="absolute bottom-4 right-4">
+        <OctCTA size="sm" variant="ghost" id="map-load">View Interactive Map</OctCTA>
+      </div>
+    </div>
+
+    {isApprox && (
+      <p class="text-sm mt-4 italic" style="color: var(--accent-2); opacity: 0.85;">
+        Approximate location shown. Exact address is shared after your booking is confirmed.
+      </p>
+    )}
+  </div>
+</section>
+
+<!-- Leaflet loaded only after click -->
+<script is:inline define:vars={{ lat: tokens.LISTING_LAT, lng: tokens.LISTING_LNG, radius: tokens.LISTING_LOCATION_RADIUS_M, isApprox }}>
+  // @ts-nocheck
+  (function () {
+    const btn = document.getElementById('map-load');
+    const container = document.getElementById('map-container');
+    const staticSvg = document.getElementById('map-static');
+    if (!btn || !container || !staticSvg) return;
+
+    let loaded = false;
+
+    btn.addEventListener('click', async () => {
+      if (loaded) return;
+      loaded = true;
+      const textNode = btn.querySelector('.oct-text');
+      if (textNode) textNode.textContent = 'Loading map…';
+      btn.disabled = true;
+
+      try {
+        // Dynamic import keeps Leaflet out of the initial bundle.
+        const L = await import('https://esm.sh/leaflet@1.9.4');
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://esm.sh/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(css);
+        await new Promise((r) => { css.onload = r; setTimeout(r, 1000); });
+
+        const mapEl = document.createElement('div');
+        mapEl.id = 'map';
+        mapEl.style.cssText = 'position:absolute;inset:0;background:#1A1815;';
+        staticSvg.replaceWith(mapEl);
+        btn.parentElement?.remove();
+
+        // Tighter zoom so the smaller circle reads at a sensible scale.
+        const map = L.map(mapEl, { zoomControl: true, attributionControl: true })
+          .setView([lat, lng], isApprox ? 16 : 17);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        if (isApprox) {
+          // Outer "halo" ring — soft glow + bright bold stroke
+          L.circle([lat, lng], {
+            radius: radius * 1.45,
+            color: '#5BC2C2',
+            weight: 1,
+            opacity: 0.35,
+            fillColor: '#5BC2C2',
+            fillOpacity: 0.04,
+            interactive: false
+          }).addTo(map);
+
+          // Main circle: bright bold teal outer stroke + see-through teal fill
+          L.circle([lat, lng], {
+            radius: radius,
+            color: '#5BC2C2',
+            weight: 3,
+            opacity: 0.95,
+            fillColor: '#4A8B8B',
+            fillOpacity: 0.22,
+            interactive: false
+          }).addTo(map);
+
+          // Tiny center pin
+          L.circleMarker([lat, lng], {
+            radius: 4,
+            color: '#5BC2C2',
+            weight: 1.5,
+            fillColor: '#5BC2C2',
+            fillOpacity: 1,
+            interactive: false
+          }).addTo(map);
+        } else {
+          L.marker([lat, lng]).addTo(map);
+        }
+      } catch (err) {
+        console.warn('Leaflet load failed', err);
+        const textNode = btn.querySelector('.oct-text');
+        if (textNode) textNode.textContent = 'Map unavailable';
+      }
+    });
+  })();
+</script>

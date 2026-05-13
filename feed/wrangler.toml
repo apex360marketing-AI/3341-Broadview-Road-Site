@@ -1,0 +1,22 @@
+name = "valora-feed"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# KV namespace for the cached feed payload + per-IP rate-limit counters.
+# Operator runs: wrangler kv:namespace create FEED_KV
+# then pastes the returned id below.
+[[kv_namespaces]]
+binding = "FEED_KV"
+id = "REPLACE_AFTER_CREATE"
+
+# Cron: refresh four times daily (00:00, 06:00, 12:00, 18:00 UTC).
+[triggers]
+crons = ["0 0,6,12,18 * * *"]
+
+# Non-secret vars. Listing coords + radius live here so they can be tweaked
+# without a code change. Secrets (API tokens, REFRESH_KEY) are set via
+# `wrangler secret put` and never committed.
+[vars]
+RADIUS_KM = "30"
+LISTING_LAT = "49.8344"
+LISTING_LNG = "-119.6217"

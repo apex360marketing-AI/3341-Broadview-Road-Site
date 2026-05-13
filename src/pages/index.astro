@@ -1,0 +1,135 @@
+---
+/*
+ * Page 1 — Listing.
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Mission from '../components/Mission.astro';
+import QuickFacts from '../components/QuickFacts.astro';
+import Gallery from '../components/Gallery.astro';
+import About from '../components/About.astro';
+import Amenities from '../components/Amenities.astro';
+import WalkScore from '../components/WalkScore.astro';
+import MapPreview from '../components/MapPreview.astro';
+import Reviews from '../components/Reviews.astro';
+import HostCard from '../components/HostCard.astro';
+import Footer from '../components/Footer.astro';
+import BookingModal from '../components/BookingModal.astro';
+import StickyBookBar from '../components/StickyBookBar.astro';
+import ScrollDirection from '../components/ScrollDirection.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://www.walkscore.com https://www2.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://esm.sh; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>{tokens.LISTING_NAME} — {tokens.LISTING_ADDRESS_LINE}</title>
+    <meta name="description" content={tokens.META_DESCRIPTION} />
+    <meta property="og:title" content={tokens.LISTING_NAME} />
+    <meta property="og:description" content={tokens.LISTING_TAGLINE} />
+    <meta property="og:image" content={tokens.OG_IMAGE_PATH} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <Nav />
+    <!-- Hero is full-bleed (no top padding) so the photo extends BEHIND the
+         nav for a cinematic backdrop-blur effect. Other sections sit below. -->
+    <main class="pb-20 md:pb-0">
+      <Hero />
+      <div class="reveal"><Mission /></div>
+      <div class="reveal"><QuickFacts /></div>
+      <div class="reveal"><Gallery /></div>
+      <div class="reveal"><About /></div>
+      <div class="reveal"><Amenities /></div>
+      <div class="reveal"><WalkScore /></div>
+      <div class="reveal"><MapPreview /></div>
+      <div class="reveal"><Reviews /></div>
+      <div class="reveal"><HostCard /></div>
+
+      <!-- Footnote — moved out of Amenities to the very bottom of the page,
+           in muted italic with an asterisk and tiny text. Tightened ~15%
+           against the Footer below. -->
+      <div class="max-w-3xl mx-auto px-[var(--gutter)] pt-2 pb-6 text-center">
+        <p class="text-ink-faint text-[11px] italic tracking-wide leading-relaxed">
+          * Additional bedrooms in the house are part of separate long-term living spaces and aren't part of the guest area. Available on request for private tours.
+        </p>
+      </div>
+    </main>
+    <Footer />
+    <BookingModal />
+    <StickyBookBar />
+    <ScrollDirection />
+
+    <script>
+      // ===== Global scroll choreography — parallax + reveals =====
+      // GPU-accelerated transforms only. rAF-throttled. Honors reduced-motion.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ----- Reveal on scroll (IntersectionObserver) -----
+      if (!reduced && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+        );
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      } else {
+        // Reduced motion: show everything immediately
+        document.querySelectorAll('.reveal').forEach((el) => el.classList.add('revealed'));
+      }
+
+      // ----- Hero parallax + gallery parallax -----
+      if (!reduced) {
+        const heroImg = document.querySelector('.hero-parallax') as HTMLElement | null;
+        const galleryImgs = Array.from(
+          document.querySelectorAll<HTMLImageElement>('#gallery-grid img')
+        );
+        let rafId: number | null = null;
+
+        const update = () => {
+          const y = window.scrollY;
+          const vh = window.innerHeight;
+
+          // Hero — pushes back into the page as the user scrolls
+          if (heroImg && y < vh * 1.3) {
+            heroImg.style.transform = `translate3d(0, ${y * 0.55}px, 0)`;
+          }
+
+          // Gallery — each photo gets a subtle parallax based on its position
+          // relative to viewport center. Speed varies by index for visual variety.
+          galleryImgs.forEach((img, i) => {
+            const rect = img.getBoundingClientRect();
+            const center = rect.top + rect.height / 2;
+            const dist = center - vh / 2;          // -ve above center, +ve below
+            const within = Math.abs(dist) < vh * 0.9;
+            if (!within) return;
+            const depth = ((i % 3) + 1) * 4;       // 4, 8, 12 px max
+            const offset = -(dist / vh) * depth;
+            img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.06)`;
+          });
+        };
+
+        const onScroll = () => {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
+      }
+    </script>
+  </body>
+</html>
