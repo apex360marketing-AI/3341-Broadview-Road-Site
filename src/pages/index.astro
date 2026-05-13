@@ -26,7 +26,7 @@ import ScrollDirection from '../components/ScrollDirection.astro';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://www.walkscore.com https://www2.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://esm.sh; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://www.walkscore.com https://www2.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://esm.sh ${tokens.BOOKING_API_URL || ''}; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
     <title>{tokens.LISTING_NAME} — {tokens.LISTING_ADDRESS_LINE}</title>
     <meta name="description" content={tokens.META_DESCRIPTION} />
     <meta property="og:title" content={tokens.LISTING_NAME} />
