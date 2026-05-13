@@ -1,0 +1,416 @@
+---
+/**
+ * Page 3 — Secure the booking (auth-hold step).
+ *
+ * Flow: BookingModal POSTs /book → server returns booking_id → user lands
+ * here as /pay?id=BOOKING_ID. This page:
+ *   1. Reads booking_id from query
+ *   2. Fetches /booking/:id for summary (dates, nights, deposit)
+ *   3. Mounts Stripe Card Element (no card data EVER hits Valora origin)
+ *   4. On submit → createPaymentMethod (browser) → POST /booking/:id/secure
+ *      (server creates PaymentIntent manual-capture = the auth-hold)
+ *   5. On success → § C "What happens next" panel
+ *
+ * PCI scope: SAQ-A (Stripe iframe; card data isolated from our origin).
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Honeycomb from '../components/Honeycomb.astro';
+import OctCTA from '../components/ui/OctCTA.astro';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <!--
+      CSP — weakened from default-src 'self' to allow Stripe Elements. This
+      page is the ONLY one in the site that loads js.stripe.com, and the
+      Stripe iframe is the entire mechanism for SAQ-A scope (the card data
+      lives in their iframe, never in Valora origin).
+    -->
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https: https://*.stripe.com; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://js.stripe.com; connect-src 'self' https://api.stripe.com https://m.stripe.network https://r.stripe.com ${tokens.BOOKING_API_URL || ''}; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>Secure your stay — {tokens.LISTING_NAME}</title>
+    <meta name="description" content={`Secure your reservation at ${tokens.LISTING_NAME} with a CAD $${tokens.DEPOSIT_AMOUNT_CAD} card authorization. No charge until the host confirms.`} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" />
+    <script src="https://js.stripe.com/v3/" defer></script>
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <Nav />
+
+    <main class="pt-24 md:pt-28 pb-20">
+      <section class="relative py-10 md:py-14">
+        <Honeycomb unique="pay" opacity={0.04} />
+        <div class="relative z-10 max-w-2xl mx-auto px-[var(--gutter)]">
+
+          <p class="text-[var(--accent-2)] text-xs tracking-[0.34em] uppercase mb-3 opacity-80">Step 2 of 2 · Secure the booking</p>
+          <h1 class="text-3xl md:text-5xl font-light leading-[1.05] mb-8">
+            Secure your stay at <span class="italic text-[var(--accent-2)]">{tokens.LISTING_NAME}</span>
+          </h1>
+
+          <!-- Loading state — shown until /booking/:id resolves -->
+          <div id="pay-loading" class="text-ink-muted text-sm py-12 text-center">
+            Loading your booking…
+          </div>
+
+          <!-- Error / not-found / expired -->
+          <div id="pay-error" class="hidden border border-accent/40 p-5 my-6" role="alert">
+            <h2 class="text-accent text-lg mb-2">Something went wrong</h2>
+            <p id="pay-error-msg" class="text-ink-muted text-sm leading-relaxed mb-3">
+              Your booking link is invalid or has expired.
+            </p>
+            <p class="text-ink-muted text-xs">
+              Please <a href="/" class="underline">start a new inquiry</a> or email <a href={`mailto:${tokens.HOST_EMAIL}`} class="text-[var(--accent-2)]">{tokens.HOST_EMAIL}</a>.
+            </p>
+          </div>
+
+          <!-- Main content (revealed after booking loads) -->
+          <div id="pay-content" class="hidden space-y-6">
+
+            <!-- Booking summary card -->
+            <div class="bg-bg-surface border border-ink-faint/30 p-5 md:p-6 relative overflow-hidden">
+              <Honeycomb unique="pay-summary" opacity={0.03} />
+              <div class="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Check-in</p>
+                  <p id="pay-checkin" class="text-ink-primary font-medium">—</p>
+                </div>
+                <div>
+                  <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Check-out</p>
+                  <p id="pay-checkout" class="text-ink-primary font-medium">—</p>
+                </div>
+                <div>
+                  <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Nights</p>
+                  <p id="pay-nights" class="text-ink-primary font-medium">—</p>
+                </div>
+                <div>
+                  <p class="text-ink-muted text-[10px] tracking-[0.22em] uppercase mb-1">Guests</p>
+                  <p id="pay-guests" class="text-ink-primary font-medium">—</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- §A — Auth-hold disclosure (verbatim from Safety packet) -->
+            <div class="border-l-2 border-[var(--accent-2)] pl-4 py-1 text-sm text-ink-primary leading-relaxed space-y-3">
+              <p>
+                Shyla will hold <strong id="pay-amount-label">CAD ${tokens.DEPOSIT_AMOUNT_CAD}</strong> on the card you provide here (the equivalent of one night). <strong>This is an authorization, not a charge.</strong>
+              </p>
+              <p class="text-ink-muted text-xs">
+                If Shyla confirms your dates (typically within 24 hours), the hold remains in place until 14 days before check-in, when the balance is collected from the same card. If she cannot confirm your dates, the hold automatically releases within 7 days and you will see no charge on your statement.
+              </p>
+            </div>
+
+            <!-- B6 — Cancellation acknowledgment (must be visible BEFORE submit) -->
+            <details class="bg-bg-surface border border-ink-faint/30 p-4 group">
+              <summary class="cursor-pointer flex items-center justify-between text-xs tracking-[0.18em] uppercase">
+                <span class="text-ink-primary">Cancellation summary</span>
+                <span class="text-[var(--accent-2)] text-lg leading-none">+</span>
+              </summary>
+              <div class="mt-3 text-xs text-ink-muted space-y-2 leading-relaxed">
+                <p>An authorization (not a charge) of CAD ${tokens.DEPOSIT_AMOUNT_CAD} is placed when you secure a booking. If the host cannot confirm your dates, the hold automatically releases within 7 days.</p>
+                <p>More than 60 days before check-in: full refund less a CAD $75 processing fee. 30–60 days before: 50% refund. Fewer than 30 days: non-refundable.</p>
+                <p>Force majeure (wildfire evacuation, natural disaster, government-mandated closure): full refund or rebooking, no fee.</p>
+                <p class="pt-1"><a href="/#privacy" class="text-[var(--accent-2)] underline">Full cancellation policy in the footer</a></p>
+              </div>
+            </details>
+
+            <!-- Pay form -->
+            <form id="pay-form" novalidate class="space-y-4">
+
+              <!-- Honeypot -->
+              <div class="hidden" aria-hidden="true">
+                <label>Leave blank: <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+              </div>
+
+              <!-- Country selector (Stripe needs it for fraud + we need it for jurisdiction disclosure) -->
+              <label class="block">
+                <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Billing country *</span>
+                <select name="billing_country" required class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent">
+                  <option value="CA" selected>Canada</option>
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="AU">Australia</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="JP">Japan</option>
+                  <option value="OTHER">Other (email host)</option>
+                </select>
+              </label>
+
+              <!-- Stripe Card Element mount point — Stripe injects an iframe here -->
+              <div>
+                <span class="text-ink-muted text-xs uppercase tracking-[0.18em] block mb-1.5">Card details *</span>
+                <div id="stripe-card-element" class="bg-bg-base border border-ink-faint/40 px-3 py-3 min-h-[44px]"></div>
+                <p id="stripe-card-error" class="text-accent text-xs mt-2 hidden" role="alert"></p>
+              </div>
+
+              <!-- Cancellation policy acknowledgment (B6) -->
+              <label class="flex items-start gap-3 text-ink-muted text-xs leading-relaxed cursor-pointer pt-2">
+                <input type="checkbox" name="cancellation_policy_ack" required class="mt-0.5 accent-accent shrink-0" />
+                <span>I have read and agree to the <a href="/#privacy" class="text-[var(--accent-2)] underline">cancellation policy</a>.</span>
+              </label>
+
+              <div class="pt-2">
+                <OctCTA type="submit" size="md" variant="ghost" fullWidth id="pay-submit">
+                  Authorize CAD ${tokens.DEPOSIT_AMOUNT_CAD} hold
+                </OctCTA>
+              </div>
+
+              <p class="text-ink-faint text-[10px] leading-relaxed italic text-center pt-2">
+                Card data is processed by Stripe. Your card number never reaches Valora's servers.
+              </p>
+
+              <div id="pay-status" class="hidden text-sm" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <!-- §C — Success state (replaces form on auth-hold success) -->
+          <div id="pay-success" class="hidden border border-[var(--accent-2)]/40 p-6 my-6 relative overflow-hidden">
+            <Honeycomb unique="pay-success" opacity={0.04} />
+            <div class="relative z-10">
+              <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-2">Hold confirmed</p>
+              <h2 class="text-2xl md:text-3xl font-light leading-tight mb-4">Your hold is in place.</h2>
+              <p class="text-ink-muted text-sm mb-3">What happens next:</p>
+              <ol class="text-ink-primary text-sm space-y-2 list-decimal list-inside leading-relaxed">
+                <li>Shyla reviews your inquiry — typically within 24 hours.</li>
+                <li>If confirmed, you'll receive a booking confirmation by email.</li>
+                <li>The balance is collected 14 days before check-in, on the same card.</li>
+                <li>If your dates can't be honoured, your card hold releases within 7 days.</li>
+              </ol>
+              <p class="text-ink-muted text-xs mt-5 italic">
+                A receipt for the authorization will be sent to <span id="pay-success-email" class="text-ink-primary">your email</span> from Stripe.
+              </p>
+              <div class="mt-6">
+                <a href="/" class="text-[var(--accent-2)] text-xs tracking-[0.18em] uppercase border border-[var(--accent-2)]/40 px-4 py-2 inline-block hover:bg-[var(--accent-2)]/10 transition-colors">← Back to {tokens.LISTING_NAME}</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- No-JS fallback -->
+          <noscript>
+            <div class="border border-accent/40 p-5 my-6">
+              <p class="text-accent text-sm mb-2">JavaScript is required to complete payment securely.</p>
+              <p class="text-ink-muted text-xs">If you can't enable it, please email <a href={`mailto:${tokens.HOST_EMAIL}`} class="underline">{tokens.HOST_EMAIL}</a> to complete your booking directly.</p>
+            </div>
+          </noscript>
+
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+
+    <script is:inline define:vars={{
+      apiUrl: tokens.BOOKING_API_URL,
+      stripeKey: tokens.STRIPE_PUBLISHABLE_KEY,
+      depositAmount: tokens.DEPOSIT_AMOUNT_CAD,
+      hostEmail: tokens.HOST_EMAIL,
+      hostFirst: tokens.HOST_FIRST_NAME
+    }}>
+      // @ts-nocheck
+      (function () {
+        const params = new URLSearchParams(location.search);
+        const bookingId = params.get('id');
+        const loadingEl = document.getElementById('pay-loading');
+        const contentEl = document.getElementById('pay-content');
+        const errorEl = document.getElementById('pay-error');
+        const errorMsgEl = document.getElementById('pay-error-msg');
+        const successEl = document.getElementById('pay-success');
+        const statusEl = document.getElementById('pay-status');
+        const form = document.getElementById('pay-form');
+        const submitBtn = document.getElementById('pay-submit');
+
+        const openedAt = Date.now();
+
+        function showError(msg) {
+          loadingEl.classList.add('hidden');
+          contentEl.classList.add('hidden');
+          successEl.classList.add('hidden');
+          errorEl.classList.remove('hidden');
+          if (msg) errorMsgEl.textContent = msg;
+        }
+
+        function showContent() {
+          loadingEl.classList.add('hidden');
+          contentEl.classList.remove('hidden');
+        }
+
+        function showSuccess(email) {
+          contentEl.classList.add('hidden');
+          successEl.classList.remove('hidden');
+          if (email) document.getElementById('pay-success-email').textContent = email;
+        }
+
+        function setStatus(msg, kind /* 'info' | 'error' */) {
+          statusEl.className = 'text-sm ' + (kind === 'error' ? 'text-accent border border-accent/40 p-3' : 'text-ink-muted');
+          statusEl.textContent = msg || '';
+          statusEl.classList.toggle('hidden', !msg);
+        }
+
+        if (!bookingId) {
+          showError('No booking ID in the URL. Please start a new inquiry.');
+          return;
+        }
+        if (!apiUrl || !/^https:\/\//i.test(apiUrl)) {
+          showError(`Booking system is being configured. Please email ${hostFirst} at ${hostEmail} to complete your booking.`);
+          return;
+        }
+        if (!stripeKey || !/^pk_/.test(stripeKey)) {
+          showError(`Payment system is being configured. Please email ${hostFirst} at ${hostEmail} to complete your booking.`);
+          return;
+        }
+
+        let bookingData = null;
+        let stripe = null;
+        let cardElement = null;
+
+        // ===== Step 1: load booking summary =====
+        fetch(`${apiUrl.replace(/\/+$/, '')}/booking/${encodeURIComponent(bookingId)}`)
+          .then(async (r) => {
+            if (r.status === 410) throw new Error('Your booking link has expired. Please start a new inquiry.');
+            if (r.status === 404) throw new Error('Booking not found. Please start a new inquiry.');
+            if (!r.ok) throw new Error('Could not load your booking.');
+            return r.json();
+          })
+          .then((data) => {
+            bookingData = data;
+            if (data.status === 'secured') {
+              showSuccess(null);
+              return;
+            }
+            renderSummary(data);
+            showContent();
+            initStripe();
+          })
+          .catch((err) => showError(err.message));
+
+        function renderSummary(data) {
+          const fmtDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+          document.getElementById('pay-checkin').textContent = fmtDate(data.checkin);
+          document.getElementById('pay-checkout').textContent = fmtDate(data.checkout);
+          document.getElementById('pay-nights').textContent = String(data.nights);
+          document.getElementById('pay-guests').textContent = String(data.guests);
+        }
+
+        // ===== Step 2: mount Stripe Card Element =====
+        function initStripe() {
+          // Wait for stripe.js to load (it has `defer`)
+          const tryInit = () => {
+            if (typeof Stripe === 'undefined') {
+              setTimeout(tryInit, 100);
+              return;
+            }
+            stripe = Stripe(stripeKey);
+            const elements = stripe.elements();
+            cardElement = elements.create('card', {
+              style: {
+                base: {
+                  color: '#EDE6D6',
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                  fontSize: '14px',
+                  '::placeholder': { color: '#5C544A' }
+                },
+                invalid: { color: '#E07070' }
+              }
+            });
+            cardElement.mount('#stripe-card-element');
+            const errEl = document.getElementById('stripe-card-error');
+            cardElement.on('change', (e) => {
+              if (e.error) {
+                errEl.textContent = e.error.message;
+                errEl.classList.remove('hidden');
+              } else {
+                errEl.classList.add('hidden');
+              }
+            });
+          };
+          tryInit();
+        }
+
+        // ===== Step 3: submit handler =====
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (!stripe || !cardElement || !bookingData) return;
+          const fd = new FormData(form);
+
+          // Honeypot — silent fake-success
+          if (fd.get('company')) {
+            showSuccess(bookingData.email || null);
+            return;
+          }
+          // Min time-to-submit
+          if (Date.now() - openedAt < 3000) {
+            showSuccess(bookingData.email || null);
+            return;
+          }
+          const country = String(fd.get('billing_country') || 'CA');
+          if (country === 'OTHER') {
+            setStatus(`Please email ${hostFirst} at ${hostEmail} to complete booking from your country.`, 'error');
+            return;
+          }
+          if (!fd.get('cancellation_policy_ack')) {
+            setStatus('Please acknowledge the cancellation policy.', 'error');
+            return;
+          }
+
+          submitBtn?.setAttribute('disabled', 'true');
+          setStatus('Tokenizing card…');
+
+          // Tokenize card with Stripe — pm.id is what hits our server, NEVER the PAN
+          const pmResult = await stripe.createPaymentMethod({
+            type: 'card',
+            card: cardElement,
+            billing_details: {
+              email: bookingData.host_email || undefined,
+              address: { country }
+            }
+          });
+          if (pmResult.error) {
+            setStatus(pmResult.error.message || 'Card details were rejected.', 'error');
+            submitBtn?.removeAttribute('disabled');
+            return;
+          }
+
+          setStatus('Authorizing the hold…');
+
+          try {
+            const r = await fetch(`${apiUrl.replace(/\/+$/, '')}/booking/${encodeURIComponent(bookingId)}/secure`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                payment_method_id: pmResult.paymentMethod.id,
+                billing_country: country,
+                honeypot_company: '',
+                opened_at: openedAt
+              })
+            });
+            const body = await r.json().catch(() => ({}));
+            if (r.status === 402) {
+              setStatus(body.message || 'Your card was declined. Try another card or email the host.', 'error');
+              submitBtn?.removeAttribute('disabled');
+              return;
+            }
+            if (r.status === 410) {
+              showError('Your booking has expired. Please start a new inquiry.');
+              return;
+            }
+            if (!r.ok) throw new Error(body.error || 'Unable to authorize hold');
+            // Success
+            showSuccess(bookingData.email || null);
+          } catch (err) {
+            setStatus(`We couldn't reach the payment system. Please email ${hostFirst} at ${hostEmail}.`, 'error');
+            submitBtn?.removeAttribute('disabled');
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
