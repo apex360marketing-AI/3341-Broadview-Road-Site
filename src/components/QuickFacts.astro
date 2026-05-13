@@ -1,0 +1,155 @@
+---
+import { tokens } from '../lib/tokens';
+import Icon from './ui/Icon.astro';
+import Honeycomb from './Honeycomb.astro';
+
+const facts = [
+  { icon: 'bed', label: `${tokens.BEDROOMS} BEDROOMS${tokens.DEN ? ' + DEN' : ''}` },
+  { icon: 'bath', label: `${tokens.BATHROOMS} BATHROOMS` },
+  { icon: 'guests', label: `SLEEPS ${tokens.MAX_GUESTS}` },
+  { icon: 'ruler', label: `≈${tokens.GUEST_SQFT.toLocaleString()} SQFT` },
+  { icon: 'pool', label: 'PRIVATE POOL' },
+  { icon: 'wifi', label: 'WIFI INCLUDED' },
+  { icon: 'rv', label: 'RV PARKING' },
+  { icon: 'projector', label: 'OUTDOOR MOVIE THEATRE' },
+  { icon: 'paw', label: tokens.PET_POLICY?.toUpperCase() || 'NO PETS' }
+];
+---
+<section id="stay" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
+  <Honeycomb unique="qf" opacity={0.028} />
+  <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-10 md:py-14">
+    <ul class="grid grid-cols-2 sm:grid-cols-3 gap-x-5 sm:gap-x-6 gap-y-5">
+      {facts.map((f) => (
+        <li class="qf-card relative h-[68px]">
+          <span class="qf-base" aria-hidden="true"></span>
+          <span class="qf-glow" aria-hidden="true"></span>
+          <span class="qf-shimmer" aria-hidden="true"></span>
+          <span class="qf-content">
+            <span class="qf-icon"><Icon name={f.icon} size={22} /></span>
+            <span class="qf-label">{f.label}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* QuickFacts cards — EXACT match for the hero ghost-CTA hover behavior:
+     cream outline at rest → bright teal outline on hover, transparent body
+     fills dark grey, plus the full compound hover stack (cursor glow, shimmer,
+     halo, letter-spacing breathe). Only the arrow is omitted. */
+  .qf-card {
+    --mx: 50%;
+    --my: 50%;
+    isolation: isolate;
+    cursor: default;
+    transition:
+      letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 6px 16px rgba(15, 14, 12, 0.30));
+  }
+  .qf-base,
+  .qf-glow,
+  .qf-shimmer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    clip-path: polygon(
+      14px 0, calc(100% - 14px) 0,
+      100% 14px, 100% calc(100% - 14px),
+      calc(100% - 14px) 100%, 14px 100%,
+      0 calc(100% - 14px), 0 14px
+    );
+  }
+  .qf-base {
+    z-index: 0;
+    background: transparent;
+    /* Cream/white outline at rest — matches hero ghost CTAs exactly */
+    box-shadow: inset 0 0 0 1.2px rgba(237, 230, 214, 0.55);
+    transition:
+      background-color 350ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .qf-glow {
+    z-index: 1;
+    background: radial-gradient(220px circle at var(--mx) var(--my), #5BC2C2 0%, transparent 62%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .qf-shimmer {
+    z-index: 2;
+    background: linear-gradient(110deg, transparent 30%, rgba(91, 194, 194, 0.28) 50%, transparent 70%);
+    transform: translateX(-110%);
+    transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .qf-content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    padding: 0 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    pointer-events: none;
+  }
+  .qf-icon {
+    color: #C0FF00;
+    flex-shrink: 0;
+    display: inline-flex;
+    opacity: 0.9;
+    transition: opacity 350ms ease;
+  }
+  .qf-label {
+    color: var(--ink-primary);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (min-width: 768px) {
+    .qf-label { font-size: 11.5px; letter-spacing: 0.20em; }
+  }
+
+  /* HOVER — full compound effect, identical to hero ghost CTAs */
+  .qf-card:hover {
+    filter:
+      drop-shadow(0 12px 24px rgba(15, 14, 12, 0.45))
+      drop-shadow(0 0 22px rgba(91, 194, 194, 0.45))
+      drop-shadow(0 0 6px rgba(91, 194, 194, 0.35));
+  }
+  .qf-card:hover .qf-base {
+    background: #1F2024;
+    box-shadow: inset 0 0 0 1.4px #5BC2C2;
+  }
+  .qf-card:hover .qf-icon { opacity: 1; }
+  .qf-card:hover .qf-glow { opacity: 1; }
+  .qf-card:hover .qf-shimmer { transform: translateX(210%); }
+  .qf-card:hover .qf-label { letter-spacing: 0.22em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qf-card, .qf-base, .qf-glow, .qf-shimmer, .qf-label, .qf-icon {
+      transition-duration: 0.01ms !important;
+    }
+    .qf-shimmer { display: none; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  document.querySelectorAll('.qf-card').forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mx', `${x}%`);
+      card.style.setProperty('--my', `${y}%`);
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.setProperty('--mx', '50%');
+      card.style.setProperty('--my', '50%');
+    });
+  });
+</script>

@@ -1,6 +1,6 @@
 # CLAUDE.md — STR Booking Site
 
-White-label premium short-term rental listing template. Seeded with **Broadview House** (3341 Broadview Rd, West Kelowna BC) but designed to be rebrandable in under 60 minutes via a single token swap.
+White-label premium short-term rental listing template. Seeded with **VALORA** (3341 Broadview Rd, West Kelowna BC) but designed to be rebrandable in under 60 minutes via a single token swap.
 
 This file is the working agreement for anyone (human or Claude) editing this codebase.
 

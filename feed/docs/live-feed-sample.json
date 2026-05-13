@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-05-12T18:00:00.000Z",
+  "events": [
+    {
+      "id": "eventbrite-3f2a1b0c",
+      "title": "Mission Hill Estate — Summer Solstice Tasting",
+      "summary": "Curated 6-course pairing on the Chagall terrace, featuring the 2023 Quatrain and a sunset over Okanagan Lake. Limited to 24 guests.",
+      "source": "Eventbrite",
+      "sourceIcon": "eventbrite",
+      "url": "https://www.eventbrite.com/e/mission-hill-summer-solstice-tasting-tickets-987654321",
+      "startsAt": "2026-05-30T02:00:00.000Z",
+      "endsAt": "2026-05-30T05:00:00.000Z",
+      "imageUrl": "https://img.evbuc.com/missionhill-solstice-2026.jpg",
+      "distanceMiles": 1.4,
+      "category": "wine"
+    },
+    {
+      "id": "predicthq-7c4e9a12",
+      "title": "Westside Farmers + Crafters Market",
+      "summary": "Local growers, makers, food trucks, and live music every Saturday morning through summer. Family-friendly.",
+      "source": "PredictHQ",
+      "sourceIcon": "predicthq",
+      "url": "https://www.predicthq.com/events/westside-farmers-market-2026",
+      "startsAt": "2026-05-23T16:00:00.000Z",
+      "endsAt": "2026-05-23T20:00:00.000Z",
+      "imageUrl": null,
+      "distanceMiles": 0.8,
+      "category": "market"
+    },
+    {
+      "id": "ticketmaster-5b1d8e44",
+      "title": "Arkells — The Laundry Pile Tour",
+      "summary": "Juno-winning Hamilton rock band returns to Kelowna in support of their seventh studio album. Opening: Mother Mother.",
+      "source": "Ticketmaster",
+      "sourceIcon": "ticketmaster",
+      "url": "https://www.ticketmaster.ca/arkells-the-laundry-pile-tour-kelowna-2026/event/11006012ABCD",
+      "startsAt": "2026-05-28T02:30:00.000Z",
+      "endsAt": "2026-05-28T05:00:00.000Z",
+      "imageUrl": "https://s1.ticketm.net/dam/a/abc/arkells-2026-RETINA.jpg",
+      "distanceMiles": 5.2,
+      "category": "music"
+    }
+  ]
+}

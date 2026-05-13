@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 60 60" aria-label="Compass scroll dial">
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#7DD8D8" stroke-opacity="0.30" stroke-width="0.7"/>
+  <g stroke="#7DD8D8" stroke-opacity="0.7" stroke-width="1.3" stroke-linecap="round">
+    <line x1="30" y1="0.5" x2="30" y2="3.5"/><line x1="30" y1="56.5" x2="30" y2="59.5"/>
+    <line x1="0.5" y1="30" x2="3.5" y2="30"/><line x1="56.5" y1="30" x2="59.5" y2="30"/>
+  </g>
+  <g id="rotor" style="transform-box:fill-box;transform-origin:center;">
+    <circle cx="30" cy="30" r="22" fill="none" stroke="#7DD8D8" stroke-opacity="0.55" stroke-width="0.6"/>
+    <g stroke="#7DD8D8" stroke-width="1.7" stroke-linecap="round">
+      <line x1="30" y1="9" x2="30" y2="13"/><line x1="30" y1="47" x2="30" y2="51"/>
+      <line x1="9" y1="30" x2="13" y2="30"/><line x1="47" y1="30" x2="51" y2="30"/>
+    </g>
+    <g stroke="#7DD8D8" stroke-width="0.9" stroke-opacity="0.85" stroke-linecap="round">
+      <line x1="40.6" y1="11.84" x2="42.5" y2="14.5"/><line x1="48.16" y1="19.4" x2="45.5" y2="21.3"/>
+      <line x1="48.16" y1="40.6" x2="45.5" y2="38.7"/><line x1="40.6" y1="48.16" x2="42.5" y2="45.5"/>
+      <line x1="19.4" y1="48.16" x2="17.5" y2="45.5"/><line x1="11.84" y1="40.6" x2="14.5" y2="38.7"/>
+      <line x1="11.84" y1="19.4" x2="14.5" y2="21.3"/><line x1="19.4" y1="11.84" x2="17.5" y2="14.5"/>
+    </g>
+    <path d="M27.5 13.5 L30 10.5 L32.5 13.5" fill="none" stroke="#7DD8D8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <circle cx="30" cy="30" r="2.4" fill="#7DD8D8"/>
+  <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
+  <script><![CDATA[
+    (function(){
+      var rotor = document.getElementById('rotor');
+      var win = (typeof window !== 'undefined' && window.parent && window.parent !== window) ? window.parent : window;
+      var rot = 0, lastY = win.scrollY || 0, raf = null;
+      win.addEventListener('scroll', function(){
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function(){
+          var y = win.scrollY || 0;
+          rot += (y - lastY) * 0.6;
+          lastY = y;
+          rotor.style.transform = 'rotate(' + rot + 'deg)';
+        });
+      }, { passive: true });
+    })();
+  ]]></script>
+</svg>

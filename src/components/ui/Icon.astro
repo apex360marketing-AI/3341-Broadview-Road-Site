@@ -1,0 +1,70 @@
+---
+/*
+ * Icon — minimalist line-icon set kept inline as SVG so we ship zero icon-font
+ * weight and never request a third-party icon CDN. Each icon is 24x24 and
+ * stroked at 1.5px to match the editorial aesthetic.
+ */
+type Props = {
+  name: string;
+  size?: number;
+  class?: string;
+};
+
+const { name, size = 22, class: className = '' } = Astro.props;
+
+const PATHS: Record<string, string> = {
+  bed: 'M3 18v-7a3 3 0 013-3h12a3 3 0 013 3v7M3 14h18M3 18v3M21 18v3',
+  bath: 'M3 13h18M5 13V8a3 3 0 016 0M5 13v4a3 3 0 003 3h8a3 3 0 003-3v-4M7 20l-1 2M17 20l1 2',
+  guests: 'M9 11a4 4 0 100-8 4 4 0 000 8zM3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2M17 11a4 4 0 100-8M21 21v-2a4 4 0 00-3-3.87',
+  ruler: 'M3 17l4-4 3 3 4-4 3 3 4-4M3 21h18',
+  pool: 'M3 12c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1M3 17c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1M7 8a3 3 0 016 0v8M11 8a3 3 0 016 0v8',
+  parking: 'M5 3h7a5 5 0 010 10H8v8M8 3v18',
+  'parking-grid': 'M3.5 3.5h17v17h-17z M3.5 9.5h17 M3.5 15.5h17 M9.5 3.5v17 M15.5 3.5v17',
+  rv: 'M2 17h20 M2 17V9h11v3 M13 12h4l3 3v2 M13 9V6h5v3 M8 19a2 2 0 11-4 0 2 2 0 014 0z M19 19a2 2 0 11-4 0 2 2 0 014 0z M3 13h10',
+  games: 'M5.5 9h13a3.5 3.5 0 010 7h-1l-2-2.5h-6l-2 2.5h-1a3.5 3.5 0 010-7z M8.5 11.5v2 M7.5 12.5h2 M14.5 12a0.8 0.8 0 100-1.6 0.8 0.8 0 000 1.6z M16.5 13.5a0.8 0.8 0 100-1.6 0.8 0.8 0 000 1.6z',
+  projector: 'M3 5h18v11H3z M3 16l-1.5 3h21l-1.5-3 M9 19h6 M7 8.5h2 M7 12h6',
+  paw: 'M5 14a2 2 0 11-3 0c0-2 1.5-3 1.5-3M22 14a2 2 0 11-3 0c0-2 1.5-3 1.5-3M9 7a2 2 0 11-3 0c0-2 1.5-3 1.5-3M18 7a2 2 0 11-3 0c0-2 1.5-3 1.5-3M12 13c-3 0-5 4-5 6a3 3 0 003 3h4a3 3 0 003-3c0-2-2-6-5-6z',
+  ceiling: 'M3 6l9-3 9 3M3 6v3l9-2 9 2V6M5 9v12M19 9v12M9 21V13M15 21V13',
+  fire: 'M12 22c4 0 7-3 7-7 0-3-2-5-3-7-1 2-2 3-4 3 1-3 0-6-3-8 0 4-3 6-3 11 0 4 3 8 6 8z',
+  sofa: 'M3 11v6a2 2 0 002 2h14a2 2 0 002-2v-6M3 11a2 2 0 012-2h14a2 2 0 012 2M3 11h18M7 9V7a2 2 0 012-2h6a2 2 0 012 2v2M5 21v-2M19 21v-2',
+  wood: 'M3 6h18M3 12h18M3 18h18M7 6v12M13 6v12M17 6v12',
+  washer: 'M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM12 18a4 4 0 100-8 4 4 0 000 8zM7 7h.01M11 7h.01',
+  deck: 'M3 9h18M5 9v12M19 9v12M9 9v12M15 9v12M3 5l9-2 9 2',
+  umbrella: 'M12 3a9 9 0 019 9H3a9 9 0 019-9zM12 12v8a2 2 0 11-4 0',
+  fence: 'M3 21V8l3-4 3 4v13M9 21V8l3-4 3 4v13M15 21V8l3-4 3 4v13M3 13h18M3 17h18',
+  mountain: 'M3 21l6-12 4 7 3-4 5 9H3z',
+  kitchen: 'M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM3 11h18M8 7h.01M8 15h.01M16 15h.01',
+  fridge: 'M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM3 10h18M7 6v2M7 14v3',
+  dishwasher: 'M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM7 7h.01M11 7h.01M15 7h.01M7 12h10',
+  stove: 'M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zM7 8h10M7 14h10M9 8v6M15 8v6',
+  microwave: 'M3 6h18v12H3zM7 6v12M7 10h2M7 14h2',
+  coffee: 'M5 8h12v6a4 4 0 01-4 4H9a4 4 0 01-4-4V8zM17 10h2a2 2 0 010 4h-2M5 4v1M9 4v1M13 4v1',
+  ac: 'M3 12h18M5 8h14M5 16h14M9 12v-4M9 12v4M15 12v-4M15 12v4',
+  heat: 'M12 22V8M12 8a4 4 0 11-4 4M16 6l4-2M8 6L4 4M16 18l4 2M8 18l-4 2',
+  quiet: 'M9 9l3-3v12l-3-3H5V9h4zM16 8a5 5 0 010 8M19 5a8 8 0 010 14M3 3l18 18',
+  wifi: 'M5 12a10 10 0 0114 0M8 15a6 6 0 018 0M11 18a2 2 0 012 0M12 21h.01',
+  towel: 'M5 3h10a2 2 0 012 2v14a2 2 0 01-2 2H5V3zM8 8h6M8 12h6M8 16h6M19 7v10',
+  arrow: 'M5 12h14M13 5l7 7-7 7',
+  close: 'M6 6l12 12M18 6L6 18',
+  external: 'M14 4h6v6M20 4l-9 9M9 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-3',
+  star: 'M12 2l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z',
+  map: 'M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3zM9 4v13M15 7v13'
+};
+
+const d = PATHS[name] ?? PATHS.bed;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden="true"
+>
+  <path d={d} />
+</svg>

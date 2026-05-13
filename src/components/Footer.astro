@@ -1,0 +1,149 @@
+---
+import { tokens } from '../lib/tokens';
+import { getEntry, render } from 'astro:content';
+import Honeycomb from './Honeycomb.astro';
+
+const houseRules = await getEntry('static', 'house-rules');
+const cancel = await getEntry('static', 'cancellation-policy');
+const privacy = await getEntry('static', 'privacy');
+const HouseRulesContent = houseRules ? (await render(houseRules)).Content : null;
+const CancelContent = cancel ? (await render(cancel)).Content : null;
+const PrivacyContent = privacy ? (await render(privacy)).Content : null;
+---
+<footer class="relative bg-bg-surface border-t border-[var(--accent-2)]/15 mt-4 overflow-hidden">
+  <Honeycomb unique="footer" opacity={0.028} />
+
+  <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-14 md:py-20">
+
+    <!-- Brand mark — static Compass + VALORA wordmark -->
+    <div class="text-center mb-12 md:mb-14">
+      <p class="text-[var(--accent-2)] text-[10px] tracking-[0.45em] uppercase mb-3 opacity-80">Stay With</p>
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <svg width="36" height="36" viewBox="0 0 60 60" aria-hidden="true" class="opacity-90">
+          <circle cx="30" cy="30" r="28" fill="none" stroke="#C0FF00" stroke-opacity="0.30" stroke-width="0.7"/>
+          <g stroke="#C0FF00" stroke-opacity="0.7" stroke-width="1.3" stroke-linecap="round">
+            <line x1="30" y1="0.5" x2="30" y2="3.5"/><line x1="30" y1="56.5" x2="30" y2="59.5"/>
+            <line x1="0.5" y1="30" x2="3.5" y2="30"/><line x1="56.5" y1="30" x2="59.5" y2="30"/>
+          </g>
+          <circle cx="30" cy="30" r="22" fill="none" stroke="#C0FF00" stroke-opacity="0.55" stroke-width="0.6"/>
+          <g stroke="#C0FF00" stroke-width="1.7" stroke-linecap="round">
+            <line x1="30" y1="9" x2="30" y2="13"/><line x1="30" y1="47" x2="30" y2="51"/>
+            <line x1="9" y1="30" x2="13" y2="30"/><line x1="47" y1="30" x2="51" y2="30"/>
+          </g>
+          <g stroke="#C0FF00" stroke-width="0.9" stroke-opacity="0.85" stroke-linecap="round">
+            <line x1="40.6" y1="11.84" x2="42.5" y2="14.5"/><line x1="48.16" y1="19.4" x2="45.5" y2="21.3"/>
+            <line x1="48.16" y1="40.6" x2="45.5" y2="38.7"/><line x1="40.6" y1="48.16" x2="42.5" y2="45.5"/>
+            <line x1="19.4" y1="48.16" x2="17.5" y2="45.5"/><line x1="11.84" y1="40.6" x2="14.5" y2="38.7"/>
+            <line x1="11.84" y1="19.4" x2="14.5" y2="21.3"/><line x1="19.4" y1="11.84" x2="17.5" y2="14.5"/>
+          </g>
+          <path d="M27.5 13.5 L30 10.5 L32.5 13.5" fill="none" stroke="#C0FF00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="30" cy="30" r="2.4" fill="#C0FF00"/>
+          <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
+        </svg>
+        <h3 class="font-serif text-3xl md:text-4xl font-light leading-none tracking-[0.05em]">{tokens.LISTING_NAME}</h3>
+      </div>
+      <p class="text-ink-muted text-xs tracking-[0.22em] uppercase opacity-80">{tokens.LISTING_ADDRESS_LINE}</p>
+    </div>
+
+    <!-- Accordion trio -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mb-12">
+      <details class="ftr-card group">
+        <summary class="ftr-summary">
+          <span class="ftr-base" aria-hidden="true"></span>
+          <span class="relative z-10 flex items-center justify-between">
+            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">House Rules</span>
+            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+          </span>
+        </summary>
+        <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_li]:my-1.5 [&_strong]:text-ink-primary">
+          {HouseRulesContent && <HouseRulesContent />}
+        </div>
+      </details>
+
+      <details class="ftr-card group">
+        <summary class="ftr-summary">
+          <span class="ftr-base" aria-hidden="true"></span>
+          <span class="relative z-10 flex items-center justify-between">
+            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Cancellation Policy</span>
+            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+          </span>
+        </summary>
+        <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_li]:my-1.5 [&_strong]:text-ink-primary">
+          {CancelContent && <CancelContent />}
+        </div>
+      </details>
+
+      <details id="privacy" class="ftr-card group">
+        <summary class="ftr-summary">
+          <span class="ftr-base" aria-hidden="true"></span>
+          <span class="relative z-10 flex items-center justify-between">
+            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Privacy Notice</span>
+            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+          </span>
+        </summary>
+        <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_strong]:text-ink-primary">
+          {PrivacyContent && <PrivacyContent />}
+        </div>
+      </details>
+    </div>
+
+    <!-- Contact + trust line -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10 border-t border-[var(--accent-2)]/15 text-sm">
+      <div class="text-ink-muted">
+        <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-2 opacity-75">Reach the Host</p>
+        <p>
+          <a href={`mailto:${tokens.HOST_EMAIL}`} class="text-ink-primary hover:text-[var(--accent-2)] transition-colors">{tokens.HOST_EMAIL}</a>
+        </p>
+        <p class="mt-1 text-xs">Replies {tokens.HOST_RESPONSE_TIME}</p>
+      </div>
+      <div class="text-ink-muted md:text-right">
+        <p class="text-xs leading-relaxed mb-3">
+          We don't sell guest data. Inquiries are used only to respond to your booking.
+        </p>
+        <p class="text-xs leading-relaxed">
+          Privacy concerns: <a href={`mailto:${tokens.PRIVACY_CONTACT_EMAIL}`} class="hover:text-[var(--accent-2)] transition-colors">{tokens.PRIVACY_CONTACT_EMAIL}</a>
+        </p>
+        <p class="text-ink-faint text-[10px] tracking-wide mt-4 opacity-70">
+          Updated {tokens.PRIVACY_LAST_UPDATED} · Template v{tokens.TEMPLATE_VERSION}
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Accordion summaries — match the QuickFacts / OctCTA octagon DNA.
+     Cream outline at rest → teal outline on hover / open. Open state also
+     gets a faint teal wash inside. */
+  .ftr-card { position: relative; }
+  .ftr-summary {
+    position: relative;
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 18px;
+    isolation: isolate;
+    user-select: none;
+  }
+  .ftr-summary::-webkit-details-marker { display: none; }
+  .ftr-base {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(237, 230, 214, 0.32);
+    clip-path: polygon(
+      12px 0, calc(100% - 12px) 0,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0 calc(100% - 12px), 0 12px
+    );
+    transition: box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ftr-card:hover .ftr-base,
+  .ftr-card[open] .ftr-base {
+    box-shadow: inset 0 0 0 1.3px #5BC2C2;
+    background: rgba(91, 194, 194, 0.04);
+  }
+  .ftr-card[open] .ftr-plus { transform: rotate(45deg); }
+</style>

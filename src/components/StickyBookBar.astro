@@ -1,0 +1,13 @@
+---
+import { tokens } from '../lib/tokens';
+import OctCTA from './ui/OctCTA.astro';
+---
+<div class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-bg-surface/95 backdrop-blur-md border-t border-ink-faint/30">
+  <div class="flex items-center justify-between px-4 py-3 gap-3">
+    <div>
+      <div class="text-ink-primary text-sm">From <span class="font-medium">${tokens.NIGHTLY_RATE_FROM}</span> {tokens.CURRENCY}</div>
+      <div class="text-ink-muted text-xs">{tokens.MIN_NIGHTS}-night minimum</div>
+    </div>
+    <OctCTA size="sm" variant="ghost" data-action="open-booking">Check Availability</OctCTA>
+  </div>
+</div>

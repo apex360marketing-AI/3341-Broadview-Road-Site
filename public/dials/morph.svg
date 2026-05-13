@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 60 60" aria-label="Morph organic blob scroll dial">
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#7DD8D8" stroke-opacity="0.18" stroke-width="0.5"/>
+  <path id="blob" d="" fill="#7DD8D8" fill-opacity="0.42" stroke="#7DD8D8" stroke-width="0.9" stroke-opacity="0.9" stroke-linejoin="round"/>
+  <circle cx="30" cy="30" r="1.6" fill="#1F2024"/>
+  <script><![CDATA[
+    (function(){
+      var blob = document.getElementById('blob');
+      var win = (typeof window !== 'undefined' && window.parent && window.parent !== window) ? window.parent : window;
+      var raf = null;
+      function buildPath(t){
+        var cx=30, cy=30, baseR=19, N=36, d='';
+        for (var i=0; i<=N; i++){
+          var a = (i/N) * Math.PI * 2;
+          var noise = Math.sin(a*3 + t*1.4)*3.2 + Math.cos(a*5 + t*0.9)*2.4 + Math.sin(a*7 + t*0.6)*1.2;
+          var r = baseR + noise;
+          var x = cx + Math.cos(a)*r;
+          var y = cy + Math.sin(a)*r;
+          d += (i===0 ? 'M ' : ' L ') + x.toFixed(2) + ',' + y.toFixed(2);
+        }
+        return d + ' Z';
+      }
+      function paint(){
+        var y = win.scrollY || 0;
+        blob.setAttribute('d', buildPath(y * 0.012));
+      }
+      win.addEventListener('scroll', function(){
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(paint);
+      }, { passive: true });
+      paint();
+    })();
+  ]]></script>
+</svg>

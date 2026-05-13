@@ -1,0 +1,47 @@
+---
+import { tokens } from '../lib/tokens';
+
+const monogram = (tokens.HOST_FIRST_NAME?.[0] || tokens.HOST_NAME?.[0] || '·').toUpperCase();
+const hasPhoto = !!tokens.HOST_PHOTO_URL;
+
+// Octagon clip-path string — same shape as the ScrollDirection button +
+// the OctCTA buttons + the QuickFacts cards. Sitewide shape consistency.
+const octClip = `polygon(
+  18% 0, 82% 0,
+  100% 18%, 100% 82%,
+  82% 100%, 18% 100%,
+  0 82%, 0 18%
+)`;
+---
+<section class="py-10 md:py-14">
+  <div class="max-w-3xl mx-auto px-[var(--gutter)]">
+    <div class="flex flex-col sm:flex-row gap-8 items-start">
+      <div class="shrink-0 relative w-28 h-28">
+        {/* Octagon-shaped avatar — matches the bottom-right scroll button */}
+        <span
+          class="absolute inset-0 bg-bg-surface"
+          style={`clip-path: ${octClip}; box-shadow: inset 0 0 0 1.4px rgba(91, 194, 194, 0.55);`}
+          aria-hidden="true"
+        ></span>
+        {hasPhoto ? (
+          <img
+            src={tokens.HOST_PHOTO_URL}
+            alt={`Host: ${tokens.HOST_NAME}`}
+            class="absolute inset-0 w-full h-full object-cover"
+            style={`clip-path: ${octClip};`}
+          />
+        ) : (
+          <span class="absolute inset-0 flex items-center justify-center text-[var(--accent)] text-5xl font-serif font-light" aria-label={`Host: ${tokens.HOST_NAME}`}>
+            {monogram}
+          </span>
+        )}
+      </div>
+      <div class="flex-1">
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Your host</p>
+        <h2 class="text-3xl md:text-4xl mb-2">{tokens.HOST_NAME}</h2>
+        <p class="text-accent text-sm mb-4">{tokens.HOST_BADGE} · Replies {tokens.HOST_RESPONSE_TIME}</p>
+        <p class="text-ink-primary text-lg font-serif italic leading-relaxed">{tokens.HOST_BLURB}</p>
+      </div>
+    </div>
+  </div>
+</section>

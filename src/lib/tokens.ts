@@ -17,6 +17,7 @@ export type Tokens = {
 
   LISTING_NAME: string;
   LISTING_TAGLINE: string;
+  LISTING_SUBTAGLINE: string;
   LISTING_ID: string;
   META_DESCRIPTION: string;
   OG_IMAGE_PATH: string;
@@ -80,6 +81,7 @@ export type Tokens = {
   PALETTE_ACCENT: string;
   PALETTE_ACCENT_HOVER: string;
   PALETTE_ACCENT_DEEP: string;
+  PALETTE_ACCENT_2: string;
   FONT_SERIF: string;
   FONT_SANS: string;
 };

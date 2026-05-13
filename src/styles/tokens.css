@@ -9,19 +9,24 @@
 
 :root {
   /* surfaces */
-  --bg-base: #0F0E0C;
-  --bg-surface: #1A1815;
-  --bg-elevated: #221E18;
+  --bg-base: #0F0E0C;       /* deepest — page bg */
+  --bg-surface: #1F2024;    /* cool dark grey — major content sections (carries the honeycomb watermark) */
+  --bg-elevated: #262A2E;   /* one step lighter — cards, modal */
 
   /* ink */
   --ink-primary: #EDE6D6;
   --ink-muted: #A29A8B;
   --ink-faint: #5C544A;
 
-  /* accent (cedar amber, pulled from the home's cedar siding + brick fireplace) */
-  --accent: #C97B3D;
-  --accent-hover: #DD8E4E;
-  --accent-deep: #8C5024;
+  /* accent — bright teal, pulled from the home's actual exterior trim color
+     and the Okanagan pool/lake palette. Carries primary brand identity. */
+  --accent: #5BC2C2;
+  --accent-hover: #7DD8D8;
+  --accent-deep: #3FA6A6;
+
+  /* secondary accent — same bright teal as primary so the brand reads as a
+     single signature color. Roles still distinguishable by component context. */
+  --accent-2: #5BC2C2;
 
   /* type */
   --font-serif: 'Fraunces', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;

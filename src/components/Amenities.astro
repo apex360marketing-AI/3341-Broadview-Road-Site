@@ -1,0 +1,223 @@
+---
+import { AMENITIES } from '../data/amenities';
+import Icon from './ui/Icon.astro';
+---
+<section class="py-10 md:py-14">
+  <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+    <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">What's Included</p>
+
+    <h2 class="typewrite text-3xl md:text-5xl mb-10 md:mb-14 font-light leading-[1.05] uppercase tracking-[0.02em] min-h-[2.4em]">
+      <span class="typed-line block" data-line="EVERYTHING YOU'D WANT,"></span>
+      <span class="typed-line block" data-line="NOTHING YOU WOULDN'T."></span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+      {AMENITIES.map((group) => (
+        <details class="amen-acc group">
+          <summary class="amen-summary">
+            <span class="amen-base" aria-hidden="true"></span>
+            <span class="amen-glow" aria-hidden="true"></span>
+            <span class="amen-shimmer" aria-hidden="true"></span>
+            <span class="amen-content">
+              <span class="amen-label">{group.group}</span>
+              <span class="amen-plus">+</span>
+            </span>
+          </summary>
+          <ul class="mt-4 px-2 space-y-3">
+            {group.items.map((item) => (
+              <li class="flex items-center gap-3">
+                <span class="text-[var(--accent-2)] shrink-0"><Icon name={item.icon} size={18} /></span>
+                <span class="text-ink-primary text-[14px]">{item.label}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Amenity accordion summaries — full hero-button hover stack: cursor-track
+     teal radial glow + shimmer sweep + dual-glow halo + letter-spacing breathe.
+     Same DNA as OctCTA + QuickFacts. Just kept the existing size/structure. */
+  .amen-acc {
+    --mx: 50%;
+    --my: 50%;
+    position: relative;
+    isolation: isolate;
+    transition: filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 4px 12px rgba(15, 14, 12, 0.25));
+  }
+  .amen-summary {
+    position: relative;
+    cursor: pointer;
+    list-style: none;
+    padding: 16px 20px;
+    isolation: isolate;
+    user-select: none;
+  }
+  .amen-summary::-webkit-details-marker { display: none; }
+
+  .amen-base,
+  .amen-glow,
+  .amen-shimmer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    clip-path: polygon(
+      12px 0, calc(100% - 12px) 0,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0 calc(100% - 12px), 0 12px
+    );
+  }
+  .amen-base {
+    z-index: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1.2px rgba(237, 230, 214, 0.55);
+    transition: background-color 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .amen-glow {
+    z-index: 1;
+    background: radial-gradient(220px circle at var(--mx) var(--my), #5BC2C2 0%, transparent 62%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+  .amen-shimmer {
+    z-index: 2;
+    background: linear-gradient(110deg, transparent 30%, rgba(91, 194, 194, 0.28) 50%, transparent 70%);
+    transform: translateX(-110%);
+    transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .amen-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .amen-label {
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-primary);
+    transition: letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .amen-plus {
+    color: #C0FF00;
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* HOVER — full compound effect */
+  .amen-acc:hover {
+    filter:
+      drop-shadow(0 10px 22px rgba(15, 14, 12, 0.4))
+      drop-shadow(0 0 18px rgba(91, 194, 194, 0.4))
+      drop-shadow(0 0 5px rgba(91, 194, 194, 0.3));
+  }
+  .amen-acc:hover .amen-base,
+  .amen-acc[open] .amen-base {
+    background: #1F2024;
+    box-shadow: inset 0 0 0 1.4px #5BC2C2;
+  }
+  .amen-acc:hover .amen-glow { opacity: 1; }
+  .amen-acc:hover .amen-shimmer { transform: translateX(210%); }
+  .amen-acc:hover .amen-label { letter-spacing: 0.28em; }
+  .amen-acc[open] .amen-plus { transform: rotate(45deg); }
+
+  /* Typewriter — base hidden, blinking cursor while typing */
+  .typed-line {
+    visibility: hidden;
+    white-space: pre;
+  }
+  .typed-line.is-typing,
+  .typed-line.is-done { visibility: visible; }
+  .typed-line.is-typing::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 0.85em;
+    background: var(--accent-2);
+    vertical-align: -0.05em;
+    margin-left: 4px;
+    animation: cursor-blink 0.8s steps(2, start) infinite;
+  }
+  @keyframes cursor-blink { 50% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .typed-line { visibility: visible !important; }
+    .typed-line::after { display: none !important; }
+    .amen-acc, .amen-base, .amen-glow, .amen-shimmer, .amen-label, .amen-plus {
+      transition-duration: 0.01ms !important;
+    }
+    .amen-shimmer { display: none; }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  // Cursor-track for radial glow on each accordion summary
+  document.querySelectorAll('.amen-acc').forEach((acc) => {
+    acc.addEventListener('mousemove', (e) => {
+      const rect = acc.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      acc.style.setProperty('--mx', `${x}%`);
+      acc.style.setProperty('--my', `${y}%`);
+    });
+    acc.addEventListener('mouseleave', () => {
+      acc.style.setProperty('--mx', '50%');
+      acc.style.setProperty('--my', '50%');
+    });
+  });
+
+  // Typewriter
+  function typeLine(el, text, speed) {
+    return new Promise((resolve) => {
+      el.textContent = '';
+      el.classList.add('is-typing');
+      let i = 0;
+      function tick() {
+        if (i <= text.length) {
+          el.textContent = text.slice(0, i);
+          i++;
+          setTimeout(tick, speed);
+        } else {
+          el.classList.remove('is-typing');
+          el.classList.add('is-done');
+          resolve();
+        }
+      }
+      tick();
+    });
+  }
+  async function startType(parent) {
+    const lines = parent.querySelectorAll('.typed-line');
+    for (const line of lines) await typeLine(line, line.dataset.line, 65);
+  }
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !entry.target.dataset.typed) {
+          entry.target.dataset.typed = '1';
+          startType(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.35 });
+    document.querySelectorAll('.typewrite').forEach((el) => io.observe(el));
+  } else {
+    document.querySelectorAll('.typed-line').forEach((el) => {
+      el.textContent = el.dataset.line;
+      el.classList.add('is-done');
+    });
+  }
+</script>

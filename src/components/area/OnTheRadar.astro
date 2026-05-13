@@ -1,0 +1,209 @@
+---
+import { tokens } from '../../lib/tokens';
+import { SAMPLE_EVENTS } from '../../data/sample-events';
+import Honeycomb from '../Honeycomb.astro';
+
+// Pre-render with sample events as the initial state. The client script swaps
+// in real data once it successfully fetches from {{LIVE_FEED_URL}}.
+const initial = SAMPLE_EVENTS;
+const hasFeed = !!tokens.LIVE_FEED_URL;
+---
+<section class="relative py-10 md:py-14 bg-bg-surface overflow-hidden">
+  <Honeycomb unique="radar" opacity={0.035} />
+  <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+
+    <div class="flex items-end justify-between flex-wrap gap-3 mb-3">
+      <div>
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">{tokens.LIVE_FEED_BLURB || 'Local happenings, refreshed daily.'}</p>
+        <h2 class="text-3xl md:text-5xl font-light leading-[1.05] uppercase tracking-[0.02em]">
+          On The Radar <span class="italic text-[var(--accent-2)]">this week</span>
+        </h2>
+      </div>
+      <div class="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase">
+        <span id="radar-dot" class="w-1.5 h-1.5 rounded-full bg-[var(--accent-2)] opacity-80 animate-pulse"></span>
+        <span id="radar-status" class="text-[var(--accent-2)] opacity-80">
+          {hasFeed ? 'Live · Refreshing' : 'Sample · Live feed pending deploy'}
+        </span>
+      </div>
+    </div>
+    <p class="text-ink-muted text-sm md:text-base font-serif italic mb-10 max-w-2xl">
+      The "dedicated agent" &mdash; concerts, festivals, carnivals, winery events, and one-of-a-kind happenings around the Okanagan, refreshed every 6 hours.
+    </p>
+
+    <div id="radar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+      {initial.map((e) => (
+        <article class="radar-card relative block p-5">
+          <span class="radar-base" aria-hidden="true"></span>
+          <span class="relative z-10 block">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[var(--accent-2)] text-[10px] tracking-[0.24em] uppercase">{e.category}</span>
+              <span class="text-ink-muted text-[10px] tracking-[0.18em] uppercase">{e.source}</span>
+            </div>
+            <h3 class="font-serif text-xl md:text-2xl font-light text-ink-primary mb-2 leading-tight">{e.title}</h3>
+            <p class="text-ink-muted text-sm leading-relaxed mb-4 min-h-[3em]">{e.summary}</p>
+            <div class="flex items-center justify-between text-[10px] tracking-[0.18em] uppercase">
+              <time class="text-[var(--accent-2)] opacity-80">{new Date(e.startsAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}</time>
+              <span class="text-ink-muted opacity-70">{e.distanceMiles.toFixed(1)} mi</span>
+            </div>
+          </span>
+        </article>
+      ))}
+    </div>
+
+    <p id="radar-updated" class="text-ink-faint text-[10px] tracking-wide italic mt-8 text-center opacity-70">
+      Updated &mdash; sample data shown until live feed deploys
+    </p>
+  </div>
+</section>
+
+<style>
+  .radar-card {
+    isolation: isolate;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 6px 12px rgba(15, 14, 12, 0.25));
+  }
+  .radar-base {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(237, 230, 214, 0.30);
+    clip-path: polygon(
+      14px 0, calc(100% - 14px) 0,
+      100% 14px, 100% calc(100% - 14px),
+      calc(100% - 14px) 100%, 14px 100%,
+      0 calc(100% - 14px), 0 14px
+    );
+    transition: box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .radar-card:hover {
+    transform: translateY(-2px);
+    filter:
+      drop-shadow(0 10px 18px rgba(15, 14, 12, 0.35))
+      drop-shadow(0 0 14px rgba(91, 194, 194, 0.3));
+  }
+  .radar-card:hover .radar-base {
+    box-shadow: inset 0 0 0 1.3px #5BC2C2;
+  }
+</style>
+
+<script is:inline define:vars={{
+  feedUrl: tokens.LIVE_FEED_URL,
+  hasFeed,
+  listingName: tokens.LISTING_NAME
+}}>
+  // @ts-nocheck
+  // Client-side fetch from the operator's Cloudflare Worker. Falls back to
+  // localStorage cache. If the worker isn't deployed yet (LIVE_FEED_URL empty),
+  // the section keeps the SSR'd sample events and shows a "sample" status.
+  (function () {
+    if (!hasFeed) return;
+    const grid = document.getElementById('radar-grid');
+    const statusEl = document.getElementById('radar-status');
+    const updatedEl = document.getElementById('radar-updated');
+    if (!grid) return;
+
+    const CACHE_KEY = 'valora-feed:v1';
+    const URL_REGEX = /^https?:\/\//i;
+
+    function safeUrl(u) {
+      return typeof u === 'string' && URL_REGEX.test(u) ? u : null;
+    }
+
+    function relTime(iso) {
+      try {
+        const then = new Date(iso).getTime();
+        const now = Date.now();
+        const diff = Math.max(0, now - then);
+        const mins = Math.floor(diff / 60000);
+        if (mins < 60) return `${mins} min ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs} hr ago`;
+        const days = Math.floor(hrs / 24);
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+      } catch (_) { return 'recently'; }
+    }
+
+    function render(events) {
+      grid.innerHTML = '';
+      events.forEach((e) => {
+        const card = document.createElement('article');
+        card.className = 'radar-card relative block p-5';
+        const dateStr = new Date(e.startsAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+        const safeHref = safeUrl(e.url);
+        card.innerHTML = `
+          <span class="radar-base" aria-hidden="true"></span>
+          <span class="relative z-10 block">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[var(--accent-2)] text-[10px] tracking-[0.24em] uppercase"></span>
+              <span class="text-ink-muted text-[10px] tracking-[0.18em] uppercase"></span>
+            </div>
+            <h3 class="font-serif text-xl md:text-2xl font-light text-ink-primary mb-2 leading-tight"></h3>
+            <p class="text-ink-muted text-sm leading-relaxed mb-4 min-h-[3em]"></p>
+            <div class="flex items-center justify-between text-[10px] tracking-[0.18em] uppercase">
+              <time class="text-[var(--accent-2)] opacity-80"></time>
+              <span class="text-ink-muted opacity-70"></span>
+            </div>
+          </span>
+        `;
+        const fields = card.querySelectorAll('span > div > span, h3, p, time, span > div > span:last-child, span > div:last-child > span:last-child');
+        // safer: set via direct queries
+        card.querySelector('span.text-\\[var\\(--accent-2\\)\\].uppercase').textContent = String(e.category || 'other');
+        const sourceEl = card.querySelectorAll('.flex.items-center.justify-between')[0].lastElementChild;
+        sourceEl.textContent = String(e.source || 'Other');
+        card.querySelector('h3').textContent = String(e.title || 'Untitled');
+        card.querySelector('p').textContent = String(e.summary || '');
+        card.querySelector('time').textContent = dateStr;
+        card.querySelectorAll('.flex.items-center.justify-between')[1].lastElementChild.textContent =
+          (typeof e.distanceMiles === 'number' ? e.distanceMiles.toFixed(1) : '—') + ' mi';
+        if (safeHref) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', () => window.open(safeHref, '_blank', 'noopener'));
+        }
+        grid.appendChild(card);
+      });
+    }
+
+    function readCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.payload || !Array.isArray(parsed.payload.events)) return null;
+        return parsed;
+      } catch (_) { return null; }
+    }
+
+    function writeCache(payload) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), payload }));
+      } catch (_) { /* quota / private mode — ignore */ }
+    }
+
+    async function load() {
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 5000);
+        const r = await fetch(feedUrl, { cache: 'no-store', signal: ctrl.signal });
+        clearTimeout(t);
+        if (!r.ok) throw new Error('non-2xx');
+        const payload = await r.json();
+        if (!Array.isArray(payload.events)) throw new Error('bad-shape');
+        writeCache(payload);
+        render(payload.events);
+        if (statusEl) statusEl.textContent = 'Live · Just refreshed';
+        if (updatedEl) updatedEl.textContent = 'Updated just now';
+      } catch (_) {
+        const cached = readCache();
+        if (cached) {
+          render(cached.payload.events);
+          if (statusEl) statusEl.textContent = "Live · Couldn't refresh";
+          if (updatedEl) updatedEl.textContent = `Updated ${relTime(new Date(cached.ts).toISOString())}`;
+        }
+        // Else: leave the SSR'd sample events visible
+      }
+    }
+
+    load();
+  })();
+</script>
