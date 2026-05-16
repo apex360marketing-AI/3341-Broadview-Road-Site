@@ -13,14 +13,22 @@ const alt = tokens.GALLERY_ALT;
         </h2>
         <p class="text-ink-muted text-base md:text-lg mt-3 font-serif italic">What more could you <span class="text-accent">need</span>?</p>
       </div>
-      <button
-        type="button"
-        class="hidden md:inline text-accent text-sm uppercase tracking-[0.18em] hover:text-[var(--accent-2)] transition-colors whitespace-nowrap ml-6"
-        data-action="open-lightbox"
-        data-index="0"
-      >
-        Open all {photos.length} <span class="text-[#C0FF00] hover:text-white transition-colors">→</span>
-      </button>
+      <div class="hidden md:flex flex-col items-end gap-2 ml-6 whitespace-nowrap">
+        <button
+          type="button"
+          class="text-accent text-sm uppercase tracking-[0.18em] hover:text-[var(--accent-2)] transition-colors"
+          data-action="open-lightbox"
+          data-index="0"
+        >
+          Open all {photos.length} <span class="text-[var(--accent-2)] hover:text-white transition-colors">→</span>
+        </button>
+        <a
+          href="/gallery"
+          class="text-[var(--accent-2)] text-sm uppercase tracking-[0.18em] hover:text-white transition-colors"
+        >
+          See full photo gallery <span class="hover:text-white transition-colors">→</span>
+        </a>
+      </div>
     </div>
 
     <div class="grid grid-cols-12 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[220px]" id="gallery-grid">
@@ -77,7 +85,7 @@ const alt = tokens.GALLERY_ALT;
   <button
     type="button"
     id="lightbox-prev"
-    class="absolute left-4 top-1/2 -translate-y-1/2 text-[#C0FF00] hover:text-white transition-colors p-3 z-10"
+    class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--accent-2)] hover:text-white transition-colors p-3 z-10"
     aria-label="Previous photo"
   >
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 6l-6 6 6 6"/></svg>
@@ -85,7 +93,7 @@ const alt = tokens.GALLERY_ALT;
   <button
     type="button"
     id="lightbox-next"
-    class="absolute right-4 top-1/2 -translate-y-1/2 text-[#C0FF00] hover:text-white transition-colors p-3 z-10"
+    class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--accent-2)] hover:text-white transition-colors p-3 z-10"
     aria-label="Next photo"
   >
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 6l6 6-6 6"/></svg>

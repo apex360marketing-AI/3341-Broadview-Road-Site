@@ -21,5 +21,6 @@ export const MENU_CONCEPTS = [
   { id: 'compassbloom', label: 'Compass Bloom', number: 2 },
   { id: 'honeycombbloom', label: 'Honeycomb Bloom', number: 3 },
   { id: 'particleconstellation', label: 'Particle Constellation', number: 4 },
-  { id: 'commandcursor', label: 'Command Cursor', number: 5 }
+  { id: 'commandcursor', label: 'Command Cursor', number: 5 },
+  { id: 'octabeacon', label: 'Octa Beacon', number: 6 }
 ] as const;

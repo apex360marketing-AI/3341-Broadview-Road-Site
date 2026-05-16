@@ -1,0 +1,228 @@
+---
+/*
+ * Page — Full photo gallery.
+ * Groups all 40 photos by room/area for browsing. Reuses the lightbox JS
+ * pattern from the main page's Gallery.astro. Linked from the main page
+ * via the "See full photo gallery" CTA.
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import ScrollDirection from '../components/ScrollDirection.astro';
+
+const groups = tokens.GALLERY_FULL_GROUPS;
+// Flatten for lightbox indexing — every photo gets a global index for arrow nav.
+const flatPhotos: { src: string; alt: string }[] = groups.flatMap((g) => g.photos);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>{tokens.LISTING_NAME} — Full photo gallery</title>
+    <meta name="description" content={`The full ${flatPhotos.length}-photo gallery for ${tokens.LISTING_NAME}, grouped by room and area.`} />
+    <meta name="robots" content="index,follow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <Nav />
+
+    <main class="pt-24 md:pt-28 pb-16">
+      <!-- Page header -->
+      <header class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] mb-10 md:mb-14 text-center">
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">Photo gallery</p>
+        <h1 class="brand-text font-serif text-4xl md:text-6xl font-light tracking-[0.05em] mb-3">{tokens.LISTING_NAME}</h1>
+        <p class="text-ink-muted text-sm md:text-base font-serif italic uppercase tracking-[0.22em]">{flatPhotos.length} photos across {groups.length} spaces</p>
+      </header>
+
+      <!-- Grouped sections -->
+      {groups.map((group, gIdx) => {
+        // Compute the starting global index for this group so lightbox arrows work across all 40.
+        const baseIdx = groups.slice(0, gIdx).reduce((sum, g) => sum + g.photos.length, 0);
+        return (
+          <section class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] mb-12 md:mb-16">
+            <div class="flex items-baseline justify-between mb-5 md:mb-7">
+              <h2 class="font-serif text-2xl md:text-3xl font-light tracking-[0.04em] text-[var(--accent-2)]">{group.title}</h2>
+              <span class="text-ink-faint text-xs tracking-[0.22em] uppercase">{group.photos.length} photos</span>
+            </div>
+            <div class="gallery-group-grid">
+              {group.photos.map((photo, pIdx) => (
+                <button
+                  type="button"
+                  class="gallery-tile group relative overflow-hidden bg-bg-surface focus-visible:outline-2 focus-visible:outline-accent"
+                  data-action="open-lightbox"
+                  data-index={baseIdx + pIdx}
+                  aria-label={`Open photo ${baseIdx + pIdx + 1}: ${photo.alt}`}
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    loading={gIdx === 0 && pIdx < 4 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    class="gallery-img w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+
+      <!-- Back to listing -->
+      <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)] mt-12 text-center">
+        <a href="/" class="inline-block text-[var(--accent-2)] hover:text-white transition-colors text-sm tracking-[0.22em] uppercase">
+          <span class="opacity-80">&larr;</span> Back to listing
+        </a>
+      </div>
+    </main>
+
+    <!-- Lightbox — reused pattern from Gallery.astro -->
+    <div
+      id="lightbox"
+      class="fixed inset-0 z-50 bg-bg-base/95 backdrop-blur-sm hidden items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo gallery"
+    >
+      <button
+        type="button"
+        id="lightbox-close"
+        class="absolute top-4 right-4 text-ink-primary hover:text-accent p-2 z-10"
+        aria-label="Close gallery"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <button
+        type="button"
+        id="lightbox-prev"
+        class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--accent-2)] hover:text-white transition-colors p-3 z-10"
+        aria-label="Previous photo"
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button
+        type="button"
+        id="lightbox-next"
+        class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--accent-2)] hover:text-white transition-colors p-3 z-10"
+        aria-label="Next photo"
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <figure class="max-w-[92vw] max-h-[88vh] flex flex-col items-center gap-3">
+        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[80vh] object-contain" />
+        <figcaption id="lightbox-caption" class="text-ink-muted text-sm"></figcaption>
+      </figure>
+    </div>
+
+    <Footer />
+    <ScrollDirection />
+
+    <style>
+      /* Match Nav.astro brand-mark for the H1 — transparent fill + teal stroke. */
+      .brand-text {
+        color: var(--ink-primary);
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 0.7px var(--accent-2);
+      }
+
+      /* Section grid — responsive 2/3/4 columns, square-ish tiles. */
+      .gallery-group-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      @media (min-width: 640px) {
+        .gallery-group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+      }
+      @media (min-width: 1024px) {
+        .gallery-group-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+      }
+
+      /* Tile aspect + hover lift (same DNA as main-page Gallery.astro). */
+      .gallery-tile {
+        aspect-ratio: 4 / 3;
+        z-index: 0;
+        transition:
+          transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .gallery-tile:hover {
+        z-index: 20;
+        transform: scale(1.04);
+        box-shadow:
+          0 20px 40px -10px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(91, 194, 194, 0.30);
+      }
+      .gallery-img {
+        transition:
+          transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
+          filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .gallery-tile:hover .gallery-img {
+        transform: scale(1.08);
+        filter: brightness(1.06) saturate(1.08);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .gallery-tile, .gallery-img {
+          transition: none !important;
+          transform: none !important;
+          filter: none !important;
+        }
+      }
+    </style>
+
+    <script is:inline define:vars={{ flatPhotos }}>
+      (function () {
+        const lightbox = document.getElementById('lightbox');
+        const img = document.getElementById('lightbox-img');
+        const caption = document.getElementById('lightbox-caption');
+        if (!lightbox || !img || !caption) return;
+
+        let current = 0;
+        let lastFocus = null;
+
+        function show(i) {
+          current = ((i % flatPhotos.length) + flatPhotos.length) % flatPhotos.length;
+          img.src = flatPhotos[current].src;
+          img.alt = flatPhotos[current].alt || '';
+          caption.textContent = `${current + 1} / ${flatPhotos.length} — ${flatPhotos[current].alt || ''}`;
+        }
+
+        function open(i) {
+          lastFocus = document.activeElement;
+          show(i);
+          lightbox.classList.remove('hidden');
+          lightbox.classList.add('flex');
+          document.body.style.overflow = 'hidden';
+          document.getElementById('lightbox-close')?.focus();
+        }
+
+        function close() {
+          lightbox.classList.add('hidden');
+          lightbox.classList.remove('flex');
+          document.body.style.overflow = '';
+          lastFocus?.focus();
+        }
+
+        document.querySelectorAll('[data-action="open-lightbox"]').forEach((el) => {
+          el.addEventListener('click', () => open(parseInt(el.getAttribute('data-index') || '0', 10)));
+        });
+        document.getElementById('lightbox-close')?.addEventListener('click', close);
+        document.getElementById('lightbox-prev')?.addEventListener('click', () => show(current - 1));
+        document.getElementById('lightbox-next')?.addEventListener('click', () => show(current + 1));
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+        document.addEventListener('keydown', (e) => {
+          if (lightbox.classList.contains('hidden')) return;
+          if (e.key === 'Escape') close();
+          if (e.key === 'ArrowLeft') show(current - 1);
+          if (e.key === 'ArrowRight') show(current + 1);
+        });
+      })();
+    </script>
+  </body>
+</html>

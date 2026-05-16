@@ -9,7 +9,7 @@ lastUpdated: '2026-05-13'
 
 **Who sees it.** The host, and the booking-management system the host uses. We do not sell guest data. Inquiries are used only to coordinate your booking.
 
-**Card data.** Card details on the secure-the-booking page are entered directly into a payment form provided by Stripe, our payment processor. Stripe is the data controller for card data; Valora's servers never see your card number. Stripe's privacy notice: https://stripe.com/privacy.
+**Card data.** Card details on the secure-the-booking page are entered directly into a payment form provided by Stripe, our payment processor. Stripe is the data controller for card data; VALORA's servers never see your card number. Stripe's privacy notice: https://stripe.com/privacy.
 
 **Booking data and cross-border note.** When you submit a booking inquiry, your name, email, phone, dates, guest count, and message are stored in the booking-management system the host uses to coordinate reservations. That system is operated from the United States, so submitting an inquiry means your information is processed cross-border. The system is contractually bound to use this data only to coordinate your booking.
 

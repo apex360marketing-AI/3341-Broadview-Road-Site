@@ -40,7 +40,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
           <circle cx="30" cy="30" r="2.4" fill="#5BC2C2"/>
           <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
         </svg>
-        <h3 class="font-serif text-3xl md:text-4xl font-light leading-none tracking-[0.05em]">{tokens.LISTING_NAME}</h3>
+        <h3 class="brand-text font-serif text-3xl md:text-4xl font-light leading-none tracking-[0.05em]">{tokens.LISTING_NAME}</h3>
       </div>
       <p class="text-ink-muted text-xs tracking-[0.22em] uppercase opacity-80">{tokens.LISTING_ADDRESS_LINE}</p>
     </div>
@@ -52,7 +52,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
           <span class="ftr-base" aria-hidden="true"></span>
           <span class="relative z-10 flex items-center justify-between">
             <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">House Rules</span>
-            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+            <span class="ftr-plus text-[var(--accent-2)] text-xl leading-none transition-transform">+</span>
           </span>
         </summary>
         <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_li]:my-1.5 [&_strong]:text-ink-primary">
@@ -65,7 +65,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
           <span class="ftr-base" aria-hidden="true"></span>
           <span class="relative z-10 flex items-center justify-between">
             <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Cancellation Policy</span>
-            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+            <span class="ftr-plus text-[var(--accent-2)] text-xl leading-none transition-transform">+</span>
           </span>
         </summary>
         <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_li]:my-1.5 [&_strong]:text-ink-primary">
@@ -78,7 +78,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
           <span class="ftr-base" aria-hidden="true"></span>
           <span class="relative z-10 flex items-center justify-between">
             <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Privacy Notice</span>
-            <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
+            <span class="ftr-plus text-[var(--accent-2)] text-xl leading-none transition-transform">+</span>
           </span>
         </summary>
         <div class="prose prose-sm prose-invert mt-4 px-3 text-ink-muted [&_strong]:text-ink-primary">
@@ -112,6 +112,13 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
 </footer>
 
 <style>
+  /* VALORA wordmark — match the Nav.astro brand-mark: transparent fill + teal stroke. */
+  .brand-text {
+    color: var(--ink-primary);
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.7px var(--accent-2);
+  }
+
   /* Accordion summaries — match the QuickFacts / OctCTA octagon DNA.
      Cream outline at rest → teal outline on hover / open. Open state also
      gets a faint teal wash inside. */

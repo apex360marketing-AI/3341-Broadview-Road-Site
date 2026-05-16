@@ -1,0 +1,467 @@
+---
+/**
+ * Concept 6 — OctaBeacon
+ *
+ * Menu trigger built in the OctCTA octagon vocabulary at a tiny scale (~38px).
+ * Hover effect is a three-part showpiece:
+ *   1. Diagonal teal scanline sweeps across the octagon (clip-path mask).
+ *   2. Three teal spark particles trail outward from the icon edges.
+ *   3. The 3-line "menu" icon morphs (top + bottom lines angle inward into a
+ *      compact teal diamond) then back, on a 0.6s loop while hovered.
+ *
+ * Panel chips reuse the octagonal frame from OctCTA — same chamfered shape,
+ * same teal hover trace, staggered drop-in reveal.
+ */
+import { MENU_ITEMS } from './items';
+const id = 'octabeacon';
+const panelId = `${id}-panel`;
+---
+<div class="ob-menu" data-menu-id={id}>
+  <button
+    type="button"
+    class="ob-trigger"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={panelId}
+    aria-label="Open menu — OctaBeacon"
+    title="OctaBeacon"
+  >
+    <span class="ob-num" aria-hidden="true">6</span>
+
+    <!-- Octagonal frame: layered base (stroke + dark fill) -->
+    <span class="ob-frame" aria-hidden="true"></span>
+
+    <!-- Diagonal scanline that sweeps across on hover -->
+    <span class="ob-scan" aria-hidden="true"></span>
+
+    <!-- Icon: 3 lines that morph to a compact diamond on hover -->
+    <svg class="ob-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <line class="ob-line ob-line-top"    x1="6"  y1="9"  x2="18" y2="9"  stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line class="ob-line ob-line-mid"    x1="6"  y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line class="ob-line ob-line-bottom" x1="6"  y1="15" x2="18" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Spark particles fire outward on hover -->
+    <span class="ob-spark ob-spark-1" aria-hidden="true"></span>
+    <span class="ob-spark ob-spark-2" aria-hidden="true"></span>
+    <span class="ob-spark ob-spark-3" aria-hidden="true"></span>
+    <span class="ob-spark ob-spark-4" aria-hidden="true"></span>
+  </button>
+
+  <div class="ob-panel" id={panelId} role="menu" hidden>
+    {MENU_ITEMS.map((item, i) => (
+      <div class="ob-cell" style={`--ob-i: ${i}`}>
+        {item.dataAction ? (
+          <button type="button" class="ob-item" role="menuitem" data-action={item.dataAction}>
+            <span class="ob-item-base" aria-hidden="true"></span>
+            <span class="ob-item-trace" aria-hidden="true"></span>
+            <span class="ob-item-label">{item.label}</span>
+          </button>
+        ) : item.soon ? (
+          <span class="ob-item ob-item-soon" role="menuitem" aria-disabled="true">
+            <span class="ob-item-base" aria-hidden="true"></span>
+            <span class="ob-item-label">{item.label}<small class="ob-soon">SOON</small></span>
+          </span>
+        ) : (
+          <a class="ob-item" role="menuitem" href={item.href}>
+            <span class="ob-item-base" aria-hidden="true"></span>
+            <span class="ob-item-trace" aria-hidden="true"></span>
+            <span class="ob-item-label">{item.label}</span>
+          </a>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* ===== Layout ===== */
+  .ob-menu { position: relative; }
+
+  /* ===== Trigger ===== */
+  .ob-trigger {
+    position: relative;
+    width: 72px;
+    height: 40px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-primary);
+    overflow: visible;
+    isolation: isolate;
+  }
+
+  /* concept number badge — matches the other 5 concepts */
+  .ob-num {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 9px;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    z-index: 5;
+  }
+
+  /* Octagonal base frame — chamfered shape using clip-path. Layered:
+     outer = stroke ring (teal at rest, brightens on hover/open),
+     inner = dark fill. */
+  .ob-frame {
+    position: absolute;
+    inset: 6px;
+    background: linear-gradient(135deg, rgba(91, 194, 194, 0.55), rgba(91, 194, 194, 0.18));
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0 calc(100% - 8px), 0 8px
+    );
+    transition:
+      filter 380ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: ob-breath 2.6s ease-in-out infinite;
+  }
+  .ob-frame::after {
+    content: '';
+    position: absolute;
+    inset: 1.2px;
+    background: #1F2024;
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0 calc(100% - 8px), 0 8px
+    );
+  }
+  @keyframes ob-breath {
+    0%, 100% { filter: brightness(0.85) drop-shadow(0 0 4px rgba(91, 194, 194, 0.2)); }
+    50%      { filter: brightness(1.1)  drop-shadow(0 0 12px rgba(91, 194, 194, 0.42)); }
+  }
+
+  /* ===== Hover effect part 1 — diagonal teal scanline sweep ===== */
+  .ob-scan {
+    position: absolute;
+    inset: 6px;
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0 calc(100% - 8px), 0 8px
+    );
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(91, 194, 194, 0.85) 50%,
+      transparent 65%
+    );
+    background-size: 220% 100%;
+    background-position: 110% 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ob-trigger:hover .ob-scan,
+  .ob-trigger:focus-visible .ob-scan {
+    animation: ob-scan-sweep 720ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes ob-scan-sweep {
+    0%   { background-position: 110% 0;  opacity: 0; }
+    35%  { opacity: 1; }
+    100% { background-position: -110% 0; opacity: 0; }
+  }
+
+  /* ===== Icon — 3 lines that morph on hover ===== */
+  .ob-icon {
+    position: relative;
+    z-index: 3;
+    width: 22px;
+    height: 22px;
+    color: var(--accent-2);
+    transition: color 240ms ease;
+  }
+  .ob-line {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      stroke 260ms ease;
+  }
+  /* Hover morph — top + bottom angle inward forming a compact diamond.
+     Middle compresses to half-width. */
+  .ob-trigger:hover .ob-line-top,
+  .ob-trigger:focus-visible .ob-line-top {
+    transform: translateY(2px) rotate(15deg) scaleX(0.7);
+    stroke: #5BC2C2;
+  }
+  .ob-trigger:hover .ob-line-mid,
+  .ob-trigger:focus-visible .ob-line-mid {
+    transform: scaleX(0.45);
+    stroke: #5BC2C2;
+  }
+  .ob-trigger:hover .ob-line-bottom,
+  .ob-trigger:focus-visible .ob-line-bottom {
+    transform: translateY(-2px) rotate(-15deg) scaleX(0.7);
+    stroke: #5BC2C2;
+  }
+
+  /* Open state — frame brightens, lines clean morph to X */
+  .ob-trigger[aria-expanded="true"] .ob-frame {
+    animation: none;
+    filter: brightness(1.2) drop-shadow(0 0 16px rgba(91, 194, 194, 0.55));
+  }
+  .ob-trigger[aria-expanded="true"] .ob-line-top {
+    transform: translateY(3px) rotate(45deg);
+    stroke: #5BC2C2;
+  }
+  .ob-trigger[aria-expanded="true"] .ob-line-mid {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .ob-trigger[aria-expanded="true"] .ob-line-bottom {
+    transform: translateY(-3px) rotate(-45deg);
+    stroke: #5BC2C2;
+  }
+
+  /* ===== Hover effect part 2 — spark particles ===== */
+  .ob-spark {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #5BC2C2;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 4;
+    box-shadow: 0 0 6px rgba(91, 194, 194, 0.9);
+  }
+  .ob-spark-1 { top: 50%; left: 50%; }
+  .ob-spark-2 { top: 50%; left: 50%; }
+  .ob-spark-3 { top: 50%; left: 50%; }
+  .ob-spark-4 { top: 50%; left: 50%; }
+
+  .ob-trigger:hover .ob-spark-1,
+  .ob-trigger:focus-visible .ob-spark-1 { animation: ob-spark-tr 720ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .ob-trigger:hover .ob-spark-2,
+  .ob-trigger:focus-visible .ob-spark-2 { animation: ob-spark-br 760ms cubic-bezier(0.16, 1, 0.3, 1) 80ms; }
+  .ob-trigger:hover .ob-spark-3,
+  .ob-trigger:focus-visible .ob-spark-3 { animation: ob-spark-bl 700ms cubic-bezier(0.16, 1, 0.3, 1) 40ms; }
+  .ob-trigger:hover .ob-spark-4,
+  .ob-trigger:focus-visible .ob-spark-4 { animation: ob-spark-tl 780ms cubic-bezier(0.16, 1, 0.3, 1) 120ms; }
+
+  @keyframes ob-spark-tr {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(calc(-50% + 22px), calc(-50% - 18px)) scale(0); opacity: 0; }
+  }
+  @keyframes ob-spark-br {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(calc(-50% + 20px), calc(-50% + 20px)) scale(0); opacity: 0; }
+  }
+  @keyframes ob-spark-bl {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(calc(-50% - 22px), calc(-50% + 18px)) scale(0); opacity: 0; }
+  }
+  @keyframes ob-spark-tl {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(calc(-50% - 20px), calc(-50% - 20px)) scale(0); opacity: 0; }
+  }
+
+  /* ===== Panel ===== */
+  .ob-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 240px;
+    padding: 4px;
+    display: grid;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+    transform-origin: top right;
+    transition:
+      opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 50;
+  }
+  .ob-panel[hidden] { display: none; }
+  .ob-panel.ob-open { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* ===== Cells (staggered reveal) ===== */
+  .ob-cell {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--ob-i) * 60ms + 120ms);
+  }
+  .ob-panel.ob-open .ob-cell {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== Items — octagonal chips matching OctCTA DNA ===== */
+  .ob-item {
+    position: relative;
+    display: block;
+    height: 44px;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    overflow: visible;
+    isolation: isolate;
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    transition: letter-spacing 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    line-height: 44px;
+  }
+
+  .ob-item-base {
+    position: absolute;
+    inset: 0;
+    background: rgba(237, 230, 214, 0.55);
+    clip-path: polygon(
+      10px 0, calc(100% - 10px) 0,
+      100% 10px, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 10px 100%,
+      0 calc(100% - 10px), 0 10px
+    );
+    transition:
+      background 320ms ease,
+      filter 320ms ease;
+  }
+  .ob-item-base::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: #1F2024;
+    clip-path: polygon(
+      10px 0, calc(100% - 10px) 0,
+      100% 10px, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 10px 100%,
+      0 calc(100% - 10px), 0 10px
+    );
+  }
+  /* Teal trace layer that fades in on hover */
+  .ob-item-trace {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(91, 194, 194, 0.85), rgba(91, 194, 194, 0.3));
+    clip-path: polygon(
+      10px 0, calc(100% - 10px) 0,
+      100% 10px, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 10px 100%,
+      0 calc(100% - 10px), 0 10px
+    );
+    opacity: 0;
+    transition: opacity 320ms ease;
+  }
+  .ob-item-trace::after {
+    content: '';
+    position: absolute;
+    inset: 1.2px;
+    background: #1F2024;
+    clip-path: polygon(
+      10px 0, calc(100% - 10px) 0,
+      100% 10px, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 10px 100%,
+      0 calc(100% - 10px), 0 10px
+    );
+  }
+  .ob-item-label {
+    position: relative;
+    z-index: 1;
+    transition: color 240ms ease;
+  }
+
+  .ob-item:hover, .ob-item:focus-visible {
+    outline: none;
+    letter-spacing: 0.22em;
+  }
+  .ob-item:hover .ob-item-trace,
+  .ob-item:focus-visible .ob-item-trace { opacity: 1; }
+  .ob-item:hover .ob-item-label,
+  .ob-item:focus-visible .ob-item-label { color: var(--accent-2); }
+
+  .ob-item-soon { cursor: not-allowed; pointer-events: none; }
+  .ob-item-soon .ob-item-label { color: var(--ink-muted); opacity: 0.55; }
+  .ob-soon {
+    display: block;
+    font-size: 7px;
+    color: var(--accent-2);
+    letter-spacing: 0.22em;
+    margin-top: -8px;
+    opacity: 0.75;
+    line-height: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-frame, .ob-scan, .ob-line, .ob-spark, .ob-panel, .ob-cell, .ob-item, .ob-item-base, .ob-item-trace, .ob-item-label {
+      transition: opacity 100ms ease !important;
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function () {
+    const root = document.querySelector('[data-menu-id="octabeacon"]');
+    if (!root) return;
+    const trigger = root.querySelector('.ob-trigger');
+    const panel = root.querySelector('.ob-panel');
+    const items = root.querySelectorAll('.ob-item:not(.ob-item-soon)');
+    let openedAt = 0;
+
+    function open() {
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('ob-open'));
+      openedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('menu:opened', { detail: { id: 'octabeacon' } }));
+      setTimeout(() => items[0]?.focus(), 360);
+    }
+    function close() {
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('ob-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 320);
+    }
+    trigger.addEventListener('click', () => {
+      trigger.getAttribute('aria-expanded') === 'true' ? close() : open();
+    });
+    document.addEventListener('click', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (Date.now() - openedAt < 200) return;
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (trigger.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') { close(); trigger.focus(); }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const i = Array.from(items).indexOf(document.activeElement);
+        items[(i + 1) % items.length]?.focus();
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const i = Array.from(items).indexOf(document.activeElement);
+        items[(i - 1 + items.length) % items.length]?.focus();
+      }
+    });
+    window.addEventListener('menu:opened', (e) => {
+      if (e.detail?.id !== 'octabeacon' && trigger.getAttribute('aria-expanded') === 'true') close();
+    });
+  })();
+</script>

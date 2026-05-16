@@ -6,7 +6,7 @@
  * here as /pay?id=BOOKING_ID. This page:
  *   1. Reads booking_id from query
  *   2. Fetches /booking/:id for summary (dates, nights, deposit)
- *   3. Mounts Stripe Card Element (no card data EVER hits Valora origin)
+ *   3. Mounts Stripe Card Element (no card data EVER hits VALORA origin)
  *   4. On submit → createPaymentMethod (browser) → POST /booking/:id/secure
  *      (server creates PaymentIntent manual-capture = the auth-hold)
  *   5. On success → § C "What happens next" panel
@@ -30,7 +30,7 @@ import OctCTA from '../components/ui/OctCTA.astro';
       CSP — weakened from default-src 'self' to allow Stripe Elements. This
       page is the ONLY one in the site that loads js.stripe.com, and the
       Stripe iframe is the entire mechanism for SAQ-A scope (the card data
-      lives in their iframe, never in Valora origin).
+      lives in their iframe, never in VALORA origin).
     -->
     <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https: https://*.stripe.com; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://js.stripe.com; connect-src 'self' https://api.stripe.com https://m.stripe.network https://r.stripe.com ${tokens.BOOKING_API_URL || ''}; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
     <title>Secure your stay — {tokens.LISTING_NAME}</title>
@@ -165,7 +165,7 @@ import OctCTA from '../components/ui/OctCTA.astro';
               </div>
 
               <p class="text-ink-faint text-[10px] leading-relaxed italic text-center pt-2">
-                Card data is processed by Stripe. Your card number never reaches Valora's servers.
+                Card data is processed by Stripe. Your card number never reaches VALORA's servers.
               </p>
 
               <div id="pay-status" class="hidden text-sm" role="status" aria-live="polite"></div>

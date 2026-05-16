@@ -3,12 +3,13 @@ import { tokens } from '../lib/tokens';
 import OctCTA from './ui/OctCTA.astro';
 const isApprox = tokens.LISTING_LOCATION_DISPLAY === 'approximate';
 ---
-<section class="py-10 md:py-14 border-t border-ink-faint/30">
+<section class="py-6 md:py-9 border-t border-ink-faint/30">
   <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
-    <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">Where you'll be</p>
-    <h2 class="text-3xl md:text-5xl mb-8">{tokens.LISTING_ADDRESS_LINE}</h2>
+    <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Where you'll be staying</p>
+    <h2 class="text-xl md:text-3xl mb-1 brand-text font-serif font-light tracking-[0.05em] leading-none">VALORA</h2>
+    <p class="text-ink-muted text-sm md:text-base mb-5 font-serif italic uppercase tracking-[0.22em]">Your home away from home</p>
 
-    <div id="map-container" class="relative bg-bg-surface aspect-[16/9] md:aspect-[21/9] overflow-hidden">
+    <div id="map-container" class="relative bg-bg-surface aspect-[16/6] md:aspect-[21/6] overflow-hidden">
       <!-- Static SVG preview (default state — zero JS, zero third-party hits) -->
       <svg
         id="map-static"
@@ -68,8 +69,8 @@ const isApprox = tokens.LISTING_LOCATION_DISPLAY === 'approximate';
         <!-- Center pin -->
         <circle cx="400" cy="180" r="3" fill="#5BC2C2" />
 
-        <text x="400" y="135" text-anchor="middle" fill="#EDE6D6" font-family="serif" font-size="18" font-style="italic">
-          {tokens.LISTING_ADDRESS_LINE}
+        <text x="400" y="135" text-anchor="middle" fill="none" stroke="#5BC2C2" stroke-width="0.7" font-family="Fraunces, serif" font-size="36" letter-spacing="2">
+          VALORA
         </text>
         <text x="400" y="248" text-anchor="middle" fill="#5BC2C2" fill-opacity="0.85" font-family="sans-serif" font-size="10" letter-spacing="3">
           APPROXIMATE AREA
@@ -88,6 +89,15 @@ const isApprox = tokens.LISTING_LOCATION_DISPLAY === 'approximate';
     )}
   </div>
 </section>
+
+<style>
+  /* Match the Nav.astro VALORA brand-mark — transparent fill + teal stroke. */
+  .brand-text {
+    color: var(--ink-primary);
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.7px var(--accent-2);
+  }
+</style>
 
 <!-- Leaflet loaded only after click -->
 <script is:inline define:vars={{ lat: tokens.LISTING_LAT, lng: tokens.LISTING_LNG, radius: tokens.LISTING_LOCATION_RADIUS_M, isApprox }}>

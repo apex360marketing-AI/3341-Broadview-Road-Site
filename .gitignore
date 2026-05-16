@@ -24,6 +24,9 @@ Thumbs.db
 seed/
 *.zip
 
+# working-tree photo backups (git history is the canonical record)
+public/listing/.backup/
+
 # logs
 *.log
 npm-debug.log*

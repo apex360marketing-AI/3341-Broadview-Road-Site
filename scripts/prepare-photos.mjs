@@ -23,32 +23,53 @@ import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const SEED = join(ROOT, 'seed', 'listing_3341_broadview');
+const SEED = join(ROOT, 'seed', 'valora_v2');
 const OUT = join(ROOT, 'public', 'listing');
 
 const CURATED = [
-  // First 12 — visible on the home page grid.
-  'photo_01_modern_updated_exterior.jpg',
-  'photo_02_private_backyard_oasis.jpg',
-  'photo_03_inground_pool.jpg',
-  'photo_05_vaulted_ceilings.jpg',
-  'photo_07_wood_burning_fireplace.jpg',
-  'photo_06_oversized_living_room.jpg',
-  'photo_12_kitchen.jpg',
-  'photo_14_kitchen.jpg',
-  'photo_09_dining_area.jpg',
-  'photo_17_main_floor_primary.jpg',
-  'photo_19_main_floor_primary_ensuite.jpg',
-  'photo_20_main_floor_bed_2.jpg',
-  // Next 8 — lightbox-only, available via arrow keys after opening any grid photo.
-  'photo_04_front_entry.jpg',
-  'photo_08_lr_to_dining.jpg',
-  'photo_10_lr_to_front_entry.jpg',
-  'photo_11_lr_dining_to_kitchen.jpg',
-  'photo_13_kitchen.jpg',
-  'photo_15_kitchen.jpg',
-  'photo_16_kitchen_to_lr_dining.jpg',
-  'photo_18_main_floor_primary_2.jpg'
+  // 01–12: visible on the main page grid.
+  'photo_01_pool_deck_hero.jpg',
+  'photo_02_front_exterior.jpg',
+  'photo_03_drone_wide_okanagan.jpg',
+  'photo_04_great_room_vaulted.jpg',
+  'photo_05_great_room_brick_fireplace.jpg',
+  'photo_06_kitchen_island.jpg',
+  'photo_07_primary_br_pool_access.jpg',
+  'photo_08_primary_bath_teal.jpg',
+  'photo_09_covered_deck_bbq.jpg',
+  'photo_10_pool_ground_level.jpg',
+  'photo_11_upstairs_bath_teal.jpg',
+  'photo_12_upstairs_primary_br.jpg',
+  // 13–20: main-page lightbox, available via arrow keys.
+  'photo_13_pool_loungers.jpg',
+  'photo_14_living_loft_wide.jpg',
+  'photo_15_dining_vaulted.jpg',
+  'photo_16_kitchen_wide_deck_doors.jpg',
+  'photo_17_covered_deck_bench.jpg',
+  'photo_18_aerial_top_down.jpg',
+  'photo_19_guest_br_gray.jpg',
+  'photo_20_kids_bunk_room.jpg',
+  // 21–40: gallery page only (grouped by room/area).
+  'photo_21_pool_sectional.jpg',
+  'photo_22_pool_hot_tub.jpg',
+  'photo_23_pool_diving_shed.jpg',
+  'photo_24_sunpad_garden_bench.jpg',
+  'photo_25_trampoline_swing.jpg',
+  'photo_26_aerial_top_down_pool.jpg',
+  'photo_27_aerial_vineyard_lake.jpg',
+  'photo_28_aerial_back_of_house.jpg',
+  'photo_29_living_sectional.jpg',
+  'photo_30_living_brick_close.jpg',
+  'photo_31_loft_topdown_view.jpg',
+  'photo_32_kitchen_sink.jpg',
+  'photo_33_kitchen_into_living.jpg',
+  'photo_34_deck_bbq_dining.jpg',
+  'photo_35_deck_dining_angle.jpg',
+  'photo_36_bedroom_barn_door.jpg',
+  'photo_37_kids_pink_room.jpg',
+  'photo_38_main_floor_ensuite.jpg',
+  'photo_39_walkin_shower.jpg',
+  'photo_40_front_door_close.jpg'
 ];
 
 async function ensureDir(path) {
@@ -134,7 +155,9 @@ async function processOne(srcName, idx) {
   // .trim() auto-detects from the top-left corner pixel — if there's a white
   // letterbox border, it's removed. If the corner is photo content, no-op.
   const trimmed = await sharp(oriented).trim({ threshold: 12 }).toBuffer();
-  const patched = await patchRealtorBadge(trimmed);
+  // patchRealtorBadge skipped for valora_v2 — fresh professional shots
+  // without a realtor.ca watermark; patching would damage the top-left.
+  const patched = trimmed;
   const out = await sharp(patched)
     .jpeg({ quality: 82, progressive: true, mozjpeg: true })
     .toBuffer();

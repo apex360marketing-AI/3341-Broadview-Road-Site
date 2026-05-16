@@ -12,6 +12,11 @@ export type Review = {
   body: string;
 };
 
+export type GalleryGroup = {
+  title: string;
+  photos: { src: string; alt: string }[];
+};
+
 export type Tokens = {
   TEMPLATE_VERSION: string;
 
@@ -40,6 +45,7 @@ export type Tokens = {
   HERO_PHOTO: string;
   GALLERY_PHOTOS: string[];
   GALLERY_ALT: string[];
+  GALLERY_FULL_GROUPS: GalleryGroup[];
 
   HOST_NAME: string;
   HOST_FIRST_NAME: string;

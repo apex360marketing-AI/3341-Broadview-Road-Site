@@ -1,0 +1,421 @@
+---
+/*
+ * ShareModal — branded share dialog opened by "Send to Friend" CTAs.
+ *
+ * Replaces the system share sheet so we can ship:
+ *   - Honeycomb-language visual (hex chip targets, teal accents)
+ *   - Instagram share (copy + IG hint, since IG has no web share endpoint)
+ *   - Universal targets: Copy link, Email, SMS, WhatsApp, Facebook, X
+ *   - Native share button on devices that support navigator.share()
+ *
+ * Mounts once in the page; any element with [data-action="share-listing"]
+ * opens it. Closes on backdrop click, Escape, or the close (✕) button.
+ */
+import { tokens } from '../lib/tokens';
+---
+<div
+  id="share-modal"
+  class="share-modal-overlay hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="share-modal-title"
+  aria-hidden="true"
+>
+  <!-- Honeycomb pattern backdrop -->
+  <div class="share-hex-bg" aria-hidden="true"></div>
+
+  <div class="share-modal" role="document">
+    <button
+      type="button"
+      id="share-modal-close"
+      class="share-close"
+      aria-label="Close share dialog"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+
+    <header class="share-header">
+      <p class="share-eyebrow">Send to a friend</p>
+      <h2 id="share-modal-title" class="share-title brand-text">SHARE {tokens.LISTING_NAME}</h2>
+      <p class="share-sub">Send this listing — pick a way</p>
+    </header>
+
+    <div class="share-grid" role="list">
+      <button type="button" class="share-chip" data-share="copy" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg>
+        <span>Copy link</span>
+      </button>
+      <button type="button" class="share-chip" data-share="email" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>
+        <span>Email</span>
+      </button>
+      <button type="button" class="share-chip" data-share="sms" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4h16v12H7l-3 4z"/></svg>
+        <span>Text / SMS</span>
+      </button>
+      <button type="button" class="share-chip" data-share="whatsapp" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.6 13.8L3 21l4.4-1.3A9 9 0 1 0 12 3z"/><path d="M8 10c0 4 4 8 8 8"/></svg>
+        <span>WhatsApp</span>
+      </button>
+      <button type="button" class="share-chip" data-share="instagram" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/></svg>
+        <span>Instagram</span>
+      </button>
+      <button type="button" class="share-chip" data-share="facebook" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 8h3V5h-3a3 3 0 0 0-3 3v3H9v3h2v6h3v-6h2.5l.5-3H14V8z"/></svg>
+        <span>Facebook</span>
+      </button>
+      <button type="button" class="share-chip" data-share="twitter" role="listitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4l7 9-7 7h2.5l5.5-5.5L17 20H21l-7.5-9.5L20.5 4H18l-5 5L9 4H4z"/></svg>
+        <span>X / Twitter</span>
+      </button>
+      <button type="button" class="share-chip share-chip-native" data-share="native" role="listitem" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 15v5h14v-5"/></svg>
+        <span>More options</span>
+      </button>
+    </div>
+
+    <div class="share-url-row">
+      <input type="text" id="share-url-input" class="share-url-input" readonly aria-label="Listing link" />
+    </div>
+  </div>
+
+  <!-- Toast — slides in when an action completes -->
+  <div id="share-toast" class="share-toast" role="status" aria-live="polite">Link copied — paste it anywhere.</div>
+</div>
+
+<style>
+  /* ===== Overlay + honeycomb pattern background ===== */
+  .share-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(15, 14, 12, 0.88);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .share-modal-overlay.is-open {
+    opacity: 1;
+  }
+  .share-modal-overlay.hidden {
+    display: none !important;
+  }
+
+  /* Honeycomb tile pattern as decorative backdrop. Subtle, hex repeats. */
+  .share-hex-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(91, 194, 194, 0.5), transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(91, 194, 194, 0.35), transparent 55%);
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 52'><polygon points='30,1 58,16 58,36 30,51 2,36 2,16' fill='none' stroke='%23ffffff' stroke-width='1.5'/></svg>");
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 52'><polygon points='30,1 58,16 58,36 30,51 2,36 2,16' fill='none' stroke='%23ffffff' stroke-width='1.5'/></svg>");
+    mask-repeat: repeat;
+    -webkit-mask-repeat: repeat;
+    mask-size: 60px 52px;
+    -webkit-mask-size: 60px 52px;
+  }
+
+  /* ===== Modal container ===== */
+  .share-modal {
+    position: relative;
+    z-index: 1;
+    background: #1F2024;
+    border: 1px solid rgba(91, 194, 194, 0.25);
+    box-shadow:
+      0 30px 60px -12px rgba(0, 0, 0, 0.85),
+      0 0 40px rgba(91, 194, 194, 0.15);
+    max-width: 560px;
+    width: 100%;
+    padding: 36px 28px 28px;
+    transform: scale(0.94) translateY(8px);
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .share-modal-overlay.is-open .share-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .share-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: color 200ms ease, transform 200ms ease;
+  }
+  .share-close:hover { color: var(--accent-2); transform: rotate(90deg); }
+
+  /* ===== Header ===== */
+  .share-header { text-align: center; margin-bottom: 24px; }
+  .share-eyebrow {
+    color: var(--accent-2);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .share-title {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: 28px;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  /* Inherits brand-text outline treatment via the class below. */
+  .brand-text {
+    color: var(--ink-primary);
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.7px var(--accent-2);
+  }
+  .share-sub {
+    font-family: var(--font-serif);
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ink-muted);
+    font-size: 11px;
+    opacity: 0.85;
+  }
+
+  /* ===== Chip grid — 2 columns mobile, 4 columns desktop ===== */
+  .share-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  @media (min-width: 520px) {
+    .share-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  }
+
+  /* Hex chip — stretched hex clip-path same as HoneycombBloom */
+  .share-chip {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 8px;
+    background: linear-gradient(135deg, rgba(91, 194, 194, 0.6), rgba(91, 194, 194, 0.18));
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    border: 0;
+    color: var(--ink-primary);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    transition: filter 200ms ease, transform 200ms ease;
+  }
+  .share-chip::before {
+    content: '';
+    position: absolute;
+    inset: 1.2px;
+    background: #1F2024;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    z-index: 0;
+  }
+  .share-chip > * { position: relative; z-index: 1; }
+  .share-chip svg {
+    width: 22px;
+    height: 22px;
+    color: var(--accent-2);
+    transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .share-chip:hover, .share-chip:focus-visible {
+    filter: brightness(1.15) drop-shadow(0 0 12px rgba(91, 194, 194, 0.35));
+    outline: none;
+  }
+  .share-chip:hover svg { transform: scale(1.12); }
+
+  /* ===== URL row ===== */
+  .share-url-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .share-url-input {
+    flex: 1;
+    background: rgba(91, 194, 194, 0.06);
+    border: 1px solid rgba(91, 194, 194, 0.22);
+    color: var(--ink-muted);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 10px 14px;
+    outline: none;
+    text-overflow: ellipsis;
+  }
+  .share-url-input:focus { border-color: var(--accent-2); color: var(--ink-primary); }
+
+  /* ===== Toast ===== */
+  .share-toast {
+    position: absolute;
+    left: 50%;
+    bottom: 32px;
+    transform: translate(-50%, 12px);
+    background: var(--bg-elevated, #262A2E);
+    border: 1px solid rgba(91, 194, 194, 0.5);
+    color: var(--ink-primary);
+    font-size: 13px;
+    padding: 10px 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease, transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+  }
+  .share-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .share-modal-overlay, .share-modal, .share-chip, .share-toast, .share-chip svg, .share-close {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ title: tokens.LISTING_NAME, blurb: tokens.LISTING_TAGLINE }}>
+  // @ts-nocheck
+  (function () {
+    const modal = document.getElementById('share-modal');
+    const urlInput = document.getElementById('share-url-input');
+    const toast = document.getElementById('share-toast');
+    const closeBtn = document.getElementById('share-modal-close');
+    if (!modal || !urlInput || !toast) return;
+
+    const nativeBtn = modal.querySelector('[data-share="native"]');
+    if (nativeBtn && typeof navigator.share === 'function') {
+      nativeBtn.hidden = false;
+    }
+
+    let lastFocus = null;
+    let toastTimer = null;
+
+    function getUrl() {
+      return location.href;
+    }
+    function getShareText() {
+      return `${title} — ${blurb}`;
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
+    }
+
+    function openModal() {
+      lastFocus = document.activeElement;
+      urlInput.value = getUrl();
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => modal.classList.add('is-open'));
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => closeBtn?.focus(), 240);
+    }
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        lastFocus?.focus?.();
+      }, 320);
+    }
+
+    // ===== Wire up triggers anywhere on the page =====
+    document.querySelectorAll('[data-action="share-listing"]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal();
+      });
+    });
+
+    // ===== Backdrop click + Escape =====
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    closeBtn?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ===== Per-chip handlers =====
+    function handleShare(kind) {
+      const url = getUrl();
+      const text = getShareText();
+      const enc = encodeURIComponent;
+
+      switch (kind) {
+        case 'copy':
+          navigator.clipboard?.writeText(url)
+            .then(() => showToast('Link copied — paste it anywhere.'))
+            .catch(() => {
+              urlInput.select();
+              showToast('Tap and hold to copy the link.');
+            });
+          break;
+        case 'email':
+          location.href = `mailto:?subject=${enc(title)}&body=${enc(text + '\n\n' + url)}`;
+          break;
+        case 'sms':
+          // sms: scheme — body param works on iOS; Android uses ?body=
+          location.href = `sms:?&body=${enc(text + ' ' + url)}`;
+          break;
+        case 'whatsapp':
+          window.open(`https://wa.me/?text=${enc(text + ' ' + url)}`, '_blank', 'noopener,noreferrer');
+          break;
+        case 'instagram':
+          // IG has no web share endpoint — copy URL + nudge user.
+          navigator.clipboard?.writeText(url).catch(() => {});
+          showToast('Link copied — paste in your Instagram DM or Story.');
+          // Mobile-only: try opening IG app directly.
+          const ua = navigator.userAgent || '';
+          if (/iPhone|iPad|Android/i.test(ua)) {
+            setTimeout(() => { window.location.href = 'instagram://app'; }, 600);
+          }
+          break;
+        case 'facebook':
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, '_blank', 'noopener,noreferrer');
+          break;
+        case 'twitter':
+          window.open(`https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, '_blank', 'noopener,noreferrer');
+          break;
+        case 'native':
+          if (typeof navigator.share === 'function') {
+            navigator.share({ title, text: blurb, url }).catch(() => {});
+          }
+          break;
+      }
+    }
+
+    modal.querySelectorAll('[data-share]').forEach((el) => {
+      el.addEventListener('click', () => handleShare(el.getAttribute('data-share')));
+    });
+  })();
+</script>
