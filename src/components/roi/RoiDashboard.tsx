@@ -494,6 +494,34 @@ export default function RoiDashboard() {
 
         </div>
 
+        {/* ─── What This Means for the Seller ───────────────────────────────── */}
+        <div style={{
+          marginTop: 32,
+          background: T.surface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 12,
+          padding: '24px 28px',
+        }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: T.ink, letterSpacing: '-0.01em' }}>
+            What This Means for the Seller
+          </h3>
+          <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <li style={{ fontSize: 13, color: T.body, lineHeight: 1.6 }}>
+              At the current assumptions, <strong>Option A (All Long-Term)</strong> delivers around{' '}
+              <strong style={{ color: optA.cashOnCash >= 0 ? T.green : T.red }}>{fmtPct(optA.cashOnCash)}</strong> cash-on-cash (cash flow only) and{' '}
+              <strong style={{ color: optA.totalReturnPct >= 0 ? T.blue : T.red }}>{fmtPct(optA.totalReturnPct)}</strong> when you include Year 1 principal paydown.
+            </li>
+            <li style={{ fontSize: 13, color: T.body, lineHeight: 1.6 }}>
+              <strong>Option B (Hybrid)</strong> delivers around{' '}
+              <strong style={{ color: optB.cashOnCash >= 0 ? T.green : T.red }}>{fmtPct(optB.cashOnCash)}</strong> cash-on-cash and{' '}
+              <strong style={{ color: optB.totalReturnPct >= 0 ? T.blue : T.red }}>{fmtPct(optB.totalReturnPct)}</strong> with equity, based on the STR pricing and occupancy shown above.
+            </li>
+            <li style={{ fontSize: 13, color: T.body, lineHeight: 1.6 }}>
+              Investor-grade buyers will generally compare these returns to other opportunities in the 8–12%+ cash-on-cash range, which is why accurate rents, expenses, and pricing are critical.
+            </li>
+          </ul>
+        </div>
+
         {/* ─── Pre-qual CTA ──────────────────────────────────────────────────── */}
         <div style={{
           marginTop: 40,
