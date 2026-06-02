@@ -2,8 +2,9 @@
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const PEAK_DAYS = 92;         // Jun (30) + Jul (31) + Aug (31)
-export const OFFPEAK_DAYS = 273;     // remaining 273 days
+export const PURCHASE_PRICE = 1_295_000;
+export const PEAK_DAYS = 92;      // Jun (30) + Jul (31) + Aug (31)
+export const OFFPEAK_DAYS = 273;  // remaining days
 
 // ─── Input types ──────────────────────────────────────────────────────────────
 
@@ -12,37 +13,37 @@ export interface RoiInputs {
   downPaymentPct: number;      // 0.20 = 20%
   mortgageRatePct: number;     // 0.055 = 5.5%
   amortizationYears: number;
+  closingCostsPct: number;     // 0.025
 
-  // STR (main floor: 4BR + den)
+  // STR (Suite 3 — upstairs + pool)
   peakNightlyRate: number;
   offPeakNightlyRate: number;
   peakOccupancy: number;       // 0.70
   offPeakOccupancy: number;    // 0.55
   platformFeePct: number;      // 0.05
   cleaningFeePerTurnover: number;
-  avgStayNights: number;
-  variableCostPerNight: number;
-  strUtilityMonthly: number;
+  avgStayNights: number;       // 2.5
+  variableCostPerNight: number; // 40
+  strUtilityMonthly: number;   // 350
 
   // LTR suites
-  suite1Monthly: number;       // 2-bed legal suite
-  suite2Monthly: number;       // 1-bed in-law suite
-  mainFloorLtrMonthly: number; // 4BR + den if rented LTR
-  ltrVacancyRate: number;      // 0.05
-  ltrMgmtFeePct: number;       // 0.08
+  suite1Monthly: number;         // 2-bed basement
+  suite2Monthly: number;         // 1-bed basement
+  suite3LtrMonthly: number;      // upstairs (Option A only)
+  ltrVacancyRate: number;        // 0.05 — no management fee
 
   // Fixed holding costs
   propertyTaxAnnual: number;
   insuranceAnnual: number;
   maintenanceAnnual: number;
-  closingCostsPct: number;     // 0.025
 }
 
 export const DEFAULT_INPUTS: RoiInputs = {
-  purchasePrice: 1_295_000,
+  purchasePrice: PURCHASE_PRICE,
   downPaymentPct: 0.20,
   mortgageRatePct: 0.055,
   amortizationYears: 25,
+  closingCostsPct: 0.025,
 
   peakNightlyRate: 575,
   offPeakNightlyRate: 450,
@@ -56,14 +57,12 @@ export const DEFAULT_INPUTS: RoiInputs = {
 
   suite1Monthly: 1_600,
   suite2Monthly: 1_400,
-  mainFloorLtrMonthly: 3_200,
+  suite3LtrMonthly: 3_200,
   ltrVacancyRate: 0.05,
-  ltrMgmtFeePct: 0.08,
 
   propertyTaxAnnual: 9_500,
   insuranceAnnual: 3_600,
   maintenanceAnnual: 5_500,
-  closingCostsPct: 0.025,
 };
 
 // ─── Output types ─────────────────────────────────────────────────────────────
@@ -76,221 +75,190 @@ export interface LineItem {
 }
 
 export interface OptionResult {
-  id: 'str' | 'hybrid' | 'ltr';
+  id: 'ltr' | 'hybrid';
   label: string;
-  description: string;
+  tagline: string;
   badge?: string;
   grossAnnual: number;
-  opexAnnual: number;
+  vacancyLoss: number;
+  strOpex: number;
+  fixedOpex: number;
   noi: number;
   debtService: number;
   cashFlow: number;
-  capRate: number;
   cashOnCash: number;
+  yearOnePrincipal: number;
+  totalReturn: number;
+  totalReturnPct: number;
   totalCashInvested: number;
   lines: LineItem[];
 }
 
 // ─── Core calculations ────────────────────────────────────────────────────────
 
-function mortgagePaymentMonthly(principal: number, annualRate: number, years: number): number {
+export function calcMortgageMonthly(
+  principal: number,
+  annualRate: number,
+  years: number,
+): number {
   if (annualRate === 0) return principal / (years * 12);
   const r = annualRate / 12;
   const n = years * 12;
   return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 }
 
-interface StrRevenue {
-  gross: number;
-  platformFees: number;
-  cleaningCosts: number;
-  variableCosts: number;
-  utilities: number;
-  opex: number;
-  noi: number;
+export function calcYearOnePrincipal(
+  purchasePrice: number,
+  downPaymentPct: number,
+  annualRate: number,
+  years: number,
+): number {
+  const loan = purchasePrice * (1 - downPaymentPct);
+  const r = annualRate / 12;
+  const payment = calcMortgageMonthly(loan, annualRate, years);
+  let balance = loan;
+  let principal = 0;
+  for (let i = 0; i < 12; i++) {
+    const interest = balance * r;
+    const p = payment - interest;
+    principal += p;
+    balance -= p;
+  }
+  return principal;
 }
-
-function calcStrRevenue(inp: RoiInputs): StrRevenue {
-  const peakOccupied = PEAK_DAYS * inp.peakOccupancy;
-  const offPeakOccupied = OFFPEAK_DAYS * inp.offPeakOccupancy;
-  const totalOccupied = peakOccupied + offPeakOccupied;
-
-  const gross =
-    peakOccupied * inp.peakNightlyRate +
-    offPeakOccupied * inp.offPeakNightlyRate;
-
-  const platformFees = gross * inp.platformFeePct;
-  const turnovers = totalOccupied / inp.avgStayNights;
-  const cleaningCosts = turnovers * inp.cleaningFeePerTurnover;
-  const variableCosts = totalOccupied * inp.variableCostPerNight;
-  const utilities = inp.strUtilityMonthly * 12;
-  const opex = platformFees + cleaningCosts + variableCosts + utilities;
-
-  return { gross, platformFees, cleaningCosts, variableCosts, utilities, opex, noi: gross - opex };
-}
-
-interface LtrRevenue {
-  gross: number;
-  vacancyLoss: number;
-  mgmtFees: number;
-  opex: number;
-  noi: number;
-}
-
-function calcLtrUnit(monthlyRent: number, inp: RoiInputs): LtrRevenue {
-  const gross = monthlyRent * 12;
-  const vacancyLoss = gross * inp.ltrVacancyRate;
-  const effective = gross - vacancyLoss;
-  const mgmtFees = effective * inp.ltrMgmtFeePct;
-  const opex = vacancyLoss + mgmtFees;
-  return { gross, vacancyLoss, mgmtFees, opex, noi: gross - opex };
-}
-
-// ─── Option builders ──────────────────────────────────────────────────────────
 
 function buildCommon(inp: RoiInputs) {
   const loanAmount = inp.purchasePrice * (1 - inp.downPaymentPct);
   const downPayment = inp.purchasePrice * inp.downPaymentPct;
   const closingCosts = inp.purchasePrice * inp.closingCostsPct;
   const totalCashInvested = downPayment + closingCosts;
-  const mortgageMonthly = mortgagePaymentMonthly(loanAmount, inp.mortgageRatePct, inp.amortizationYears);
+  const mortgageMonthly = calcMortgageMonthly(loanAmount, inp.mortgageRatePct, inp.amortizationYears);
   const debtService = mortgageMonthly * 12;
   const fixedOpex = inp.propertyTaxAnnual + inp.insuranceAnnual + inp.maintenanceAnnual;
-  return { loanAmount, downPayment, closingCosts, totalCashInvested, debtService, fixedOpex };
+  const yearOnePrincipal = calcYearOnePrincipal(
+    inp.purchasePrice, inp.downPaymentPct, inp.mortgageRatePct, inp.amortizationYears,
+  );
+  return { loanAmount, downPayment, closingCosts, totalCashInvested, debtService, fixedOpex, yearOnePrincipal };
 }
 
-export function calcStrOption(inp: RoiInputs): OptionResult {
-  const { totalCashInvested, debtService, fixedOpex } = buildCommon(inp);
-  const str = calcStrRevenue(inp);
-  const totalOpex = str.opex + fixedOpex;
-  const noi = str.gross - totalOpex;
-  const cashFlow = noi - debtService;
-  const capRate = noi / inp.purchasePrice;
-  const cashOnCash = cashFlow / totalCashInvested;
-
-  const lines: LineItem[] = [
-    { label: 'STR gross revenue', annual: str.gross, isIncome: true },
-    { label: 'Platform fees (5%)', annual: -str.platformFees, isIncome: false },
-    { label: 'Cleaning fees', annual: -str.cleaningCosts, isIncome: false },
-    { label: 'Variable costs ($40/night)', annual: -str.variableCosts, isIncome: false },
-    { label: 'Utilities', annual: -str.utilities, isIncome: false },
-    { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
-    { label: 'Insurance', annual: -inp.insuranceAnnual, isIncome: false },
-    { label: 'Maintenance reserve', annual: -inp.maintenanceAnnual, isIncome: false },
-    { label: 'Net Operating Income', annual: noi, isIncome: true, isSubtotal: true },
-    { label: 'Mortgage payments', annual: -debtService, isIncome: false },
-    { label: 'Annual cash flow', annual: cashFlow, isIncome: cashFlow >= 0, isSubtotal: true },
-  ];
-
-  return {
-    id: 'str',
-    label: 'Option C — STR Only (Upstairs)',
-    description: 'Suite 3 (upstairs with pool, 4 BR + den) as STR. Suites 1 & 2 vacant.',
-    grossAnnual: str.gross,
-    opexAnnual: totalOpex,
-    noi,
-    debtService,
-    cashFlow,
-    capRate,
-    cashOnCash,
-    totalCashInvested,
-    lines,
-  };
+function calcStrRevenue(inp: RoiInputs) {
+  const peakOccupied = PEAK_DAYS * inp.peakOccupancy;
+  const offPeakOccupied = OFFPEAK_DAYS * inp.offPeakOccupancy;
+  const totalOccupied = peakOccupied + offPeakOccupied;
+  const gross = peakOccupied * inp.peakNightlyRate + offPeakOccupied * inp.offPeakNightlyRate;
+  const platformFees = gross * inp.platformFeePct;
+  const cleaningCosts = (totalOccupied / inp.avgStayNights) * inp.cleaningFeePerTurnover;
+  const variableCosts = totalOccupied * inp.variableCostPerNight;
+  const utilities = inp.strUtilityMonthly * 12;
+  const opex = platformFees + cleaningCosts + variableCosts + utilities;
+  return { gross, platformFees, cleaningCosts, variableCosts, utilities, opex };
 }
 
-export function calcHybridOption(inp: RoiInputs): OptionResult {
-  const { totalCashInvested, debtService, fixedOpex } = buildCommon(inp);
-  const str = calcStrRevenue(inp);
-  const s1 = calcLtrUnit(inp.suite1Monthly, inp);
-  const s2 = calcLtrUnit(inp.suite2Monthly, inp);
-
-  const grossAnnual = str.gross + s1.gross + s2.gross;
-  const totalOpex = str.opex + s1.opex + s2.opex + fixedOpex;
-  const noi = grossAnnual - totalOpex;
-  const cashFlow = noi - debtService;
-  const capRate = noi / inp.purchasePrice;
-  const cashOnCash = cashFlow / totalCashInvested;
-
-  const lines: LineItem[] = [
-    { label: 'Suite 3 STR revenue (upstairs + pool)', annual: str.gross, isIncome: true },
-    { label: 'Suite 1 rent (2-bed, LTR)', annual: s1.gross, isIncome: true },
-    { label: 'Suite 2 rent (1-bed, LTR)', annual: s2.gross, isIncome: true },
-    { label: 'Platform fees (5%)', annual: -str.platformFees, isIncome: false },
-    { label: 'Cleaning fees', annual: -str.cleaningCosts, isIncome: false },
-    { label: 'Variable costs', annual: -str.variableCosts, isIncome: false },
-    { label: 'STR utilities', annual: -str.utilities, isIncome: false },
-    { label: 'LTR vacancy (5%)', annual: -(s1.vacancyLoss + s2.vacancyLoss), isIncome: false },
-    { label: 'LTR management (8%)', annual: -(s1.mgmtFees + s2.mgmtFees), isIncome: false },
-    { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
-    { label: 'Insurance', annual: -inp.insuranceAnnual, isIncome: false },
-    { label: 'Maintenance reserve', annual: -inp.maintenanceAnnual, isIncome: false },
-    { label: 'Net Operating Income', annual: noi, isIncome: true, isSubtotal: true },
-    { label: 'Mortgage payments', annual: -debtService, isIncome: false },
-    { label: 'Annual cash flow', annual: cashFlow, isIncome: cashFlow >= 0, isSubtotal: true },
-  ];
-
-  return {
-    id: 'hybrid',
-    label: 'Option B — Hybrid (Basements LTR + Upstairs STR)',
-    description: 'Suite 1 + Suite 2 on long-term leases. Suite 3 (upstairs with pool) as STR.',
-    badge: 'Recommended',
-    grossAnnual,
-    opexAnnual: totalOpex,
-    noi,
-    debtService,
-    cashFlow,
-    capRate,
-    cashOnCash,
-    totalCashInvested,
-    lines,
-  };
-}
+// ─── Option A — All Long-Term ─────────────────────────────────────────────────
 
 export function calcLtrOption(inp: RoiInputs): OptionResult {
-  const { totalCashInvested, debtService, fixedOpex } = buildCommon(inp);
-  const main = calcLtrUnit(inp.mainFloorLtrMonthly, inp);
-  const s1 = calcLtrUnit(inp.suite1Monthly, inp);
-  const s2 = calcLtrUnit(inp.suite2Monthly, inp);
+  const { totalCashInvested, debtService, fixedOpex, yearOnePrincipal } = buildCommon(inp);
 
-  const grossAnnual = main.gross + s1.gross + s2.gross;
-  const totalOpex = main.opex + s1.opex + s2.opex + fixedOpex;
-  const noi = grossAnnual - totalOpex;
+  const grossAnnual = (inp.suite1Monthly + inp.suite2Monthly + inp.suite3LtrMonthly) * 12;
+  const vacancyLoss = grossAnnual * inp.ltrVacancyRate;
+  const noi = grossAnnual - vacancyLoss - fixedOpex;
   const cashFlow = noi - debtService;
-  const capRate = noi / inp.purchasePrice;
   const cashOnCash = cashFlow / totalCashInvested;
+  const totalReturn = cashFlow + yearOnePrincipal;
+  const totalReturnPct = totalReturn / totalCashInvested;
 
   const lines: LineItem[] = [
-    { label: 'Suite 3 rent (upstairs + pool, LTR)', annual: main.gross, isIncome: true },
-    { label: 'Suite 1 rent (2-bed, LTR)', annual: s1.gross, isIncome: true },
-    { label: 'Suite 2 rent (1-bed, LTR)', annual: s2.gross, isIncome: true },
-    { label: 'Vacancy (5% all units)', annual: -(main.vacancyLoss + s1.vacancyLoss + s2.vacancyLoss), isIncome: false },
-    { label: 'Management fees (8%)', annual: -(main.mgmtFees + s1.mgmtFees + s2.mgmtFees), isIncome: false },
+    { label: 'Suite 3 — upstairs + pool', annual: inp.suite3LtrMonthly * 12, isIncome: true },
+    { label: 'Suite 1 — 2-bed basement', annual: inp.suite1Monthly * 12, isIncome: true },
+    { label: 'Suite 2 — 1-bed basement', annual: inp.suite2Monthly * 12, isIncome: true },
+    { label: `Vacancy (${(inp.ltrVacancyRate * 100).toFixed(0)}%)`, annual: -vacancyLoss, isIncome: false },
     { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
     { label: 'Insurance', annual: -inp.insuranceAnnual, isIncome: false },
     { label: 'Maintenance reserve', annual: -inp.maintenanceAnnual, isIncome: false },
-    { label: 'Net Operating Income', annual: noi, isIncome: true, isSubtotal: true },
-    { label: 'Mortgage payments', annual: -debtService, isIncome: false },
-    { label: 'Annual cash flow', annual: cashFlow, isIncome: cashFlow >= 0, isSubtotal: true },
+    { label: 'Net Operating Income', annual: noi, isIncome: noi >= 0, isSubtotal: true },
+    { label: 'Annual mortgage payments', annual: -debtService, isIncome: false },
+    { label: 'Cash Flow', annual: cashFlow, isIncome: cashFlow >= 0, isSubtotal: true },
+    { label: 'Year 1 principal paydown', annual: yearOnePrincipal, isIncome: true },
+    { label: 'Total Return (incl. equity)', annual: totalReturn, isIncome: totalReturn >= 0, isSubtotal: true },
   ];
 
   return {
     id: 'ltr',
-    label: 'Option A — Full Long-Term',
-    description: 'All 3 suites on long-term leases. Lowest effort, most predictable income.',
+    label: 'Option A',
+    tagline: 'All 3 Suites — Long-Term',
     grossAnnual,
-    opexAnnual: totalOpex,
+    vacancyLoss,
+    strOpex: 0,
+    fixedOpex,
     noi,
     debtService,
     cashFlow,
-    capRate,
     cashOnCash,
+    yearOnePrincipal,
+    totalReturn,
+    totalReturnPct,
     totalCashInvested,
     lines,
   };
 }
 
-export function calcAllOptions(inp: RoiInputs): OptionResult[] {
-  return [calcLtrOption(inp), calcHybridOption(inp), calcStrOption(inp)];
+// ─── Option B — Hybrid ────────────────────────────────────────────────────────
+
+export function calcHybridOption(inp: RoiInputs): OptionResult {
+  const { totalCashInvested, debtService, fixedOpex, yearOnePrincipal } = buildCommon(inp);
+
+  const ltrGross = (inp.suite1Monthly + inp.suite2Monthly) * 12;
+  const ltrVacancyLoss = ltrGross * inp.ltrVacancyRate;
+
+  const str = calcStrRevenue(inp);
+
+  const grossAnnual = ltrGross + str.gross;
+  const vacancyLoss = ltrVacancyLoss;
+  const strOpex = str.opex;
+  const noi = grossAnnual - ltrVacancyLoss - strOpex - fixedOpex;
+  const cashFlow = noi - debtService;
+  const cashOnCash = cashFlow / totalCashInvested;
+  const totalReturn = cashFlow + yearOnePrincipal;
+  const totalReturnPct = totalReturn / totalCashInvested;
+
+  const lines: LineItem[] = [
+    { label: 'Suite 3 — STR (Airbnb, upstairs + pool)', annual: str.gross, isIncome: true },
+    { label: 'Suite 1 — 2-bed basement (guaranteed)', annual: inp.suite1Monthly * 12, isIncome: true },
+    { label: 'Suite 2 — 1-bed basement (guaranteed)', annual: inp.suite2Monthly * 12, isIncome: true },
+    { label: `LTR vacancy (${(inp.ltrVacancyRate * 100).toFixed(0)}%)`, annual: -ltrVacancyLoss, isIncome: false },
+    { label: `STR platform fee (${(inp.platformFeePct * 100).toFixed(0)}%)`, annual: -str.platformFees, isIncome: false },
+    { label: 'Cleaning fees', annual: -str.cleaningCosts, isIncome: false },
+    { label: 'Variable costs', annual: -str.variableCosts, isIncome: false },
+    { label: 'STR utilities', annual: -str.utilities, isIncome: false },
+    { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
+    { label: 'Insurance', annual: -inp.insuranceAnnual, isIncome: false },
+    { label: 'Maintenance reserve', annual: -inp.maintenanceAnnual, isIncome: false },
+    { label: 'Net Operating Income', annual: noi, isIncome: noi >= 0, isSubtotal: true },
+    { label: 'Annual mortgage payments', annual: -debtService, isIncome: false },
+    { label: 'Cash Flow', annual: cashFlow, isIncome: cashFlow >= 0, isSubtotal: true },
+    { label: 'Year 1 principal paydown', annual: yearOnePrincipal, isIncome: true },
+    { label: 'Total Return (incl. equity)', annual: totalReturn, isIncome: totalReturn >= 0, isSubtotal: true },
+  ];
+
+  return {
+    id: 'hybrid',
+    label: 'Option B',
+    tagline: 'Suites 1 & 2 LTR + Suite 3 Airbnb',
+    badge: 'Recommended',
+    grossAnnual,
+    vacancyLoss,
+    strOpex,
+    fixedOpex,
+    noi,
+    debtService,
+    cashFlow,
+    cashOnCash,
+    yearOnePrincipal,
+    totalReturn,
+    totalReturnPct,
+    totalCashInvested,
+    lines,
+  };
 }
 
 // ─── Formatting helpers ───────────────────────────────────────────────────────
