@@ -386,6 +386,11 @@ export default function RoiDashboard() {
           OPTION CARDS
       ═══════════════════════════════════════════════════════════════════ */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px clamp(1rem,4vw,2.5rem) 80px' }}>
+
+        <p style={{ margin: '0 0 28px', fontSize: 14, color: T.muted, lineHeight: 1.7, maxWidth: 780 }}>
+          This ROI dashboard compares two ways to run this three-suite home with a private oasis-style yard and pool: all three suites rented long term, or a hybrid strategy where the upstairs operates as a short-term rental and the basements stay on long-term leases. Use the sliders and inputs to plug in your own financing, rents, and STR assumptions and see how your cash-on-cash returns move in real time.
+        </p>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: 24 }}>
 
           {/* ─── OPTION A ──────────────────────────────────────────────────── */}
@@ -502,11 +507,10 @@ export default function RoiDashboard() {
               Next step
             </p>
             <h3 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>
-              Are you Pre-Qualified yet?
+              Request Your Personalized ROI Scenario
             </h3>
             <p style={{ margin: 0, fontSize: 14, color: '#94a3b8', lineHeight: 1.6, maxWidth: 420 }}>
-              Knowing your borrowing power before you make an offer gives you real negotiating leverage.
-              Get pre-qualified in under 10 minutes.
+              Share your real mortgage terms and rental assumptions and we'll plug them into this model to show your cash-on-cash and equity returns for both strategies.
             </p>
           </div>
           <button
@@ -519,14 +523,12 @@ export default function RoiDashboard() {
               letterSpacing: '-0.01em', whiteSpace: 'nowrap', flexShrink: 0,
             }}
           >
-            Get Pre-Qualified →
+            Request Your Personalized ROI Scenario →
           </button>
         </div>
 
         <p style={{ marginTop: 20, fontSize: 11, color: T.label, lineHeight: 1.7 }}>
-          All figures are estimates for illustrative purposes only and do not constitute financial, legal, or investment advice.
-          Actual income, expenses, and returns will vary. Year 1 principal paydown is calculated from the standard amortization schedule.
-          Consult a qualified accountant, mortgage professional, and real estate lawyer before making any investment decision.
+          Figures shown are illustrative only and based on the assumptions visible in this dashboard. Actual performance will vary with market conditions, pricing, and management. This is not financial, tax, or investment advice; please consult your own professional advisors before making decisions.
         </p>
       </div>
     </div>
