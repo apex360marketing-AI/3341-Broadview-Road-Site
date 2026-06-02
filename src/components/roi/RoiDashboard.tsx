@@ -478,17 +478,18 @@ export default function RoiDashboard() {
               Get pre-qualified in under 10 minutes.
             </p>
           </div>
-          <a
-            href="#contact"
+          <button
+            onClick={() => (window as any).openInquiryModal?.()}
+            aria-label="Open inquiry form — get pre-qualified"
             style={{
-              display: 'inline-block', padding: '14px 32px',
+              padding: '14px 32px',
               background: T.teal, color: '#fff', fontWeight: 700, fontSize: 15,
-              borderRadius: 8, textDecoration: 'none', letterSpacing: '-0.01em',
-              whiteSpace: 'nowrap', flexShrink: 0,
+              borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: FF,
+              letterSpacing: '-0.01em', whiteSpace: 'nowrap', flexShrink: 0,
             }}
           >
             Get Pre-Qualified →
-          </a>
+          </button>
         </div>
 
         <p style={{ marginTop: 20, fontSize: 11, color: T.label, lineHeight: 1.7 }}>
