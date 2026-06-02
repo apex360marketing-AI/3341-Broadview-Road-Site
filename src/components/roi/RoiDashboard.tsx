@@ -360,6 +360,10 @@ export default function RoiDashboard() {
           {/* ─── OPTION A ──────────────────────────────────────────────────── */}
           <OptionCard result={optA} showBreakdown={showBreakdownA} onToggleBreakdown={() => setShowBreakdownA(p => !p)}>
 
+            <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
+              Suites 1, 2, and 3 all rented long-term with vacancy applied.
+            </p>
+
             {/* Income inputs */}
             <SectionBox title="Monthly Rent — All 3 Suites (Guaranteed)">
               <InlineField label="Suite 3 — upstairs + pool (4BR + den)">
@@ -390,6 +394,10 @@ export default function RoiDashboard() {
 
           {/* ─── OPTION B ──────────────────────────────────────────────────── */}
           <OptionCard result={optB} showBreakdown={showBreakdownB} onToggleBreakdown={() => setShowBreakdownB(p => !p)}>
+
+            <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
+              Suites 1 and 2 rented long-term with vacancy applied; Suite 3 rented as a short-term rental with peak/off-peak pricing and occupancy.
+            </p>
 
             {/* LTR portion */}
             <SectionBox title="Suites 1 & 2 — Long-Term (Guaranteed)" accent={T.green}>
@@ -535,7 +543,7 @@ function OptionCard({
           </span>
         </div>
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: T.ink, letterSpacing: '-0.02em' }}>
-          {tagline}
+          {label} – {tagline}
         </h3>
       </div>
 

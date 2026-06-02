@@ -185,7 +185,7 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
   return {
     id: 'ltr',
     label: 'Option A',
-    tagline: 'All 3 Suites — Long-Term',
+    tagline: 'All Long-Term (3 Suites)',
     grossAnnual,
     vacancyLoss,
     strOpex: 0,
@@ -243,7 +243,7 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
   return {
     id: 'hybrid',
     label: 'Option B',
-    tagline: 'Suites 1 & 2 LTR + Suite 3 Airbnb',
+    tagline: 'Hybrid (Basements LTR + Upstairs STR)',
     badge: 'Recommended',
     grossAnnual,
     vacancyLoss,
