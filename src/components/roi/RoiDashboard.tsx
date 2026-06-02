@@ -268,6 +268,7 @@ export default function RoiDashboard() {
   const [bCleaning,setBCleaning]= useState(250);
 
   const [showBreakdownA, setShowBreakdownA] = useState(false);
+  const [pdfNote, setPdfNote] = useState(false);
 
   // ── Preset helpers ────────────────────────────────────────────────────────
   function applyPreset(key: PresetKey) {
@@ -627,6 +628,25 @@ export default function RoiDashboard() {
           >
             Request Your Personalized ROI Scenario →
           </button>
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <button
+            onClick={() => setPdfNote(v => !v)}
+            style={{
+              background: 'transparent', border: '1px solid rgba(91,194,194,0.4)',
+              color: T.teal, fontFamily: FF, fontSize: 13, fontWeight: 600,
+              padding: '9px 20px', borderRadius: 6, cursor: 'pointer',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            ↓ Download 1-Page Investor Summary (Coming Soon)
+          </button>
+          {pdfNote && (
+            <p style={{ margin: '8px 0 0', fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}>
+              In development — this will generate a printable summary of your current assumptions and ROI.
+            </p>
+          )}
         </div>
 
         <p style={{ marginTop: 20, fontSize: 11, color: T.label, lineHeight: 1.7 }}>
