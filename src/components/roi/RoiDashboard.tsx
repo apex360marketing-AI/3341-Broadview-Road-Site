@@ -231,13 +231,13 @@ export default function RoiDashboard() {
   // ── Option B: Hybrid ──────────────────────────────────────────────────────
   const [bS1,      setBS1]      = useState(1_600);
   const [bS2,      setBS2]      = useState(1_400);
-  const [bPeak,    setBPeak]    = useState(575);
-  const [bOff,     setBOff]     = useState(450);
+  const [bPeak,    setBPeak]    = useState(550);
+  const [bOff,     setBOff]     = useState(350);
   const [bPeakOcc, setBPeakOcc] = useState(70);
-  const [bOffOcc,  setBOffOcc]  = useState(55);
+  const [bOffOcc,  setBOffOcc]  = useState(50);
   const [bVac,     setBVac]     = useState(5);
-  const [bPlatform,setBPlatform]= useState(5);
-  const [bCleaning,setBCleaning]= useState(225);
+  const [bPlatform,setBPlatform]= useState(15);
+  const [bCleaning,setBCleaning]= useState(250);
 
   const [showBreakdownA, setShowBreakdownA] = useState(false);
   const [showBreakdownB, setShowBreakdownB] = useState(false);
