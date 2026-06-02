@@ -1,0 +1,51 @@
+---
+/*
+ * Page — Investor ROI Calculator.
+ * Interactive dashboard rendered as a React island (client:load).
+ * Static shell (Nav, head, fonts) stays as Astro for fast first paint.
+ */
+import '../styles/global.css';
+import { tokens } from '../lib/tokens';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import RoiDashboard from '../components/roi/RoiDashboard';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>Investor ROI — {tokens.LISTING_NAME} · {tokens.LISTING_ADDRESS_LINE}</title>
+    <meta name="description" content={`Investor ROI calculator for ${tokens.LISTING_ADDRESS_FULL}. Compare STR, hybrid, and long-term rental returns with live assumptions.`} />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" />
+  </head>
+  <body style="background:#F8F7F4; margin:0; padding:0;">
+    <Nav />
+
+    <!-- Page header -->
+    <header style="background:#fff; border-bottom:1px solid #e9e8e4; padding: 80px clamp(1rem,4vw,2.5rem) 32px; padding-top: calc(80px + 5rem);">
+      <div style="max-width:1280px; margin:0 auto;">
+        <p style="margin:0 0 6px; font-size:12px; color:#9ca3af; text-transform:uppercase; letter-spacing:0.1em; font-weight:500; font-family:Inter,sans-serif;">
+          {tokens.LISTING_ADDRESS_FULL}
+        </p>
+        <h1 style="margin:0 0 10px; font-size:clamp(28px,4vw,40px); font-weight:700; color:#111; letter-spacing:-0.03em; font-family:Inter,sans-serif; line-height:1.1;">
+          Investor ROI Calculator
+        </h1>
+        <p style="margin:0; font-size:15px; color:#6b7280; font-family:Inter,sans-serif; line-height:1.6; max-width:560px;">
+          Three income strategies modelled side-by-side. Adjust nightly rate, down payment, and mortgage rate to see live cash flow, cap rate, and cash-on-cash returns.
+        </p>
+      </div>
+    </header>
+
+    <!-- React island -->
+    <RoiDashboard client:load />
+
+    <Footer />
+  </body>
+</html>
