@@ -174,7 +174,7 @@ function ReturnPanel({
         borderRadius: 8, padding: '14px 16px',
       }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-          Cash Flow Only
+          Cash-on-Cash (Cash Flow Only)
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: cashFlow >= 0 ? T.green : T.red, letterSpacing: '-0.04em', lineHeight: 1 }}>
           {fmtPct(cashOnCash)}
@@ -191,7 +191,7 @@ function ReturnPanel({
         borderRadius: 8, padding: '14px 16px',
       }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
-          + Equity Paydown
+          Cash-on-Cash (Cash Flow + Year 1 Principal)
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: totalReturn >= 0 ? T.blue : T.red, letterSpacing: '-0.04em', lineHeight: 1 }}>
           {fmtPct(totalReturnPct)}
