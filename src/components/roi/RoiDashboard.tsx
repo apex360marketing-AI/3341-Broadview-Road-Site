@@ -466,6 +466,29 @@ export default function RoiDashboard() {
           This ROI dashboard compares two ways to run this three-suite home with a private oasis-style yard and pool: all three suites rented long term, or a hybrid strategy where the upstairs operates as a short-term rental and the basements stay on long-term leases. Use the sliders and inputs to plug in your own financing, rents, and STR assumptions and see how your cash-on-cash returns move in real time.
         </p>
 
+        {/* ─── Assumption Snapshot ────────────────────────────────────────────── */}
+        <div style={{
+          marginBottom: 28, padding: '14px 18px',
+          background: T.tealBg, border: `1px solid ${T.teal}33`, borderRadius: 8,
+          display: 'flex', flexWrap: 'wrap', gap: '6px 32px',
+        }}>
+          <span style={{ width: '100%', fontSize: 10, fontWeight: 700, color: T.tealFg, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+            Assumption Snapshot
+          </span>
+          {([
+            ['Scenario',           activePreset ? PRESETS[activePreset].label : 'Custom'],
+            ['Down payment',       `${downPct}%`],
+            ['Mgmt fee (LTR)',     `${mgmtFee}%`],
+            ['LTR vacancy',        `${aVac}% (Opt A) / ${bVac}% (Opt B)`],
+            ['STR peak rate',      `$${bPeak} @ ${bPeakOcc}% occ.`],
+            ['STR off-peak rate',  `$${bOff} @ ${bOffOcc}% occ.`],
+          ] as [string, string][]).map(([k, v]) => (
+            <span key={k} style={{ fontSize: 12, color: T.body, whiteSpace: 'nowrap' }}>
+              <span style={{ color: T.muted }}>{k}:</span>{' '}<strong style={{ fontWeight: 600 }}>{v}</strong>
+            </span>
+          ))}
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: 24 }}>
 
           {/* ─── OPTION A ──────────────────────────────────────────────────── */}
