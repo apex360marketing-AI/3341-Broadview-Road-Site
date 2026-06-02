@@ -1,8 +1,6 @@
 ---
 import { tokens } from '../lib/tokens';
 ---
-<!-- Sticky header. Brand mark on the LEFT (Compass dial + VALORA). Nav links
-     on the RIGHT. The other 4 dials moved to the dedicated /dials page. -->
 <nav class="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#1F2024]/90 border-b border-[var(--accent-2)]/20">
   <div class="relative max-w-[var(--max-w)] mx-auto px-[var(--gutter)] h-20 flex items-center justify-between">
 
@@ -38,28 +36,18 @@ import { tokens } from '../lib/tokens';
 
     <!-- ===== RIGHT: nav links ===== -->
     <div class="flex items-center gap-7 sm:gap-8 text-sm tracking-wide">
-      <a href="#stay" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline">The Stay</a>
+      <a href="#property" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline">The Property</a>
       <a href="/area" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline">The Area</a>
-      <span
-        class="text-[#C0FF00]/50 hidden lg:inline cursor-not-allowed select-none"
-        title="Live feed + curated local guide — currently sample data; goes live when the operator deploys the events Worker"
-      >
-        On The Radar<sup class="text-[9px] tracking-[0.2em] uppercase ml-1 opacity-80">soon</sup>
-      </span>
-      <a href="#book" class="text-[var(--accent-2)] uppercase tracking-[0.18em] text-xs hover:text-[#7DD8D8] transition-colors" data-action="open-booking">Book</a>
+      <a href="#contact" class="text-[var(--accent-2)] uppercase tracking-[0.18em] text-xs hover:text-[#7DD8D8] transition-colors" data-action="open-inquiry">Contact Agent</a>
     </div>
   </div>
 
   <style>
-    /* VALORA brand-mark — locked at the previous hover state: transparent fill
-       with a 0.7px teal stroke tracing each letter's outline. No hover change. */
     .brand-text {
       color: var(--ink-primary);
       -webkit-text-fill-color: transparent;
       -webkit-text-stroke: 0.7px var(--accent-2);
     }
-
-    /* Compass dial — paired with VALORA. Static teal, locked (no hover change). */
     .brand-link svg {
       color: var(--accent-2);
     }
@@ -68,7 +56,6 @@ import { tokens } from '../lib/tokens';
 
 <script>
   // @ts-nocheck
-  // Compass rotation only — the other dials live on /dials now.
   const compass = document.querySelector('.dial-compass') as SVGGElement | null;
   if (compass) {
     let rot = 0;

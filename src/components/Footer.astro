@@ -17,7 +17,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
 
     <!-- Brand mark — static Compass + VALORA wordmark -->
     <div class="text-center mb-12 md:mb-14">
-      <p class="text-[var(--accent-2)] text-[10px] tracking-[0.45em] uppercase mb-3 opacity-80">Stay With</p>
+      <p class="text-[var(--accent-2)] text-[10px] tracking-[0.45em] uppercase mb-3 opacity-80">For Sale</p>
       <div class="flex items-center justify-center gap-3 mb-3">
         <svg width="36" height="36" viewBox="0 0 60 60" aria-hidden="true" class="opacity-90">
           <circle cx="30" cy="30" r="28" fill="none" stroke="#5BC2C2" stroke-opacity="0.30" stroke-width="0.7"/>
@@ -51,7 +51,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
         <summary class="ftr-summary">
           <span class="ftr-base" aria-hidden="true"></span>
           <span class="relative z-10 flex items-center justify-between">
-            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">House Rules</span>
+            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Property Details</span>
             <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
           </span>
         </summary>
@@ -64,7 +64,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
         <summary class="ftr-summary">
           <span class="ftr-base" aria-hidden="true"></span>
           <span class="relative z-10 flex items-center justify-between">
-            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Cancellation Policy</span>
+            <span class="text-[11px] tracking-[0.24em] uppercase text-ink-primary">Disclosure</span>
             <span class="ftr-plus text-[#C0FF00] text-xl leading-none transition-transform">+</span>
           </span>
         </summary>
@@ -90,15 +90,16 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
     <!-- Contact + trust line -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10 border-t border-[var(--accent-2)]/15 text-sm">
       <div class="text-ink-muted">
-        <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-2 opacity-75">Reach the Host</p>
+        <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-2 opacity-75">Listing Agent</p>
+        <p class="text-ink-primary font-medium">{tokens.AGENT_NAME} · {tokens.AGENT_BROKERAGE}</p>
         <p>
-          <a href={`mailto:${tokens.HOST_EMAIL}`} class="text-ink-primary hover:text-[var(--accent-2)] transition-colors">{tokens.HOST_EMAIL}</a>
+          <a href={`mailto:${tokens.AGENT_EMAIL}`} class="text-ink-primary hover:text-[var(--accent-2)] transition-colors">{tokens.AGENT_EMAIL}</a>
         </p>
-        <p class="mt-1 text-xs">Replies {tokens.HOST_RESPONSE_TIME}</p>
+        <p class="mt-1 text-xs">Replies {tokens.AGENT_RESPONSE_TIME}</p>
       </div>
       <div class="text-ink-muted md:text-right">
         <p class="text-xs leading-relaxed mb-3">
-          We don't sell guest data. Inquiries are used only to respond to your booking.
+          We don't sell your data. Inquiries are used only to respond to your showing request.
         </p>
         <p class="text-xs leading-relaxed">
           Privacy concerns: <a href={`mailto:${tokens.PRIVACY_CONTACT_EMAIL}`} class="hover:text-[var(--accent-2)] transition-colors">{tokens.PRIVACY_CONTACT_EMAIL}</a>

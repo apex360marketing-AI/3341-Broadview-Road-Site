@@ -22,33 +22,36 @@ export type Tokens = {
   META_DESCRIPTION: string;
   OG_IMAGE_PATH: string;
 
+  MLS_NUMBER: string;
+  ASKING_PRICE: number;
+  ASKING_PRICE_DISPLAY: string;
+  CURRENCY: string;
+  PROPERTY_TYPE: string;
+  LISTING_STATUS: string;
+
   BEDROOMS: number;
   DEN: boolean;
   BATHROOMS: number;
-  MAX_GUESTS: number;
-  GUEST_SQFT: number;
   BUILDING_TOTAL_SQFT: number;
+  LOT_SIZE_SQFT: number;
   PARKING_SPACES: number;
-  MIN_NIGHTS: number;
-  PET_POLICY: string;
   BUILT_YEAR: number;
-
-  NIGHTLY_RATE_FROM: number;
-  CLEANING_FEE: number;
-  CURRENCY: string;
 
   HERO_PHOTO: string;
   GALLERY_PHOTOS: string[];
   GALLERY_ALT: string[];
 
-  HOST_NAME: string;
-  HOST_FIRST_NAME: string;
-  HOST_BLURB: string;
-  HOST_PHOTO_URL: string;
-  HOST_EMAIL: string;
-  HOST_RESPONSE_TIME: string;
-  HOST_BADGE: string;
+  AGENT_NAME: string;
+  AGENT_FIRST_NAME: string;
+  AGENT_BROKERAGE: string;
+  AGENT_BLURB: string;
+  AGENT_PHOTO_URL: string;
+  AGENT_EMAIL: string;
+  AGENT_PHONE: string;
+  AGENT_RESPONSE_TIME: string;
+  AGENT_BADGE: string;
 
+  LISTING_ADDRESS_FULL: string;
   LISTING_ADDRESS_LINE: string;
   LISTING_LAT: number;
   LISTING_LNG: number;
@@ -56,7 +59,7 @@ export type Tokens = {
   LISTING_LOCATION_RADIUS_M: number;
   WALKSCORE_WSAPIKEY: string;
 
-  BOOKING_WEBHOOK_URL: string;
+  INQUIRY_WEBHOOK_URL: string;
   LIVE_FEED_URL: string;
   LIVE_FEED_HOST: string;
   TOS_URL: string;

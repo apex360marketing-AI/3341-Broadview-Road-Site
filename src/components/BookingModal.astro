@@ -2,8 +2,8 @@
 import { tokens } from '../lib/tokens';
 import OctCTA from './ui/OctCTA.astro';
 
-const inlinePrivacy = `Your details are sent to ${tokens.HOST_NAME} only to respond to this inquiry. We don't sell your data.`;
-const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} about availability and Okanagan travel tips. Optional — leaving this unchecked won't affect your inquiry. Unsubscribe anytime.`;
+const inlinePrivacy = `Your details are sent to ${tokens.AGENT_NAME} (${tokens.AGENT_BROKERAGE}) only to respond to this inquiry. We don't sell your data.`;
+const marketingLabel = `Send me occasional updates from ${tokens.AGENT_NAME} about new Okanagan listings and market insights. Optional — leaving this unchecked won't affect your inquiry. Unsubscribe anytime.`;
 ---
 <div
   id="booking-modal"
@@ -17,15 +17,15 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       type="button"
       id="booking-close"
       class="absolute top-3 right-3 text-ink-muted hover:text-ink-primary p-2"
-      aria-label="Close booking form"
+      aria-label="Close inquiry form"
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
 
     <div class="px-6 sm:px-8 pt-7 pb-6">
-      <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Inquiry</p>
-      <h3 id="booking-title" class="text-2xl sm:text-3xl mb-1">Check Availability</h3>
-      <p class="text-ink-muted text-sm">From <span class="text-ink-primary">${tokens.NIGHTLY_RATE_FROM}</span> {tokens.CURRENCY} / night · {tokens.MIN_NIGHTS}-night minimum</p>
+      <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Private Showing Request</p>
+      <h3 id="booking-title" class="text-2xl sm:text-3xl mb-1">Contact the Listing Agent</h3>
+      <p class="text-ink-muted text-sm">{tokens.ASKING_PRICE_DISPLAY} {tokens.CURRENCY} &nbsp;·&nbsp; MLS® {tokens.MLS_NUMBER} &nbsp;·&nbsp; {tokens.AGENT_NAME}, {tokens.AGENT_BROKERAGE}</p>
     </div>
 
     <form id="booking-form" novalidate class="px-6 sm:px-8 pb-7 space-y-4">
@@ -50,24 +50,14 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         <input type="tel" name="phone" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
       </label>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Check-in *</span>
-          <input type="date" name="checkin" required class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Check-out *</span>
-          <input type="date" name="checkout" required class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
-        <label class="block">
-          <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Guests *</span>
-          <input type="number" name="guests" required min="1" max={tokens.MAX_GUESTS} value="2" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
-        </label>
-      </div>
+      <label class="block">
+        <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Preferred Showing Date (optional)</span>
+        <input type="date" name="preferred_date" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent" />
+      </label>
 
       <label class="block">
         <span class="text-ink-muted text-xs uppercase tracking-[0.18em]">Message (optional)</span>
-        <textarea name="message" maxlength="2000" rows="3" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent resize-none"></textarea>
+        <textarea name="message" maxlength="2000" rows="3" placeholder="Questions about the property, financing, or to arrange a private tour…" class="mt-1.5 w-full bg-bg-base border border-ink-faint/40 px-3 py-2.5 text-ink-primary focus:border-accent resize-none"></textarea>
       </label>
 
       <p class="text-ink-muted text-xs leading-relaxed pt-1" id="booking-privacy">
@@ -89,20 +79,19 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
 </div>
 
 <script is:inline define:vars={{
-  webhook: tokens.BOOKING_WEBHOOK_URL,
-  hostName: tokens.HOST_NAME,
-  hostFirst: tokens.HOST_FIRST_NAME,
-  hostEmail: tokens.HOST_EMAIL,
-  hostResp: tokens.HOST_RESPONSE_TIME,
+  webhook: tokens.INQUIRY_WEBHOOK_URL,
+  agentName: tokens.AGENT_NAME,
+  agentFirst: tokens.AGENT_FIRST_NAME,
+  agentEmail: tokens.AGENT_EMAIL,
+  agentResp: tokens.AGENT_RESPONSE_TIME,
   listingId: tokens.LISTING_ID,
   listingName: tokens.LISTING_NAME,
+  mlsNumber: tokens.MLS_NUMBER,
   templateVer: tokens.TEMPLATE_VERSION,
-  maxGuests: tokens.MAX_GUESTS,
-  minNights: tokens.MIN_NIGHTS,
   inlinePrivacy,
   marketingLabel
 }}>
-  // @ts-nocheck — define:vars injects these at runtime; TS doesn't see them.
+  // @ts-nocheck
   (function () {
     const modal = document.getElementById('booking-modal');
     const form = document.getElementById('booking-form');
@@ -120,11 +109,10 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       modal.classList.add('flex');
       document.body.style.overflow = 'hidden';
       modal.querySelector('input[name="name"]')?.focus();
-      // Show "unavailable" state if webhook not HTTPS
       const submitBtn = form.querySelector('button[type="submit"]');
       if (!/^https:\/\//i.test(webhook)) {
         status.className = 'text-sm text-accent border border-accent/40 p-3';
-        status.textContent = `Booking is temporarily unavailable. Please email ${hostFirst} directly at ${hostEmail}.`;
+        status.textContent = `Inquiries are temporarily unavailable online. Please email ${agentFirst} directly at ${agentEmail}.`;
         status.classList.remove('hidden');
         if (submitBtn) submitBtn.setAttribute('disabled', 'true');
       }
@@ -137,7 +125,7 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       lastFocus?.focus();
     }
 
-    document.querySelectorAll('[data-action="open-booking"]').forEach((el) => {
+    document.querySelectorAll('[data-action="open-inquiry"]').forEach((el) => {
       el.addEventListener('click', (e) => { e.preventDefault(); open(); });
     });
     closeBtn?.addEventListener('click', close);
@@ -151,19 +139,17 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
       e.preventDefault();
       const fd = new FormData(form);
 
-      // Honeypot — silent ignore but show success UI
       if (fd.get('company')) {
         status.className = 'text-sm text-ink-muted';
-        status.textContent = `Thanks — ${hostFirst} will reply ${hostResp}.`;
+        status.textContent = `Thanks — ${agentFirst} will reply ${agentResp}.`;
         status.classList.remove('hidden');
         form.reset();
         return;
       }
 
-      // Min time-to-submit (3s)
       if (Date.now() - openedAt < 3000) {
         status.className = 'text-sm text-ink-muted';
-        status.textContent = `Thanks — ${hostFirst} will reply ${hostResp}.`;
+        status.textContent = `Thanks — ${agentFirst} will reply ${agentResp}.`;
         status.classList.remove('hidden');
         form.reset();
         return;
@@ -171,24 +157,14 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
 
       const name = String(fd.get('name') || '').trim();
       const email = String(fd.get('email') || '').trim();
-      const checkin = String(fd.get('checkin') || '');
-      const checkout = String(fd.get('checkout') || '');
-      const guests = parseInt(String(fd.get('guests') || '0'), 10);
       const phone = String(fd.get('phone') || '').trim();
+      const preferred_date = String(fd.get('preferred_date') || '');
       const message = String(fd.get('message') || '').trim();
       const marketing = !!fd.get('marketing_opt_in');
 
-      // Validation
       const errs = [];
       if (!name) errs.push('Please enter your name.');
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.push('Please enter a valid email.');
-      if (!checkin || !checkout) errs.push('Please choose both dates.');
-      if (checkin && checkout) {
-        const inD = new Date(checkin), outD = new Date(checkout);
-        const nights = Math.round((outD - inD) / 86400000);
-        if (nights < minNights) errs.push(`Minimum stay is ${minNights} nights.`);
-      }
-      if (!(guests >= 1 && guests <= maxGuests)) errs.push(`Guests must be 1 to ${maxGuests}.`);
 
       if (errs.length) {
         status.className = 'text-sm text-accent';
@@ -199,7 +175,7 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
 
       if (!/^https:\/\//i.test(webhook)) {
         status.className = 'text-sm text-accent';
-        status.textContent = `Booking is temporarily unavailable. Email ${hostFirst} at ${hostEmail}.`;
+        status.textContent = `Inquiry system unavailable. Email ${agentFirst} at ${agentEmail}.`;
         status.classList.remove('hidden');
         return;
       }
@@ -210,8 +186,9 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         template_version: templateVer,
         listing_id: listingId,
         listing_name: listingName,
+        mls_number: mlsNumber,
         name, email, phone: phone || null,
-        checkin, checkout, guests,
+        preferred_date: preferred_date || null,
         message: message || null,
         consent_text_shown: inlinePrivacy,
         marketing_opt_in: marketing,
@@ -237,14 +214,14 @@ const marketingLabel = `Send me occasional updates from ${tokens.HOST_NAME} abou
         clearTimeout(t);
         if (r.ok) {
           status.className = 'text-sm text-ink-primary border border-accent/40 p-3';
-          status.textContent = `Thanks — ${hostFirst} will reply ${hostResp}.`;
+          status.textContent = `Thanks — ${agentFirst} will reply ${agentResp}.`;
           form.reset();
         } else {
           throw new Error('non-2xx');
         }
       } catch (_) {
         status.className = 'text-sm text-accent border border-accent/40 p-3';
-        status.textContent = `We couldn't reach the booking system. Please email ${hostFirst} directly at ${hostEmail}.`;
+        status.textContent = `We couldn't reach the inquiry system. Please email ${agentFirst} directly at ${agentEmail}.`;
       }
     });
   })();

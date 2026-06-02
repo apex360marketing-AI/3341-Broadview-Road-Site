@@ -4,18 +4,18 @@ import Icon from './ui/Icon.astro';
 import Honeycomb from './Honeycomb.astro';
 
 const facts = [
-  { icon: 'bed', label: `${tokens.BEDROOMS} BEDROOMS${tokens.DEN ? ' + DEN' : ''}` },
+  { icon: 'bed', label: `${tokens.BEDROOMS} BEDROOMS` },
   { icon: 'bath', label: `${tokens.BATHROOMS} BATHROOMS` },
-  { icon: 'guests', label: `SLEEPS ${tokens.MAX_GUESTS}` },
-  { icon: 'ruler', label: `≈${tokens.GUEST_SQFT.toLocaleString()} SQFT` },
+  { icon: 'ruler', label: `${tokens.BUILDING_TOTAL_SQFT.toLocaleString()} SQFT` },
   { icon: 'pool', label: 'PRIVATE POOL' },
-  { icon: 'wifi', label: 'WIFI INCLUDED' },
+  { icon: 'wifi', label: 'WRAP-AROUND DECK' },
   { icon: 'rv', label: 'RV PARKING' },
   { icon: 'projector', label: 'OUTDOOR MOVIE THEATRE' },
-  { icon: 'paw', label: tokens.PET_POLICY?.toUpperCase() || 'NO PETS' }
+  { icon: 'guests', label: `BUILT ${tokens.BUILT_YEAR}` },
+  { icon: 'paw', label: `MLS® ${tokens.MLS_NUMBER}` }
 ];
 ---
-<section id="stay" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
+<section id="property" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
   <Honeycomb unique="qf" opacity={0.028} />
   <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-10 md:py-14">
     <ul class="grid grid-cols-2 sm:grid-cols-3 gap-x-5 sm:gap-x-6 gap-y-5">
@@ -35,10 +35,6 @@ const facts = [
 </section>
 
 <style>
-  /* QuickFacts cards — EXACT match for the hero ghost-CTA hover behavior:
-     cream outline at rest → bright teal outline on hover, transparent body
-     fills dark grey, plus the full compound hover stack (cursor glow, shimmer,
-     halo, letter-spacing breathe). Only the arrow is omitted. */
   .qf-card {
     --mx: 50%;
     --my: 50%;
@@ -65,7 +61,6 @@ const facts = [
   .qf-base {
     z-index: 0;
     background: transparent;
-    /* Cream/white outline at rest — matches hero ghost CTAs exactly */
     box-shadow: inset 0 0 0 1.2px rgba(237, 230, 214, 0.55);
     transition:
       background-color 350ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -113,7 +108,6 @@ const facts = [
     .qf-label { font-size: 11.5px; letter-spacing: 0.20em; }
   }
 
-  /* HOVER — full compound effect, identical to hero ghost CTAs */
   .qf-card:hover {
     filter:
       drop-shadow(0 12px 24px rgba(15, 14, 12, 0.45))

@@ -1,11 +1,10 @@
 ---
 import { tokens } from '../lib/tokens';
+import OctCTA from './ui/OctCTA.astro';
 
-const monogram = (tokens.HOST_FIRST_NAME?.[0] || tokens.HOST_NAME?.[0] || '·').toUpperCase();
-const hasPhoto = !!tokens.HOST_PHOTO_URL;
+const monogram = (tokens.AGENT_FIRST_NAME?.[0] || tokens.AGENT_NAME?.[0] || '·').toUpperCase();
+const hasPhoto = !!tokens.AGENT_PHOTO_URL;
 
-// Octagon clip-path string — same shape as the ScrollDirection button +
-// the OctCTA buttons + the QuickFacts cards. Sitewide shape consistency.
 const octClip = `polygon(
   18% 0, 82% 0,
   100% 18%, 100% 82%,
@@ -13,11 +12,10 @@ const octClip = `polygon(
   0 82%, 0 18%
 )`;
 ---
-<section class="py-10 md:py-14">
+<section id="contact" class="py-10 md:py-14">
   <div class="max-w-3xl mx-auto px-[var(--gutter)]">
     <div class="flex flex-col sm:flex-row gap-8 items-start">
       <div class="shrink-0 relative w-28 h-28">
-        {/* Octagon-shaped avatar — matches the bottom-right scroll button */}
         <span
           class="absolute inset-0 bg-bg-surface"
           style={`clip-path: ${octClip}; box-shadow: inset 0 0 0 1.4px rgba(91, 194, 194, 0.55);`}
@@ -25,22 +23,23 @@ const octClip = `polygon(
         ></span>
         {hasPhoto ? (
           <img
-            src={tokens.HOST_PHOTO_URL}
-            alt={`Host: ${tokens.HOST_NAME}`}
+            src={tokens.AGENT_PHOTO_URL}
+            alt={`Listing agent: ${tokens.AGENT_NAME}`}
             class="absolute inset-0 w-full h-full object-cover"
             style={`clip-path: ${octClip};`}
           />
         ) : (
-          <span class="absolute inset-0 flex items-center justify-center text-[var(--accent)] text-5xl font-serif font-light" aria-label={`Host: ${tokens.HOST_NAME}`}>
+          <span class="absolute inset-0 flex items-center justify-center text-[var(--accent)] text-5xl font-serif font-light" aria-label={`Listing agent: ${tokens.AGENT_NAME}`}>
             {monogram}
           </span>
         )}
       </div>
       <div class="flex-1">
-        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Your host</p>
-        <h2 class="text-3xl md:text-4xl mb-2">{tokens.HOST_NAME}</h2>
-        <p class="text-accent text-sm mb-4">{tokens.HOST_BADGE} · Replies {tokens.HOST_RESPONSE_TIME}</p>
-        <p class="text-ink-primary text-lg font-serif italic leading-relaxed">{tokens.HOST_BLURB}</p>
+        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Listing Agent</p>
+        <h2 class="text-3xl md:text-4xl mb-1">{tokens.AGENT_NAME}</h2>
+        <p class="text-accent text-sm mb-4">{tokens.AGENT_BADGE} · Replies {tokens.AGENT_RESPONSE_TIME}</p>
+        <p class="text-ink-primary text-lg font-serif italic leading-relaxed mb-6">{tokens.AGENT_BLURB}</p>
+        <OctCTA variant="ghost" data-action="open-inquiry">Schedule a Showing</OctCTA>
       </div>
     </div>
   </div>
