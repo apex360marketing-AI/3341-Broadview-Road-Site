@@ -63,7 +63,7 @@ export default function RoiDashboard() {
       }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <p style={{ margin: '0 0 4px', fontSize: 12, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500 }}>
-            Best-case scenario · Hybrid strategy
+            Best-case scenario · Option B (Hybrid)
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 0 }}>
             {[

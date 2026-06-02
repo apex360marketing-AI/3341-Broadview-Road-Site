@@ -184,8 +184,8 @@ export function calcStrOption(inp: RoiInputs): OptionResult {
 
   return {
     id: 'str',
-    label: 'STR Only',
-    description: 'Main floor + upstairs as short-term rental (4 BR + den). Suites vacant.',
+    label: 'Option C — STR Only (Upstairs)',
+    description: 'Suite 3 (upstairs with pool, 4 BR + den) as STR. Suites 1 & 2 vacant.',
     grossAnnual: str.gross,
     opexAnnual: totalOpex,
     noi,
@@ -212,7 +212,7 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
   const cashOnCash = cashFlow / totalCashInvested;
 
   const lines: LineItem[] = [
-    { label: 'STR gross revenue (main floor)', annual: str.gross, isIncome: true },
+    { label: 'Suite 3 STR revenue (upstairs + pool)', annual: str.gross, isIncome: true },
     { label: 'Suite 1 rent (2-bed, LTR)', annual: s1.gross, isIncome: true },
     { label: 'Suite 2 rent (1-bed, LTR)', annual: s2.gross, isIncome: true },
     { label: 'Platform fees (5%)', annual: -str.platformFees, isIncome: false },
@@ -231,8 +231,8 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
 
   return {
     id: 'hybrid',
-    label: 'Hybrid',
-    description: 'STR main floor + both suites on long-term leases. Maximum income.',
+    label: 'Option B — Hybrid (Basements LTR + Upstairs STR)',
+    description: 'Suite 1 + Suite 2 on long-term leases. Suite 3 (upstairs with pool) as STR.',
     badge: 'Recommended',
     grossAnnual,
     opexAnnual: totalOpex,
@@ -260,7 +260,7 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
   const cashOnCash = cashFlow / totalCashInvested;
 
   const lines: LineItem[] = [
-    { label: 'Main floor rent (4BR + den, LTR)', annual: main.gross, isIncome: true },
+    { label: 'Suite 3 rent (upstairs + pool, LTR)', annual: main.gross, isIncome: true },
     { label: 'Suite 1 rent (2-bed, LTR)', annual: s1.gross, isIncome: true },
     { label: 'Suite 2 rent (1-bed, LTR)', annual: s2.gross, isIncome: true },
     { label: 'Vacancy (5% all units)', annual: -(main.vacancyLoss + s1.vacancyLoss + s2.vacancyLoss), isIncome: false },
@@ -275,8 +275,8 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
 
   return {
     id: 'ltr',
-    label: 'Full LTR',
-    description: 'All 3 units on long-term leases. Lowest effort, steady income.',
+    label: 'Option A — Full Long-Term',
+    description: 'All 3 suites on long-term leases. Lowest effort, most predictable income.',
     grossAnnual,
     opexAnnual: totalOpex,
     noi,
@@ -290,7 +290,7 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
 }
 
 export function calcAllOptions(inp: RoiInputs): OptionResult[] {
-  return [calcStrOption(inp), calcHybridOption(inp), calcLtrOption(inp)];
+  return [calcLtrOption(inp), calcHybridOption(inp), calcStrOption(inp)];
 }
 
 // ─── Formatting helpers ───────────────────────────────────────────────────────
