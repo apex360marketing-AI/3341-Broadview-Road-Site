@@ -149,11 +149,11 @@ function calcStrRevenue(inp: RoiInputs) {
   const totalOccupied = peakOccupied + offPeakOccupied;
   const gross = peakOccupied * inp.peakNightlyRate + offPeakOccupied * inp.offPeakNightlyRate;
   const platformFees = gross * inp.platformFeePct;
-  const cleaningCosts = (totalOccupied / inp.avgStayNights) * inp.cleaningFeePerTurnover;
+  // Cleaning fee is charged to the guest at booking — net zero to owner, excluded from opex
   const variableCosts = totalOccupied * inp.variableCostPerNight;
   const utilities = inp.strUtilityMonthly * 12;
-  const opex = platformFees + cleaningCosts + variableCosts + utilities;
-  return { gross, platformFees, cleaningCosts, variableCosts, utilities, opex };
+  const opex = platformFees + variableCosts + utilities;
+  return { gross, platformFees, variableCosts, utilities, opex };
 }
 
 // ─── Option A — All Long-Term ─────────────────────────────────────────────────
@@ -235,7 +235,7 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
     { label: `LTR vacancy (${(inp.ltrVacancyRate * 100).toFixed(0)}%)`, annual: -ltrVacancyLoss, isIncome: false },
     ...(mgmtFee > 0 ? [{ label: `LTR management fee (${((inp.managementFeePercent ?? 0) * 100).toFixed(0)}% of collected)`, annual: -mgmtFee, isIncome: false }] : []),
     { label: `STR platform fee (${(inp.platformFeePct * 100).toFixed(0)}%)`, annual: -str.platformFees, isIncome: false },
-    { label: 'Cleaning fees', annual: -str.cleaningCosts, isIncome: false },
+    { label: 'Cleaning fee (guest-paid — net $0 to owner)', annual: 0, isIncome: false },
     { label: 'Variable costs', annual: -str.variableCosts, isIncome: false },
     { label: 'STR utilities', annual: -str.utilities, isIncome: false },
     { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
