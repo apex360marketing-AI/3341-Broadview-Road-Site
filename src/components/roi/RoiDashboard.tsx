@@ -392,7 +392,7 @@ export default function RoiDashboard() {
           <OptionCard result={optA} showBreakdown={showBreakdownA} onToggleBreakdown={() => setShowBreakdownA(p => !p)}>
 
             <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
-              All three suites rented long-term with vacancy applied across each unit.
+              All three suites are rented long term, each with vacancy already factored in. This is the most stable, low-touch setup, prioritizing predictable cash flow over maximizing upside.
             </p>
 
             {/* Income inputs */}
@@ -427,7 +427,7 @@ export default function RoiDashboard() {
           <OptionCard result={optB} showBreakdown={showBreakdownB} onToggleBreakdown={() => setShowBreakdownB(p => !p)}>
 
             <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
-              Suites 1 and 2 rented long-term with vacancy applied; Suite 3 (upstairs with pool) rented as a short-term rental with peak/off-peak pricing and occupancy.
+              Suites 1 and 2 are rented long term with vacancy applied, while Suite 3 (the 4-bedroom upstairs with private pool and oasis-style yard) runs as a short-term rental with separate peak and off-peak pricing, occupancy, and platform fees so you can see the true STR economics.
             </p>
 
             {/* LTR portion */}
