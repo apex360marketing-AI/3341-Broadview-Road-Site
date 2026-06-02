@@ -210,6 +210,34 @@ function ReturnPanel({
   );
 }
 
+// ─── Scenario presets ────────────────────────────────────────────────────────
+
+const PRESETS = {
+  conservative: {
+    label: 'Conservative',
+    mgmtFee: 10,
+    aVac: 7,  bVac: 7,
+    bPeak: 500, bOff: 320,
+    bPeakOcc: 60, bOffOcc: 40,
+  },
+  base: {
+    label: 'Base Case',
+    mgmtFee: 8,
+    aVac: 5,  bVac: 5,
+    bPeak: 550, bOff: 350,
+    bPeakOcc: 70, bOffOcc: 50,
+  },
+  optimistic: {
+    label: 'Optimistic',
+    mgmtFee: 0,
+    aVac: 3,  bVac: 3,
+    bPeak: 600, bOff: 400,
+    bPeakOcc: 78, bOffOcc: 55,
+  },
+} as const;
+
+type PresetKey = keyof typeof PRESETS;
+
 // ─── Main dashboard ───────────────────────────────────────────────────────────
 
 export default function RoiDashboard() {
@@ -240,6 +268,23 @@ export default function RoiDashboard() {
   const [bCleaning,setBCleaning]= useState(250);
 
   const [showBreakdownA, setShowBreakdownA] = useState(false);
+
+  // ── Preset helpers ────────────────────────────────────────────────────────
+  function applyPreset(key: PresetKey) {
+    const p = PRESETS[key];
+    setMgmtFee(p.mgmtFee);
+    setAVac(p.aVac);   setBVac(p.bVac);
+    setBPeak(p.bPeak); setBOff(p.bOff);
+    setBPeakOcc(p.bPeakOcc); setBOffOcc(p.bOffOcc);
+  }
+
+  // Derived: which preset (if any) matches current state — clears automatically on manual edits
+  const activePreset = (Object.keys(PRESETS) as PresetKey[]).find(key => {
+    const p = PRESETS[key];
+    return mgmtFee === p.mgmtFee && aVac === p.aVac && bVac === p.bVac &&
+           bPeak === p.bPeak && bOff === p.bOff &&
+           bPeakOcc === p.bPeakOcc && bOffOcc === p.bOffOcc;
+  }) ?? null;
   const [showBreakdownB, setShowBreakdownB] = useState(false);
 
   // ── Derived shared values ─────────────────────────────────────────────────
@@ -298,6 +343,35 @@ export default function RoiDashboard() {
       ═══════════════════════════════════════════════════════════════════ */}
       <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}`, padding: '28px clamp(1rem,4vw,2.5rem)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          {/* Scenario preset selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', flexShrink: 0 }}>
+              Scenario
+            </span>
+            {(Object.keys(PRESETS) as PresetKey[]).map(key => (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 6,
+                  border: activePreset === key ? `2px solid ${T.teal}` : `1px solid ${T.border}`,
+                  background: activePreset === key ? T.tealBg : T.surface,
+                  color: activePreset === key ? T.tealFg : T.body,
+                  fontWeight: activePreset === key ? 600 : 400,
+                  fontSize: 13, cursor: 'pointer', fontFamily: FF,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {PRESETS[key].label}
+              </button>
+            ))}
+            {activePreset === null && (
+              <span style={{ fontSize: 12, color: T.label, fontStyle: 'italic' }}>Custom</span>
+            )}
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, alignItems: 'start' }}>
 
             {/* Purchase */}
