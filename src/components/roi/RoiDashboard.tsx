@@ -268,7 +268,7 @@ export default function RoiDashboard() {
   const [bCleaning,setBCleaning]= useState(250);
 
   const [showBreakdownA, setShowBreakdownA] = useState(false);
-  const [pdfNote, setPdfNote] = useState(false);
+  const [pdfStatus, setPdfStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
   // ── Preset helpers ────────────────────────────────────────────────────────
   function applyPreset(key: PresetKey) {
@@ -680,19 +680,67 @@ export default function RoiDashboard() {
 
         <div style={{ marginTop: 16 }}>
           <button
-            onClick={() => setPdfNote(v => !v)}
+            disabled={pdfStatus === 'loading'}
+            onClick={async () => {
+              setPdfStatus('loading');
+              try {
+                // The Option B inputs object (STR assumptions live here)
+                const inputs = {
+                  ...DEFAULT_INPUTS,
+                  purchasePrice: PURCHASE_PRICE,
+                  downPaymentPct: downPct / 100,
+                  mortgageRatePct: mRate / 100,
+                  amortizationYears: amortYrs,
+                  propertyTaxAnnual: propTax,
+                  insuranceAnnual: insurance,
+                  maintenanceAnnual: maint,
+                  managementFeePercent: mgmtFee / 100,
+                  // Option A suite rents
+                  suite1Monthly: aS1,
+                  suite2Monthly: aS2,
+                  suite3LtrMonthly: aS3,
+                  ltrVacancyRate: aVac / 100,
+                  // Option B STR
+                  peakNightlyRate: bPeak,
+                  offPeakNightlyRate: bOff,
+                  peakOccupancy: bPeakOcc / 100,
+                  offPeakOccupancy: bOffOcc / 100,
+                  platformFeePct: bPlatform / 100,
+                  cleaningFeePerTurnover: bCleaning,
+                };
+                const scenario = activePreset ? PRESETS[activePreset].label : 'Custom';
+                const res = await fetch('/.netlify/functions/investor-summary', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ scenario, inputs }),
+                });
+                if (!res.ok) throw new Error('non-2xx');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'VALORA-Investor-Summary.pdf';
+                a.click();
+                URL.revokeObjectURL(url);
+                setPdfStatus('idle');
+              } catch {
+                setPdfStatus('error');
+              }
+            }}
             style={{
               background: 'transparent', border: '1px solid rgba(91,194,194,0.4)',
-              color: T.teal, fontFamily: FF, fontSize: 13, fontWeight: 600,
-              padding: '9px 20px', borderRadius: 6, cursor: 'pointer',
-              letterSpacing: '-0.01em',
+              color: pdfStatus === 'loading' ? T.muted : T.teal,
+              fontFamily: FF, fontSize: 13, fontWeight: 600,
+              padding: '9px 20px', borderRadius: 6,
+              cursor: pdfStatus === 'loading' ? 'default' : 'pointer',
+              letterSpacing: '-0.01em', opacity: pdfStatus === 'loading' ? 0.7 : 1,
             }}
           >
-            ↓ Download 1-Page Investor Summary (Coming Soon)
+            {pdfStatus === 'loading' ? '⏳ Generating PDF…' : '↓ Download 1-Page Investor Summary'}
           </button>
-          {pdfNote && (
-            <p style={{ margin: '8px 0 0', fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}>
-              In development — this will generate a printable summary of your current assumptions and ROI.
+          {pdfStatus === 'error' && (
+            <p style={{ margin: '8px 0 0', fontSize: 12, color: T.red, lineHeight: 1.6 }}>
+              Unable to generate the summary right now — please try again.
             </p>
           )}
         </div>
