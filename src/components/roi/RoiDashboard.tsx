@@ -597,6 +597,31 @@ export default function RoiDashboard() {
           </ul>
         </div>
 
+        {/* ─── Soft qualification hints ───────────────────────────────────────── */}
+        <div style={{
+          marginTop: 32, padding: '18px 22px',
+          background: T.page, border: `1px solid ${T.border}`, borderRadius: 10,
+        }}>
+          <p style={{ margin: 0, fontSize: 13, color: T.muted, lineHeight: 1.7 }}>
+            Most investor-grade buyers for this type of property target cash-on-cash returns
+            in the high single digits or better, depending on risk tolerance and management
+            approach. Down payments in the 20–30% range are common, but the dashboard lets
+            you see how returns shift when you adjust leverage, management fees, or STR
+            assumptions.
+          </p>
+          <p style={{ margin: '10px 0 0', fontSize: 13, color: T.body, lineHeight: 1.6 }}>
+            At your current inputs, Option A is delivering about{' '}
+            <strong style={{ color: optA.cashOnCash >= 0 ? T.green : T.red }}>
+              {fmtPct(optA.cashOnCash, 1)}
+            </strong>{' '}
+            cash-on-cash and Option B about{' '}
+            <strong style={{ color: optB.cashOnCash >= 0 ? T.green : T.red }}>
+              {fmtPct(optB.cashOnCash, 1)}
+            </strong>
+            {' '}— on a {downPct}% down payment.
+          </p>
+        </div>
+
         {/* ─── Pre-qual CTA ──────────────────────────────────────────────────── */}
         <div style={{
           marginTop: 40,
