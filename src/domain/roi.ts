@@ -36,6 +36,7 @@ export interface RoiInputs {
   propertyTaxAnnual: number;
   insuranceAnnual: number;
   maintenanceAnnual: number;
+  managementFeePercent?: number;  // % of collected LTR rent; default 0
 }
 
 export const DEFAULT_INPUTS: RoiInputs = {
@@ -63,6 +64,7 @@ export const DEFAULT_INPUTS: RoiInputs = {
   propertyTaxAnnual: 9_500,
   insuranceAnnual: 3_600,
   maintenanceAnnual: 5_500,
+  managementFeePercent: 0,
 };
 
 // ─── Output types ─────────────────────────────────────────────────────────────
@@ -161,7 +163,9 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
 
   const grossAnnual = (inp.suite1Monthly + inp.suite2Monthly + inp.suite3LtrMonthly) * 12;
   const vacancyLoss = grossAnnual * inp.ltrVacancyRate;
-  const noi = grossAnnual - vacancyLoss - fixedOpex;
+  const collectedRent = grossAnnual - vacancyLoss;
+  const mgmtFee = collectedRent * (inp.managementFeePercent ?? 0);
+  const noi = collectedRent - mgmtFee - fixedOpex;
   const cashFlow = noi - debtService;
   const cashOnCash = cashFlow / totalCashInvested;
   const totalReturn = cashFlow + yearOnePrincipal;
@@ -172,6 +176,7 @@ export function calcLtrOption(inp: RoiInputs): OptionResult {
     { label: 'Suite 1 — 2-bed basement', annual: inp.suite1Monthly * 12, isIncome: true },
     { label: 'Suite 2 — 1-bed basement', annual: inp.suite2Monthly * 12, isIncome: true },
     { label: `Vacancy (${(inp.ltrVacancyRate * 100).toFixed(0)}%)`, annual: -vacancyLoss, isIncome: false },
+    ...(mgmtFee > 0 ? [{ label: `Management fee (${((inp.managementFeePercent ?? 0) * 100).toFixed(0)}% of collected)`, annual: -mgmtFee, isIncome: false }] : []),
     { label: 'Property tax', annual: -inp.propertyTaxAnnual, isIncome: false },
     { label: 'Insurance', annual: -inp.insuranceAnnual, isIncome: false },
     { label: 'Maintenance reserve', annual: -inp.maintenanceAnnual, isIncome: false },
@@ -209,13 +214,15 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
 
   const ltrGross = (inp.suite1Monthly + inp.suite2Monthly) * 12;
   const ltrVacancyLoss = ltrGross * inp.ltrVacancyRate;
+  const ltrCollected = ltrGross - ltrVacancyLoss;
+  const mgmtFee = ltrCollected * (inp.managementFeePercent ?? 0);
 
   const str = calcStrRevenue(inp);
 
   const grossAnnual = ltrGross + str.gross;
   const vacancyLoss = ltrVacancyLoss;
   const strOpex = str.opex;
-  const noi = grossAnnual - ltrVacancyLoss - strOpex - fixedOpex;
+  const noi = grossAnnual - ltrVacancyLoss - mgmtFee - strOpex - fixedOpex;
   const cashFlow = noi - debtService;
   const cashOnCash = cashFlow / totalCashInvested;
   const totalReturn = cashFlow + yearOnePrincipal;
@@ -226,6 +233,7 @@ export function calcHybridOption(inp: RoiInputs): OptionResult {
     { label: 'Suite 1 — 2-bed basement (guaranteed)', annual: inp.suite1Monthly * 12, isIncome: true },
     { label: 'Suite 2 — 1-bed basement (guaranteed)', annual: inp.suite2Monthly * 12, isIncome: true },
     { label: `LTR vacancy (${(inp.ltrVacancyRate * 100).toFixed(0)}%)`, annual: -ltrVacancyLoss, isIncome: false },
+    ...(mgmtFee > 0 ? [{ label: `LTR management fee (${((inp.managementFeePercent ?? 0) * 100).toFixed(0)}% of collected)`, annual: -mgmtFee, isIncome: false }] : []),
     { label: `STR platform fee (${(inp.platformFeePct * 100).toFixed(0)}%)`, annual: -str.platformFees, isIncome: false },
     { label: 'Cleaning fees', annual: -str.cleaningCosts, isIncome: false },
     { label: 'Variable costs', annual: -str.variableCosts, isIncome: false },

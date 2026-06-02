@@ -214,6 +214,7 @@ export default function RoiDashboard() {
   const [propTax,    setPropTax]    = useState(9_500);
   const [insurance,  setInsurance]  = useState(3_600);
   const [maint,      setMaint]      = useState(5_500);
+  const [mgmtFee,    setMgmtFee]    = useState(0);
 
   // ── Option A: All LTR ─────────────────────────────────────────────────────
   const [aS1,      setAS1]      = useState(1_600);
@@ -252,6 +253,7 @@ export default function RoiDashboard() {
     propertyTaxAnnual: propTax,
     insuranceAnnual: insurance,
     maintenanceAnnual: maint,
+    managementFeePercent: mgmtFee / 100,
     suite1Monthly: aS1,
     suite2Monthly: aS2,
     suite3LtrMonthly: aS3,
@@ -266,6 +268,7 @@ export default function RoiDashboard() {
     propertyTaxAnnual: propTax,
     insuranceAnnual: insurance,
     maintenanceAnnual: maint,
+    managementFeePercent: mgmtFee / 100,
     suite1Monthly: bS1,
     suite2Monthly: bS2,
     peakNightlyRate: bPeak,
@@ -344,6 +347,21 @@ export default function RoiDashboard() {
                 <InlineField label="Maintenance">
                   <NumInput value={maint} onChange={setMaint} min={0} step={100} prefix="$" />
                 </InlineField>
+              </div>
+            </div>
+
+            {/* Management fee — shared, defaults to 0 */}
+            <div>
+              <Label>Management Fee (% of collected rent)</Label>
+              <NumInput
+                value={mgmtFee}
+                onChange={setMgmtFee}
+                min={0} max={20} step={0.5}
+                suffix="%"
+              />
+              <div style={{ fontSize: 11, color: T.label, marginTop: 5, lineHeight: 1.5 }}>
+                Applied to LTR collected rent only. Default 0 — set to e.g. 8–10% if using a property manager.
+                STR suites use the platform fee above instead.
               </div>
             </div>
 
