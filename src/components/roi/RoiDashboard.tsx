@@ -173,7 +173,10 @@ function ReturnPanel({
         border: `1px solid ${cashFlow >= 0 ? '#bbf7d0' : '#fecaca'}`,
         borderRadius: 8, padding: '14px 16px',
       }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+        <div
+          title="Annual pre-tax cash flow divided by total cash invested, excluding principal paydown."
+          style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8, cursor: 'help' }}
+        >
           Cash-on-Cash (Cash Flow Only)
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: cashFlow >= 0 ? T.green : T.red, letterSpacing: '-0.04em', lineHeight: 1 }}>
@@ -190,7 +193,10 @@ function ReturnPanel({
         border: `1px solid ${totalReturn >= 0 ? '#bfdbfe' : '#fecaca'}`,
         borderRadius: 8, padding: '14px 16px',
       }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+        <div
+          title="Annual pre-tax cash flow plus first-year principal reduction, divided by total cash invested."
+          style={{ fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8, cursor: 'help' }}
+        >
           Cash-on-Cash (Cash Flow + Year 1 Principal)
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: totalReturn >= 0 ? T.blue : T.red, letterSpacing: '-0.04em', lineHeight: 1 }}>
@@ -379,7 +385,7 @@ export default function RoiDashboard() {
           <OptionCard result={optA} showBreakdown={showBreakdownA} onToggleBreakdown={() => setShowBreakdownA(p => !p)}>
 
             <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
-              Suites 1, 2, and 3 all rented long-term with vacancy applied.
+              All three suites rented long-term with vacancy applied across each unit.
             </p>
 
             {/* Income inputs */}
@@ -414,7 +420,7 @@ export default function RoiDashboard() {
           <OptionCard result={optB} showBreakdown={showBreakdownB} onToggleBreakdown={() => setShowBreakdownB(p => !p)}>
 
             <p style={{ margin: '0 0 16px', fontSize: 13, color: T.muted, lineHeight: 1.6 }}>
-              Suites 1 and 2 rented long-term with vacancy applied; Suite 3 rented as a short-term rental with peak/off-peak pricing and occupancy.
+              Suites 1 and 2 rented long-term with vacancy applied; Suite 3 (upstairs with pool) rented as a short-term rental with peak/off-peak pricing and occupancy.
             </p>
 
             {/* LTR portion */}
