@@ -359,12 +359,19 @@ export default function RoiDashboard() {
             {/* Management fee — shared, defaults to 0 */}
             <div>
               <Label>Management Fee (% of collected rent)</Label>
-              <NumInput
-                value={mgmtFee}
-                onChange={setMgmtFee}
-                min={0} max={20} step={0.5}
-                suffix="%"
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <NumInput
+                  value={mgmtFee}
+                  onChange={setMgmtFee}
+                  min={0} max={20} step={0.5}
+                  suffix="%"
+                />
+                <Pills
+                  options={[{ label: '0%', value: 0 }, { label: '8%', value: 8 }, { label: '10%', value: 10 }]}
+                  value={mgmtFee}
+                  onChange={setMgmtFee}
+                />
+              </div>
               <div style={{ fontSize: 11, color: T.label, marginTop: 5, lineHeight: 1.5 }}>
                 Applied to LTR collected rent only. Default 0 — set to e.g. 8–10% if using a property manager.
                 STR suites use the platform fee above instead.
