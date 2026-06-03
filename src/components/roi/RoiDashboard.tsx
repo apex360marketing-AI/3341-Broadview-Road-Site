@@ -269,6 +269,7 @@ export default function RoiDashboard() {
 
   const [showBreakdownA, setShowBreakdownA] = useState(false);
   const [pdfStatus, setPdfStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [ghlStatus, setGhlStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
   // ── Preset helpers ────────────────────────────────────────────────────────
   function applyPreset(key: PresetKey) {
@@ -741,6 +742,49 @@ export default function RoiDashboard() {
           {pdfStatus === 'error' && (
             <p style={{ margin: '8px 0 0', fontSize: 12, color: T.red, lineHeight: 1.6 }}>
               Unable to generate the summary right now — please try again.
+            </p>
+          )}
+        </div>
+
+        {/* GHL Setup Guide PDF button */}
+        <div style={{ marginTop: 10 }}>
+          <button
+            disabled={ghlStatus === 'loading'}
+            onClick={async () => {
+              setGhlStatus('loading');
+              try {
+                const res = await fetch('/.netlify/functions/ghl-setup-guide', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({}),
+                });
+                if (!res.ok) throw new Error('non-2xx');
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'VALORA-GHL-Setup-Guide.pdf';
+                a.click();
+                URL.revokeObjectURL(url);
+                setGhlStatus('idle');
+              } catch {
+                setGhlStatus('error');
+              }
+            }}
+            style={{
+              background: 'transparent', border: '1px solid rgba(249,115,22,0.4)',
+              color: ghlStatus === 'loading' ? T.muted : '#f97316',
+              fontFamily: FF, fontSize: 13, fontWeight: 600,
+              padding: '9px 20px', borderRadius: 6,
+              cursor: ghlStatus === 'loading' ? 'default' : 'pointer',
+              letterSpacing: '-0.01em', opacity: ghlStatus === 'loading' ? 0.7 : 1,
+            }}
+          >
+            {ghlStatus === 'loading' ? '⏳ Generating GHL Guide…' : '↓ Download GHL Setup Guide'}
+          </button>
+          {ghlStatus === 'error' && (
+            <p style={{ margin: '8px 0 0', fontSize: 12, color: T.red, lineHeight: 1.6 }}>
+              Unable to generate the guide right now — please try again.
             </p>
           )}
         </div>
