@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" fill="none">
+
+  <!-- ═══ ICON MARK ═══ -->
+  <!-- Large spike — bright face -->
+  <polygon points="108,14 14,212 72,212 128,112" fill="#C0FF00"/>
+  <!-- Large spike — inner bevel -->
+  <polygon points="108,14 128,112 140,118 120,22" fill="#8CB300"/>
+  <!-- Large spike — left shadow strip -->
+  <polygon points="108,14 120,22 36,218 14,212" fill="#6A9000"/>
+
+  <!-- Small spike — bright face -->
+  <polygon points="144,104 136,124 188,212 224,198" fill="#C0FF00"/>
+  <!-- Small spike — bevel face -->
+  <polygon points="144,104 158,100 228,200 224,198 188,212" fill="#8CB300"/>
+  <!-- Small spike — cap shadow -->
+  <polygon points="144,104 158,100 160,110 146,114" fill="#5A7A00"/>
+
+  <!-- ═══ WORDMARK ═══ -->
+  <!-- APEX360 — rendered as SVG text with custom letter styling -->
+  <text
+    x="268" y="178"
+    font-family="'Rajdhani','Barlow Condensed','Arial Narrow',Arial,sans-serif"
+    font-weight="700"
+    font-size="108"
+    letter-spacing="-2"
+    fill="#4A4A4A"
+  >APEX360</text>
+
+  <!-- The "A" accent slash in yellow-green (mimics the logo's A with angled cut) -->
+  <polygon points="278,86 284,76 302,178 294,178" fill="#C0FF00" opacity="0.9"/>
+
+  <!-- AI badge circle -->
+  <circle cx="828" cy="132" r="34" stroke="#C0FF00" stroke-width="4" fill="none"/>
+  <text
+    x="828" y="143"
+    font-family="'Rajdhani','Barlow Condensed','Arial Narrow',Arial,sans-serif"
+    font-weight="700"
+    font-size="28"
+    text-anchor="middle"
+    fill="#C0FF00"
+    letter-spacing="1"
+  >AI</text>
+
+  <!-- ═══ MARKETING tagline with dashes ═══ -->
+  <!-- Left dash -->
+  <line x1="268" y1="204" x2="296" y2="204" stroke="#C0FF00" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Right dash -->
+  <line x1="588" y1="204" x2="616" y2="204" stroke="#C0FF00" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- MARKETING text -->
+  <text
+    x="442" y="216"
+    font-family="'Rajdhani','Barlow Condensed','Arial Narrow',Arial,sans-serif"
+    font-weight="500"
+    font-size="28"
+    letter-spacing="8"
+    text-anchor="middle"
+    fill="#4A4A4A"
+  >MARKETING</text>
+
+</svg>

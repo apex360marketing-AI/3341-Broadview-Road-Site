@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
+  <!-- Large spike — primary face (bright yellow-green) -->
+  <polygon points="200,32 28,448 158,448 268,248" fill="#C0FF00"/>
+  <!-- Large spike — inner bevel/shadow face -->
+  <polygon points="200,32 268,248 294,258 226,46" fill="#8CB300"/>
+  <!-- Large spike — deep shadow left strip -->
+  <polygon points="200,32 226,46 74,458 28,448" fill="#6A9000"/>
+
+  <!-- Small spike — primary face -->
+  <polygon points="284,228 268,265 375,448 452,418" fill="#C0FF00"/>
+  <!-- Small spike — bevel/shadow face -->
+  <polygon points="284,228 312,220 458,422 452,418 375,448" fill="#8CB300"/>
+  <!-- Small spike — cap shadow -->
+  <polygon points="284,228 312,220 318,236 290,244" fill="#5A7A00"/>
+</svg>
