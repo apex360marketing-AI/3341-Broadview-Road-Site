@@ -1,0 +1,220 @@
+---
+import { tokens } from '../../lib/tokens';
+import { NEARBY } from '../../data/nearby';
+import { haversineMiles } from '../../lib/distance';
+
+// Homebuyer-essential categories shown on map
+const MAP_CATS = ['schools', 'grocery', 'recreation', 'healthcare', 'lake-beach'];
+
+const mapPOIs = NEARBY
+  .filter(item => MAP_CATS.includes(item.category))
+  .map(item => ({
+    name: item.name,
+    blurb: item.blurb,
+    lat: item.lat,
+    lng: item.lng,
+    category: item.category,
+    distMi: haversineMiles(tokens.LISTING_LAT, tokens.LISTING_LNG, item.lat, item.lng),
+  }));
+
+const propLat = tokens.LISTING_LAT;
+const propLng = tokens.LISTING_LNG;
+---
+
+<section class="py-14 md:py-20 border-t border-ink-faint/20">
+  <div class="max-w-[var(--max-w)] mx-auto px-[var(--gutter)]">
+
+    <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">Location & Proximity</p>
+    <h2 class="text-3xl md:text-5xl mb-3 font-light leading-[1.05]">
+      At The Centre Of <span class="italic text-[var(--accent-2)]">Everything.</span>
+    </h2>
+    <p class="text-ink-muted text-lg max-w-2xl font-serif italic mb-8">
+      Schools, parks, grocery, and healthcare — all within minutes of 3341 Broadview Road.
+    </p>
+
+    <!-- Legend -->
+    <div class="flex flex-wrap gap-x-6 gap-y-3 mb-6">
+      {[
+        { cat: 'property',   color: '#5BC2C2', label: 'The Property' },
+        { cat: 'schools',    color: '#60a5fa', label: 'Schools' },
+        { cat: 'grocery',    color: '#f97316', label: 'Grocery & Pharmacy' },
+        { cat: 'recreation', color: '#a78bfa', label: 'Recreation' },
+        { cat: 'healthcare', color: '#f87171', label: 'Healthcare' },
+        { cat: 'lake-beach', color: '#34d399', label: 'Lake & Beach' },
+      ].map(({ color, label }) => (
+        <div class="flex items-center gap-2">
+          <span style={`width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;`}></span>
+          <span class="text-ink-muted text-xs tracking-wide">{label}</span>
+        </div>
+      ))}
+    </div>
+
+    <!-- Map container -->
+    <div
+      id="area-map"
+      class="w-full bg-bg-surface"
+      style="height: clamp(400px, 55vw, 620px); position: relative;"
+      aria-label="Interactive neighbourhood map"
+    >
+      <div class="absolute inset-0 flex items-center justify-center z-10" id="area-map-loading">
+        <div style="text-align:center; color:#5C544A;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5BC2C2" stroke-width="1.5" stroke-linecap="round" class="mb-2 mx-auto animate-spin">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <p class="text-xs tracking-[0.2em] uppercase text-ink-faint">Loading map…</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-ink-faint text-[10px] tracking-wide mt-3 italic">
+      Property shown at approximate location. Map data © OpenStreetMap contributors © CARTO.
+    </p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ propLat, propLng, mapPOIs }}>
+// @ts-nocheck
+(async function () {
+  const container = document.getElementById('area-map');
+  const loading   = document.getElementById('area-map-loading');
+  if (!container) return;
+
+  try {
+    const [L] = await Promise.all([
+      import('https://esm.sh/leaflet@1.9.4'),
+      new Promise(r => {
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://esm.sh/leaflet@1.9.4/dist/leaflet.css';
+        css.onload = r;
+        setTimeout(r, 2000);
+        document.head.appendChild(css);
+      }),
+    ]);
+
+    if (loading) loading.remove();
+
+    const map = L.map(container, {
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true,
+    }).setView([propLat, propLng], 14);
+
+    // Dark tile layer (CartoDB Dark Matter)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Override Leaflet attribution control styling to match dark theme
+    const attr = container.querySelector('.leaflet-control-attribution');
+    if (attr) {
+      attr.style.cssText = 'background:rgba(15,14,12,0.85);color:#5C544A;font-size:10px;';
+      attr.querySelectorAll('a').forEach(a => { a.style.color = '#5BC2C2'; });
+    }
+
+    // Category color map
+    const CAT_COLORS = {
+      schools:    '#60a5fa',
+      grocery:    '#f97316',
+      recreation: '#a78bfa',
+      healthcare: '#f87171',
+      'lake-beach': '#34d399',
+    };
+
+    // Category label initials for markers
+    const CAT_LETTER = {
+      schools:    'S',
+      grocery:    'G',
+      recreation: 'R',
+      healthcare: 'H',
+      'lake-beach': 'L',
+    };
+
+    // Property beacon
+    const propIcon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:22px;height:22px;border-radius:50%;
+        background:#5BC2C2;border:3px solid #fff;
+        box-shadow:0 0 0 3px #5BC2C2,0 0 18px rgba(91,194,194,0.7);
+        animation:area-pulse 2.2s ease-in-out infinite;
+      "></div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+    });
+
+    L.marker([propLat, propLng], { icon: propIcon })
+      .bindPopup(`<div style="font-family:Inter,sans-serif;min-width:160px;padding:4px 2px;">
+        <div style="font-size:11px;font-weight:700;color:#5BC2C2;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">The Property</div>
+        <div style="font-size:13px;font-weight:600;color:#111;">3341 Broadview Road</div>
+        <div style="font-size:12px;color:#6b7280;">West Kelowna, BC</div>
+      </div>`, { maxWidth: 220 })
+      .addTo(map);
+
+    // POI markers
+    mapPOIs.forEach(poi => {
+      const color  = CAT_COLORS[poi.category] ?? '#888';
+      const letter = CAT_LETTER[poi.category] ?? '·';
+      const dist   = poi.distMi < 1
+        ? `${(poi.distMi * 1.609 * 1000).toFixed(0)} m`
+        : `${(poi.distMi * 1.609).toFixed(1)} km`;
+
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="
+          width:26px;height:26px;border-radius:50%;
+          background:${color};
+          border:2px solid rgba(255,255,255,0.25);
+          display:flex;align-items:center;justify-content:center;
+          font-size:11px;font-weight:700;color:#fff;
+          font-family:Inter,sans-serif;
+          box-shadow:0 2px 8px rgba(0,0,0,0.4);
+        ">${letter}</div>`,
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
+      });
+
+      L.marker([poi.lat, poi.lng], { icon })
+        .bindPopup(`<div style="font-family:Inter,sans-serif;min-width:180px;padding:4px 2px;">
+          <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;">${poi.category.replace('-', ' ')}</div>
+          <div style="font-size:13px;font-weight:600;color:#111;margin-bottom:4px;">${poi.name}</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.5;margin-bottom:4px;">${poi.blurb}</div>
+          <div style="font-size:11px;color:#9ca3af;">~ ${dist} from property</div>
+        </div>`, { maxWidth: 240 })
+        .addTo(map);
+    });
+
+    // Add pulse keyframes to the page
+    if (!document.getElementById('area-map-styles')) {
+      const style = document.createElement('style');
+      style.id = 'area-map-styles';
+      style.textContent = `
+        @keyframes area-pulse {
+          0%,100% { box-shadow: 0 0 0 3px #5BC2C2, 0 0 14px rgba(91,194,194,0.6); }
+          50%      { box-shadow: 0 0 0 7px rgba(91,194,194,0.15), 0 0 28px rgba(91,194,194,0.8); }
+        }
+        .leaflet-popup-content-wrapper {
+          background: #fff !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.18) !important;
+          border: none !important;
+        }
+        .leaflet-popup-tip { background: #fff !important; }
+        .leaflet-control-zoom a {
+          background: #1F2024 !important;
+          color: #EDE6D6 !important;
+          border-color: rgba(92,84,74,0.4) !important;
+        }
+        .leaflet-control-zoom a:hover { background: #262A2E !important; color: #5BC2C2 !important; }
+      `;
+      document.head.appendChild(style);
+    }
+
+  } catch (err) {
+    console.warn('AreaMap load failed', err);
+    if (loading) loading.innerHTML = '<p style="color:#5C544A;font-size:12px;">Map unavailable — please try refreshing.</p>';
+  }
+})();
+</script>

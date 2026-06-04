@@ -1,6 +1,7 @@
 ---
 import { tokens } from '../lib/tokens';
 import OctCTA from './ui/OctCTA.astro';
+import Honeycomb from './Honeycomb.astro';
 
 const inlinePrivacy = `Your details are sent to ${tokens.AGENT_NAME} (${tokens.AGENT_BROKERAGE}) only to respond to this inquiry. We don't sell your data.`;
 const marketingLabel = `Send me occasional updates from ${tokens.AGENT_NAME} about new Okanagan listings and market insights. Optional — leaving this unchecked won't affect your inquiry. Unsubscribe anytime.`;
@@ -12,23 +13,24 @@ const marketingLabel = `Send me occasional updates from ${tokens.AGENT_NAME} abo
   aria-modal="true"
   aria-labelledby="booking-title"
 >
-  <div class="relative bg-bg-surface w-full max-w-xl mx-3 sm:mx-4 my-auto border border-ink-faint/30">
+  <div class="relative bg-bg-surface w-full max-w-xl mx-3 sm:mx-4 my-auto border border-ink-faint/30 overflow-hidden">
+    <Honeycomb unique="modal" opacity={0.032} />
     <button
       type="button"
       id="booking-close"
-      class="absolute top-3 right-3 text-ink-muted hover:text-ink-primary p-2"
+      class="absolute top-3 right-3 z-20 text-ink-muted hover:text-ink-primary p-2"
       aria-label="Close inquiry form"
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
 
-    <div class="px-6 sm:px-8 pt-7 pb-6">
+    <div class="relative z-10 px-6 sm:px-8 pt-7 pb-6">
       <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Private Showing Request</p>
       <h3 id="booking-title" class="text-2xl sm:text-3xl mb-1">Contact the Listing Agent</h3>
       <p class="text-ink-muted text-sm">{tokens.ASKING_PRICE_DISPLAY} {tokens.CURRENCY} &nbsp;·&nbsp; MLS® {tokens.MLS_NUMBER} &nbsp;·&nbsp; {tokens.AGENT_NAME}, {tokens.AGENT_BROKERAGE}</p>
     </div>
 
-    <form id="booking-form" novalidate class="px-6 sm:px-8 pb-7 space-y-4">
+    <form id="booking-form" novalidate class="relative z-10 px-6 sm:px-8 pb-7 space-y-4">
       <!-- honeypot -->
       <div class="hidden" aria-hidden="true">
         <label>Leave blank: <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>

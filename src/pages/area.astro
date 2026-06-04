@@ -4,6 +4,7 @@ import { tokens } from '../lib/tokens';
 import Nav from '../components/Nav.astro';
 import NearbyGrid from '../components/area/NearbyGrid.astro';
 import OnTheRadar from '../components/area/OnTheRadar.astro';
+import AreaMap from '../components/area/AreaMap.astro';
 import Footer from '../components/Footer.astro';
 import BookingModal from '../components/BookingModal.astro';
 import StickyBookBar from '../components/StickyBookBar.astro';
@@ -14,9 +15,9 @@ import ScrollDirection from '../components/ScrollDirection.astro';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://www.walkscore.com https://www2.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://esm.sh ${tokens.LIVE_FEED_URL || ''}; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
-    <title>The Area — {tokens.LISTING_NAME}</title>
-    <meta name="description" content={`The Okanagan around ${tokens.LISTING_NAME} — wineries, beaches, restaurants, hikes, and live local events.`} />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; img-src 'self' data: https:; font-src 'self' https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://esm.sh; connect-src 'self' https://api.walkscore.com https://*.walkscore.com https://www.walkscore.com https://www2.walkscore.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://esm.sh ${tokens.LIVE_FEED_URL || ''}; frame-ancestors ${tokens.CSP_FRAME_ANCESTORS}; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests`} />
+    <title>The Neighbourhood — {tokens.LISTING_NAME}</title>
+    <meta name="description" content={`Discover West Kelowna — schools, grocery, recreation, healthcare, beaches, wineries, and restaurants near ${tokens.LISTING_ADDRESS_FULL}.`} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,22 +26,30 @@ import ScrollDirection from '../components/ScrollDirection.astro';
   <body class="bg-bg-base text-ink-primary font-sans">
     <Nav />
 
-    <main class="pt-24 md:pt-28">
-      <!-- Area page hero — compact intro, sets the tone -->
+    <main class="pt-24 md:pt-28 pb-20 md:pb-0">
+
+      <!-- Page hero -->
       <section class="py-14 md:py-20">
         <div class="max-w-3xl mx-auto px-[var(--gutter)] text-center">
-          <p class="text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-7 opacity-80">The Area</p>
+          <p class="text-[var(--accent-2)] text-[11px] tracking-[0.45em] uppercase mb-7 opacity-80">The Neighbourhood</p>
           <h1 class="text-5xl md:text-7xl font-light leading-[1.02] mb-7 tracking-[0.02em]">
-            More than <span class="italic text-[var(--accent-2)]">a stay.</span>
+            West Kelowna — <span class="italic text-[var(--accent-2)]">live here.</span>
           </h1>
           <p class="text-ink-muted text-lg md:text-2xl font-serif italic leading-relaxed">
-            Everything Okanagan, curated. Plus a live thread of what's happening this week.
+            Schools, parks, shopping, and outdoor recreation — everything a family needs, within minutes of 3341 Broadview Road.
           </p>
         </div>
       </section>
 
-      <div class="reveal"><OnTheRadar /></div>
+      <!-- Area map — homebuyer proximity view -->
+      <div class="reveal"><AreaMap /></div>
+
+      <!-- Nearby grid — all categories, homebuyer essentials first -->
       <div class="reveal"><NearbyGrid /></div>
+
+      <!-- On The Radar — local events, shows community vibrancy -->
+      <div class="reveal"><OnTheRadar /></div>
+
     </main>
 
     <Footer />
@@ -49,7 +58,6 @@ import ScrollDirection from '../components/ScrollDirection.astro';
     <ScrollDirection />
 
     <script>
-      // Reveal-on-scroll matching the listing page
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduced && 'IntersectionObserver' in window) {
         const io = new IntersectionObserver((entries) => {

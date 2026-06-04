@@ -9,6 +9,10 @@
  */
 
 export type NearbyCategory =
+  | 'schools'
+  | 'grocery'
+  | 'recreation'
+  | 'healthcare'
   | 'wineries'
   | 'lake-beach'
   | 'restaurants'
@@ -29,15 +33,133 @@ export type NearbyItem = {
 };
 
 export const NEARBY_GROUPS: { id: NearbyCategory; label: string; intro: string; icon: string }[] = [
-  { id: 'wineries',     label: 'Wineries & Tasting Rooms', intro: 'World-class wineries within a 10-minute drive.', icon: 'fire' },
-  { id: 'lake-beach',   label: 'Lake & Beach',              intro: 'Beaches, swim spots, and on-water adventures on Okanagan Lake.', icon: 'pool' },
-  { id: 'restaurants',  label: 'Restaurants',               intro: 'Local-first. Sorted by guest rating — the best of the Okanagan plate.', icon: 'kitchen' },
-  { id: 'hikes',        label: 'Hikes & Trails',            intro: 'From easy lakeside paths to summit climbs with mountain views.', icon: 'mountain' },
-  { id: 'family',       label: 'Family & Activities',       intro: 'Zip lines, petting zoos, water parks, mini golf — for every age.', icon: 'games' },
-  { id: 'coffee',       label: 'Coffee & Bakeries',         intro: 'Where the locals start their day.', icon: 'coffee' }
+  { id: 'schools',      label: 'Schools',                   intro: 'Top-rated public schools in the Westside SD23 catchment — walkable or a short drive.', icon: 'school' },
+  { id: 'grocery',      label: 'Grocery & Pharmacy',        intro: 'Daily essentials handled. Major grocery chains and pharmacies minutes away on Hwy 97.', icon: 'shop' },
+  { id: 'recreation',   label: 'Recreation & Fitness',      intro: 'Community pools, arenas, and fitness centres — your family will have no excuse not to be active.', icon: 'pool' },
+  { id: 'healthcare',   label: 'Healthcare',                intro: 'From walk-in clinics to the region\'s main hospital, Okanagan healthcare is close at hand.', icon: 'medical' },
+  { id: 'lake-beach',   label: 'Lake & Beach',              intro: 'Okanagan Lake is practically your backyard — beaches, paddleboarding, and summer evenings on the water.', icon: 'pool' },
+  { id: 'restaurants',  label: 'Restaurants',               intro: 'Award-winning estate dining and beloved local spots — the Okanagan food scene punches well above its weight.', icon: 'kitchen' },
+  { id: 'wineries',     label: 'Wineries & Tasting Rooms',  intro: 'World-class wineries literally steps from your door — you\'re in the middle of one of Canada\'s best wine regions.', icon: 'fire' },
+  { id: 'hikes',        label: 'Hikes & Trails',            intro: 'From easy lakeside paths to summit climbs with mountain views — trail access is one of West Kelowna\'s great perks.', icon: 'mountain' },
+  { id: 'family',       label: 'Family & Activities',       intro: 'Zip lines, water parks, and mini golf for rainy afternoons — this area keeps families busy year-round.', icon: 'games' },
+  { id: 'coffee',       label: 'Coffee & Bakeries',         intro: 'Independent roasters and wood-fired bakeries — the kind of neighbourhood institutions that make a place feel like home.', icon: 'coffee' }
 ];
 
 export const NEARBY: NearbyItem[] = [
+
+  // ───── Schools ─────
+  {
+    name: 'George Pringle Secondary',
+    blurb: 'West Kelowna\'s principal Grade 8–12 school. Strong academics, arts, and athletics programs within SD23.',
+    url: 'https://gps.sd23.bc.ca',
+    lat: 49.8512, lng: -119.6157,
+    category: 'schools', icon: 'school'
+  },
+  {
+    name: 'Mount Boucherie Secondary',
+    blurb: 'Grade 8–12 school on the slopes of Mt. Boucherie. Known for its IB programme and outdoor education.',
+    url: 'https://mbs.sd23.bc.ca',
+    lat: 49.8554, lng: -119.6254,
+    category: 'schools', icon: 'school'
+  },
+  {
+    name: 'Chief Tomat Elementary',
+    blurb: 'K–7 elementary school just minutes from the property. Welcoming community and dedicated staff.',
+    url: 'https://cte.sd23.bc.ca',
+    lat: 49.8418, lng: -119.6183,
+    category: 'schools', icon: 'school'
+  },
+  {
+    name: 'Westbank Elementary',
+    blurb: 'Established K–7 school in the heart of Westbank with a strong French Immersion option.',
+    url: 'https://we.sd23.bc.ca',
+    lat: 49.8470, lng: -119.6103,
+    category: 'schools', icon: 'school'
+  },
+  {
+    name: 'Shannon Lake Elementary',
+    blurb: 'K–7 school in the Shannon Lake neighbourhood. Surrounded by parks and forest trails.',
+    url: 'https://sle.sd23.bc.ca',
+    lat: 49.8755, lng: -119.6018,
+    category: 'schools', icon: 'school'
+  },
+
+  // ───── Grocery & Pharmacy ─────
+  {
+    name: 'Save-On-Foods Westbank',
+    blurb: 'Full-service grocery with pharmacy, bakery, and deli. Open late — the everyday anchor for West Kelowna.',
+    url: 'https://www.saveonfoods.com',
+    lat: 49.8589, lng: -119.5988,
+    category: 'grocery', icon: 'shop'
+  },
+  {
+    name: 'Real Canadian Superstore',
+    blurb: 'Large-format grocery + general merchandise. Great for big stock-ups and competitive weekly prices.',
+    url: 'https://www.realcanadiansuperstore.ca',
+    lat: 49.8608, lng: -119.5947,
+    category: 'grocery', icon: 'shop'
+  },
+  {
+    name: 'Shoppers Drug Mart',
+    blurb: 'Full-service pharmacy, beauty, and health — open until midnight. Prescription and walk-in convenience.',
+    url: 'https://www1.shoppersdrugmart.ca',
+    lat: 49.8580, lng: -119.6010,
+    category: 'grocery', icon: 'medical'
+  },
+  {
+    name: 'London Drugs Westbank',
+    blurb: 'Pharmacy, electronics, and household essentials. A one-stop-shop that locals rely on year-round.',
+    url: 'https://www.londondrugs.com',
+    lat: 49.8573, lng: -119.5960,
+    category: 'grocery', icon: 'shop'
+  },
+
+  // ───── Recreation & Fitness ─────
+  {
+    name: 'Shannon Lake Recreation Centre',
+    blurb: 'Community pool, fitness centre, and arena in the Shannon Lake district. Year-round programming for all ages.',
+    url: 'https://www.westkelownacity.ca/en/things-to-do/recreation.aspx',
+    lat: 49.8750, lng: -119.6054,
+    category: 'recreation', icon: 'pool'
+  },
+  {
+    name: 'Gellatly Bay Nut Farm Regional Park',
+    blurb: 'Lakefront park with picnic areas, beach access, and a marina. A favourite for families and dog owners.',
+    url: 'https://rdco.com/parks/gellatly-nut-farm-regional-park',
+    lat: 49.8285, lng: -119.6135,
+    category: 'recreation', icon: 'mountain'
+  },
+  {
+    name: 'Memorial Park',
+    blurb: 'Community green space with sports fields, playgrounds, and seasonal events. Right in the West Kelowna core.',
+    url: 'https://www.westkelownacity.ca/en/things-to-do/parks-and-trails.aspx',
+    lat: 49.8617, lng: -119.5843,
+    category: 'recreation', icon: 'pool'
+  },
+
+  // ───── Healthcare ─────
+  {
+    name: 'Kelowna General Hospital',
+    blurb: 'The Okanagan\'s main regional hospital — full emergency, surgical, and specialist care. 12 minutes east.',
+    url: 'https://www.interiorhealth.ca/location/kelowna-general-hospital',
+    lat: 49.8853, lng: -119.4893,
+    category: 'healthcare', icon: 'medical'
+  },
+  {
+    name: 'West Kelowna Medical Clinic',
+    blurb: 'Primary care and walk-in clinic on Hwy 97. Family physicians and same-day appointments available.',
+    url: 'https://www.westkelownamedicalclinic.ca',
+    lat: 49.8581, lng: -119.6019,
+    category: 'healthcare', icon: 'medical'
+  },
+  {
+    name: 'Okanagan Urgent Care',
+    blurb: 'Urgent (non-emergency) walk-in care in Kelowna. Minor injuries, illness, and diagnostic imaging.',
+    url: 'https://www.interiorhealth.ca',
+    lat: 49.8843, lng: -119.4962,
+    category: 'healthcare', icon: 'medical'
+  },
+
   // ───── Wineries ─────
   {
     name: 'Mission Hill Family Estate',

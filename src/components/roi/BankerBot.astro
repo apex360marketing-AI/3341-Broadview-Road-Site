@@ -1,0 +1,338 @@
+---
+---
+
+<!--
+  BankerBot — animated investment advisor widget.
+  Shows witty ROI commentary. Closes on X. 90-second silence after dismiss.
+  Includes a "Talk to Kevin" CTA that opens the inquiry modal.
+-->
+
+<div id="banker-bot" class="banker-bot" aria-live="polite" aria-label="Investment advisor">
+  <!-- Avatar bubble -->
+  <button
+    id="banker-toggle"
+    class="banker-avatar"
+    aria-label="Open investment advisor"
+    aria-expanded="false"
+  >
+    <!-- Animated banker character SVG -->
+    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true" class="banker-face">
+      <!-- Head -->
+      <circle cx="26" cy="22" r="14" fill="#1F2024" stroke="#5BC2C2" stroke-width="1.5"/>
+      <!-- Eyes -->
+      <circle cx="21" cy="20" r="2" fill="#5BC2C2" class="banker-eye"/>
+      <circle cx="31" cy="20" r="2" fill="#5BC2C2" class="banker-eye"/>
+      <!-- Smile -->
+      <path d="M20 26 Q26 31 32 26" stroke="#5BC2C2" stroke-width="1.5" stroke-linecap="round" fill="none" class="banker-mouth"/>
+      <!-- Top hat -->
+      <rect x="16" y="6" width="20" height="3" rx="1" fill="#5BC2C2" opacity="0.9"/>
+      <rect x="19" y="2" width="14" height="7" rx="1" fill="#5BC2C2" opacity="0.9"/>
+      <!-- Bow tie -->
+      <path d="M20 38 L26 42 L32 38 L26 36 Z" fill="#C0FF00" opacity="0.85"/>
+      <!-- Body / suit -->
+      <path d="M12 50 Q12 40 26 38 Q40 40 40 50" fill="#1F2024" stroke="#5BC2C2" stroke-width="1.2"/>
+      <!-- Lapels -->
+      <path d="M26 38 L22 44" stroke="#5BC2C2" stroke-width="1" opacity="0.6"/>
+      <path d="M26 38 L30 44" stroke="#5BC2C2" stroke-width="1" opacity="0.6"/>
+    </svg>
+    <!-- Pulse ring -->
+    <span class="banker-pulse" aria-hidden="true"></span>
+  </button>
+
+  <!-- Chat bubble -->
+  <div id="banker-bubble" class="banker-bubble" role="tooltip" aria-hidden="true">
+    <button
+      id="banker-close"
+      class="banker-close"
+      aria-label="Close investment advisor"
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <div id="banker-text" class="banker-text">
+      <!-- Filled by JS -->
+    </div>
+
+    <div class="banker-actions">
+      <button
+        id="banker-next"
+        class="banker-btn banker-btn-ghost"
+        aria-label="Next tip"
+      >
+        Next tip →
+      </button>
+      <button
+        id="banker-contact"
+        class="banker-btn banker-btn-primary"
+        data-action="open-inquiry"
+      >
+        Talk to Kevin
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ── Layout ── */
+  .banker-bot {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  /* ── Avatar button ── */
+  .banker-avatar {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d3d3d 0%, #0a2e2e 100%);
+    border: 2px solid #5BC2C2;
+    cursor: pointer;
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 300ms cubic-bezier(0.16,1,0.3,1),
+                box-shadow 300ms ease;
+    box-shadow: 0 4px 20px rgba(91,194,194,0.25), 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .banker-avatar:hover {
+    transform: scale(1.07);
+    box-shadow: 0 6px 28px rgba(91,194,194,0.4), 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .banker-avatar:focus-visible {
+    outline: 2px solid #C0FF00;
+    outline-offset: 3px;
+  }
+
+  /* ── Pulse ring ── */
+  .banker-pulse {
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(91,194,194,0.5);
+    animation: bot-pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes bot-pulse {
+    0%,100% { transform: scale(1); opacity: 0.6; }
+    50%      { transform: scale(1.15); opacity: 0; }
+  }
+
+  /* ── Face animations ── */
+  .banker-eye {
+    animation: bot-blink 4s ease-in-out infinite;
+  }
+  @keyframes bot-blink {
+    0%,90%,100% { transform: scaleY(1); }
+    94%          { transform: scaleY(0.15); }
+  }
+  .banker-mouth {
+    animation: bot-smile 5s ease-in-out infinite;
+  }
+  @keyframes bot-smile {
+    0%,100%  { d: path("M20 26 Q26 31 32 26"); }
+    30%,50%  { d: path("M20 27 Q26 32 32 27"); }
+    70%,80%  { d: path("M20 26 Q26 30 32 26"); }
+  }
+
+  /* ── Bubble ── */
+  .banker-bubble {
+    position: relative;
+    pointer-events: all;
+    background: #1F2024;
+    border: 1px solid rgba(91,194,194,0.35);
+    border-radius: 12px 12px 4px 12px;
+    padding: 16px 16px 12px;
+    width: min(320px, calc(100vw - 88px));
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,194,194,0.1);
+    /* Hidden by default */
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 280ms cubic-bezier(0.16,1,0.3,1),
+                transform 280ms cubic-bezier(0.16,1,0.3,1);
+    pointer-events: none;
+  }
+  .banker-bubble.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+  /* Corner nib */
+  .banker-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    right: 20px;
+    width: 12px;
+    height: 7px;
+    background: #1F2024;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-bottom: 1px solid rgba(91,194,194,0.35);
+  }
+
+  /* ── Close button ── */
+  .banker-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #5C544A;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 1;
+    transition: color 150ms;
+  }
+  .banker-close:hover { color: #EDE6D6; }
+
+  /* ── Text ── */
+  .banker-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #A29A8B;
+    margin-bottom: 12px;
+    padding-right: 16px;
+    min-height: 56px;
+  }
+  .banker-text strong {
+    color: #EDE6D6;
+  }
+  .banker-text .highlight {
+    color: #C0FF00;
+    font-weight: 700;
+  }
+
+  /* ── Action buttons ── */
+  .banker-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .banker-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 7px 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 150ms;
+    letter-spacing: 0.01em;
+  }
+  .banker-btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(91,194,194,0.35);
+    color: #5BC2C2;
+  }
+  .banker-btn-ghost:hover {
+    background: rgba(91,194,194,0.1);
+    color: #7DD8D8;
+  }
+  .banker-btn-primary {
+    background: #C0FF00;
+    color: #0F0E0C;
+  }
+  .banker-btn-primary:hover {
+    background: #d4ff4d;
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .banker-pulse,
+    .banker-eye,
+    .banker-mouth { animation: none; }
+    .banker-bubble { transition: none; }
+  }
+</style>
+
+<script is:inline>
+// @ts-nocheck
+(function () {
+  const TIPS = [
+    `<strong>3 income streams in one building.</strong> The upstairs, Suite 1, and Suite 2 are legally separate. Most buyers <span class="highlight">can't find anything like it</span> in this price range.`,
+    `A <span class="highlight">20% down on $1,295,000</span> = $259K invested. The hybrid strategy targets around <strong>+$40K/yr gross STR income</strong> from just the top floor. Do the math.`,
+    `Private pool. West Kelowna. Vineyards next door. This home rents for <span class="highlight">$550/night peak season</span> — and that's <strong>conservative.</strong>`,
+    `Most investors are hunting for <span class="highlight">7–10% cash-on-cash.</span> Dial in your mortgage rate and hit the Optimistic preset above. Spoiler: the numbers hold up.`,
+    `<strong>Equity + cash flow.</strong> Year 1 mortgage principal reduction at 20% down is roughly <span class="highlight">$18,000</span>. Add that to cash flow and your true return looks very different.`,
+    `The basement suites cover <strong>most of your mortgage.</strong> The top floor is pure upside — Airbnb it, LTR it, or use it yourself on weekends.`,
+    `West Kelowna is 5 minutes from world-class wineries and Okanagan Lake. <span class="highlight">Airbnb guests pay a premium for that.</span> Your competition is a hotel — you have a private pool.`,
+    `<strong>Short-term rental + long-term stability.</strong> $3,000/mo guaranteed from the suites even when the top floor sits empty. That's the safety net most investors dream about.`,
+  ];
+
+  const SILENCE_MS = 90_000; // 90 seconds after close before next auto-show
+  const AUTO_SHOW_MS = 5_000; // Initial delay before first auto-show
+
+  const bot     = document.getElementById('banker-bot');
+  const toggle  = document.getElementById('banker-toggle');
+  const bubble  = document.getElementById('banker-bubble');
+  const textEl  = document.getElementById('banker-text');
+  const nextBtn = document.getElementById('banker-next');
+  const closeBtn = document.getElementById('banker-close');
+  const contactBtn = document.getElementById('banker-contact');
+  if (!bot || !toggle || !bubble || !textEl) return;
+
+  let tipIdx = 0;
+  let closedAt = 0;
+  let autoTimer = null;
+  let isOpen = false;
+
+  function showTip(idx) {
+    textEl.innerHTML = TIPS[idx % TIPS.length];
+  }
+
+  function openBubble() {
+    if (Date.now() - closedAt < SILENCE_MS) return;
+    showTip(tipIdx);
+    bubble.classList.add('is-open');
+    bubble.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    isOpen = true;
+  }
+
+  function closeBubble() {
+    bubble.classList.remove('is-open');
+    bubble.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    closedAt = Date.now();
+    isOpen = false;
+    // Schedule next auto-show after silence
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(openBubble, SILENCE_MS + 3000);
+  }
+
+  toggle.addEventListener('click', () => {
+    if (isOpen) closeBubble();
+    else openBubble();
+  });
+
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeBubble();
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    tipIdx = (tipIdx + 1) % TIPS.length;
+    showTip(tipIdx);
+  });
+
+  contactBtn?.addEventListener('click', () => {
+    closeBubble();
+    window.openInquiryModal?.();
+  });
+
+  // Auto-show after initial delay
+  autoTimer = setTimeout(openBubble, AUTO_SHOW_MS);
+
+  // Randomise starting tip
+  tipIdx = Math.floor(Math.random() * TIPS.length);
+})();
+</script>

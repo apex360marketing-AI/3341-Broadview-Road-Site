@@ -19,7 +19,8 @@ import OctCTA from './ui/OctCTA.astro';
   <div class="absolute top-0 inset-x-0 px-[var(--gutter)] pt-[88px] md:pt-[100px]">
     <div class="max-w-[var(--max-w)] mx-auto">
       <p class="text-ink-primary text-xs sm:text-sm tracking-[0.24em] uppercase mb-2.5 opacity-95">{tokens.LISTING_ADDRESS_LINE}</p>
-      <h1 class="text-6xl sm:text-7xl md:text-9xl max-w-5xl leading-[0.92] font-light">{tokens.LISTING_NAME}</h1>
+      <h1 class="hero-outlined-title text-6xl sm:text-7xl md:text-9xl max-w-5xl leading-[0.92] font-light">{tokens.LISTING_NAME}</h1>
+      <p class="text-ink-muted text-sm sm:text-base tracking-[0.3em] uppercase mt-3 opacity-75">3341 Broadview Road</p>
     </div>
   </div>
 
@@ -58,6 +59,14 @@ import OctCTA from './ui/OctCTA.astro';
 >
   Link copied — paste it anywhere.
 </div>
+
+<style>
+  .hero-outlined-title {
+    color: var(--ink-primary);
+    -webkit-text-stroke: 2px #5BC2C2;
+    paint-order: stroke fill;
+  }
+</style>
 
 <script is:inline define:vars={{ title: tokens.LISTING_NAME, blurb: tokens.LISTING_TAGLINE }}>
   // @ts-nocheck

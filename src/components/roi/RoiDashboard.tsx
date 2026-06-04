@@ -7,23 +7,27 @@ import {
 } from '../../domain/roi';
 import type { OptionResult, LineItem } from '../../domain/roi';
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Design tokens (dark theme — matches site palette) ─────────────────────
 const T = {
-  teal:    '#5BC2C2',
-  tealFg:  '#1a8f8f',
-  tealBg:  '#f0fbfb',
-  green:   '#16a34a',
-  greenBg: '#f0fdf4',
-  red:     '#dc2626',
-  blue:    '#2563eb',
-  blueBg:  '#eff6ff',
-  ink:     '#111111',
-  body:    '#374151',
-  muted:   '#6b7280',
-  label:   '#9ca3af',
-  border:  '#e9e8e4',
-  surface: '#ffffff',
-  page:    '#F8F7F4',
+  teal:     '#5BC2C2',
+  tealFg:   '#7DD8D8',
+  tealBg:   'rgba(91,194,194,0.10)',
+  green:    '#4ade80',
+  greenBg:  'rgba(74,222,128,0.10)',
+  greenBdr: 'rgba(74,222,128,0.25)',
+  red:      '#f87171',
+  blue:     '#60a5fa',
+  blueBg:   'rgba(96,165,250,0.10)',
+  blueBdr:  'rgba(96,165,250,0.25)',
+  ink:      '#EDE6D6',
+  body:     '#A29A8B',
+  muted:    '#7A7266',
+  label:    '#5C544A',
+  border:   'rgba(92,84,74,0.35)',
+  surface:  '#1F2024',
+  elevated: '#262A2E',
+  page:     '#0F0E0C',
+  yellow:   '#C0FF00',
 };
 
 const FF = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -59,9 +63,10 @@ function NumInput({
           fontSize: 14,
           fontWeight: 600,
           color: T.ink,
-          background: '#fafaf9',
+          background: T.elevated,
           fontFamily: FF,
           outline: 'none',
+          colorScheme: 'dark',
         }}
       />
       {suffix && <span style={{ fontSize: 13, color: T.muted, flexShrink: 0 }}>{suffix}</span>}
@@ -116,7 +121,7 @@ function SectionBox({ title, accent, children }: { title: string; accent?: strin
         {title}
       </div>
       <div style={{
-        background: '#fafaf9', border: `1px solid ${T.border}`,
+        background: T.elevated, border: `1px solid ${T.border}`,
         borderRadius: 8, padding: '12px 14px',
       }}>
         {children}
@@ -169,8 +174,8 @@ function ReturnPanel({
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
       {/* Without equity */}
       <div style={{
-        background: cashFlow >= 0 ? T.greenBg : '#fef2f2',
-        border: `1px solid ${cashFlow >= 0 ? '#bbf7d0' : '#fecaca'}`,
+        background: cashFlow >= 0 ? T.greenBg : 'rgba(248,113,113,0.08)',
+        border: `1px solid ${cashFlow >= 0 ? T.greenBdr : 'rgba(248,113,113,0.25)'}`,
         borderRadius: 8, padding: '14px 16px',
       }}>
         <div
@@ -189,8 +194,8 @@ function ReturnPanel({
 
       {/* With equity */}
       <div style={{
-        background: totalReturn >= 0 ? T.blueBg : '#fef2f2',
-        border: `1px solid ${totalReturn >= 0 ? '#bfdbfe' : '#fecaca'}`,
+        background: totalReturn >= 0 ? T.blueBg : 'rgba(248,113,113,0.08)',
+        border: `1px solid ${totalReturn >= 0 ? T.blueBdr : 'rgba(248,113,113,0.25)'}`,
         borderRadius: 8, padding: '14px 16px',
       }}>
         <div
@@ -473,7 +478,7 @@ export default function RoiDashboard() {
           background: T.tealBg, border: `1px solid ${T.teal}33`, borderRadius: 8,
           display: 'flex', flexWrap: 'wrap', gap: '6px 32px',
         }}>
-          <span style={{ width: '100%', fontSize: 10, fontWeight: 700, color: T.tealFg, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+          <span style={{ width: '100%', fontSize: 10, fontWeight: 700, color: T.yellow, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
             Assumption Snapshot
           </span>
           {([
@@ -510,7 +515,7 @@ export default function RoiDashboard() {
               <InlineField label="Suite 2 — 1-bed basement">
                 <NumInput value={aS2} onChange={setAS2} min={500} max={4000} step={50} prefix="$" suffix="/mo" />
               </InlineField>
-              <div style={{ marginTop: 8, padding: '8px 10px', background: T.greenBg, borderRadius: 6, fontSize: 12, color: T.green, fontWeight: 600 }}>
+              <div style={{ marginTop: 8, padding: '8px 10px', background: T.greenBg, borderRadius: 6, fontSize: 12, color: T.green, fontWeight: 600, border: `1px solid ${T.greenBdr}` }}>
                 ✓ Guaranteed {fmtCAD((aS1 + aS2 + aS3))}/mo · {fmtCAD((aS1 + aS2 + aS3) * 12)}/yr gross
               </div>
             </SectionBox>
@@ -542,7 +547,7 @@ export default function RoiDashboard() {
               <InlineField label="Suite 2 — 1-bed basement">
                 <NumInput value={bS2} onChange={setBS2} min={500} max={4000} step={50} prefix="$" suffix="/mo" />
               </InlineField>
-              <div style={{ marginTop: 8, padding: '8px 10px', background: T.greenBg, borderRadius: 6, fontSize: 12, color: T.green, fontWeight: 600 }}>
+              <div style={{ marginTop: 8, padding: '8px 10px', background: T.greenBg, borderRadius: 6, fontSize: 12, color: T.green, fontWeight: 600, border: `1px solid ${T.greenBdr}` }}>
                 ✓ Guaranteed {fmtCAD(bS1 + bS2)}/mo · {fmtCAD((bS1 + bS2) * 12)}/yr
               </div>
               <div style={{ marginTop: 6 }}>
@@ -566,7 +571,7 @@ export default function RoiDashboard() {
               <InlineField label="Off-peak occupancy (Sep–May)">
                 <NumInput value={bOffOcc} onChange={setBOffOcc} min={10} max={100} step={5} suffix="%" />
               </InlineField>
-              <div style={{ marginTop: 8, padding: '8px 10px', background: T.tealBg, borderRadius: 6, fontSize: 12, color: T.tealFg, fontWeight: 500 }}>
+              <div style={{ marginTop: 8, padding: '8px 10px', background: T.tealBg, borderRadius: 6, fontSize: 12, color: T.tealFg, fontWeight: 500, border: `1px solid rgba(91,194,194,0.2)` }}>
                 ≈ {bPeakNights} peak nights + {bOffNights} off-peak nights = <strong>{bPeakNights + bOffNights} booked nights/yr</strong>
               </div>
 
@@ -598,11 +603,12 @@ export default function RoiDashboard() {
           marginTop: 32,
           background: T.surface,
           border: `1px solid ${T.border}`,
+          borderLeft: `3px solid ${T.yellow}`,
           borderRadius: 12,
           padding: '24px 28px',
         }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: T.ink, letterSpacing: '-0.01em' }}>
-            What This Means for the Seller
+          <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: T.yellow, letterSpacing: '-0.01em' }}>
+            What This Means for the Buyer
           </h3>
           <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             <li style={{ fontSize: 13, color: T.body, lineHeight: 1.6 }}>
@@ -624,7 +630,7 @@ export default function RoiDashboard() {
         {/* ─── Soft qualification hints ───────────────────────────────────────── */}
         <div style={{
           marginTop: 32, padding: '18px 22px',
-          background: T.page, border: `1px solid ${T.border}`, borderRadius: 10,
+          background: T.elevated, border: `1px solid ${T.border}`, borderRadius: 10,
         }}>
           <p style={{ margin: 0, fontSize: 13, color: T.muted, lineHeight: 1.7 }}>
             Most investor-grade buyers for this type of property target cash-on-cash returns
@@ -813,9 +819,10 @@ function OptionCard({
       background: T.surface,
       borderRadius: 14,
       boxShadow: badge
-        ? `0 0 0 2px ${T.teal}, 0 8px 32px rgba(0,0,0,0.08)`
-        : '0 1px 3px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.06)',
+        ? `0 0 0 2px ${T.teal}, 0 8px 32px rgba(0,0,0,0.35)`
+        : '0 1px 3px rgba(0,0,0,0.2), 0 4px 20px rgba(0,0,0,0.3)',
       overflow: 'hidden',
+      border: `1px solid ${T.border}`,
     }}>
 
       {/* Header */}
@@ -850,7 +857,7 @@ function OptionCard({
 
       {/* Returns panel */}
       <div style={{ padding: '0 22px 20px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: T.label, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: T.yellow, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
           Returns
         </div>
         <ReturnPanel
