@@ -3,16 +3,16 @@ import { tokens } from '../lib/tokens';
 import Icon from './ui/Icon.astro';
 import Honeycomb from './Honeycomb.astro';
 
-const facts = [
-  { icon: 'bed', label: `${tokens.BEDROOMS} BEDROOMS` },
-  { icon: 'bath', label: `${tokens.BATHROOMS} BATHROOMS` },
-  { icon: 'ruler', label: `${tokens.BUILDING_TOTAL_SQFT.toLocaleString()} SQFT` },
-  { icon: 'pool', label: 'PRIVATE POOL' },
-  { icon: 'wifi', label: 'WRAP-AROUND DECK' },
-  { icon: 'rv', label: 'RV PARKING' },
-  { icon: 'projector', label: 'OUTDOOR MOVIE THEATRE' },
-  { icon: 'guests', label: `BUILT ${tokens.BUILT_YEAR}` },
-  { icon: 'paw', label: `MLS® ${tokens.MLS_NUMBER}` }
+const facts: { icon: string; label: string; desktopOnly?: boolean }[] = [
+  { icon: 'bed',     label: `${tokens.BEDROOMS} BEDROOMS` },
+  { icon: 'bath',    label: `${tokens.BATHROOMS} BATHROOMS` },
+  { icon: 'ruler',   label: `${tokens.BUILDING_TOTAL_SQFT.toLocaleString()} SQFT` },
+  { icon: 'pool',    label: 'PRIVATE POOL' },
+  { icon: 'wifi',    label: 'WRAP-AROUND DECK' },
+  { icon: 'rv',      label: 'RV PARKING' },
+  { icon: 'fire',    label: 'WINE COUNTRY' },
+  { icon: 'guests',  label: `BUILT ${tokens.BUILT_YEAR}` },
+  { icon: 'paw',     label: `MLS® ${tokens.MLS_NUMBER}`, desktopOnly: true },
 ];
 ---
 <section id="property" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
@@ -20,7 +20,7 @@ const facts = [
   <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-10 md:py-14">
     <ul class="grid grid-cols-2 sm:grid-cols-3 gap-x-5 sm:gap-x-6 gap-y-5">
       {facts.map((f) => (
-        <li class="qf-card relative h-[68px]">
+        <li class={`qf-card relative h-[68px]${f.desktopOnly ? ' hidden sm:block' : ''}`}>
           <span class="qf-base" aria-hidden="true"></span>
           <span class="qf-glow" aria-hidden="true"></span>
           <span class="qf-shimmer" aria-hidden="true"></span>
