@@ -207,6 +207,8 @@ export interface AppreciationResult {
   remainingBalance: number;
   equityBuilt: number;          // appreciation gain + principal paid down
   totalEquityAtSale: number;    // projected value - remaining balance
+  principalPaidYear5: number;   // cumulative principal retired after 5 years
+  principalPaidYear10: number;  // cumulative principal retired after 10 years
   cumulativeCashFlow: number;
   totalReturn: number;          // equity built + cumulative cash flow
   totalProceeds: number;        // total equity at sale + cumulative cash flow
@@ -226,6 +228,14 @@ export function calcAppreciation(inp: AppreciationInputs, f: Financing): Appreci
   const equityBuilt = appreciationGain + principalPaid;
   const totalEquityAtSale = projectedValue - remainingBalance;
 
+  // Fixed-milestone principal paydown (independent of the chosen hold period).
+  const principalPaidYear5 = calcPrincipalPaidOverYears(
+    d.loanAmount, f.mortgageRatePct, f.amortizationYears, 5,
+  ).principalPaid;
+  const principalPaidYear10 = calcPrincipalPaidOverYears(
+    d.loanAmount, f.mortgageRatePct, f.amortizationYears, 10,
+  ).principalPaid;
+
   // Cumulative cash flow with rent (income) growth compounding each year.
   let cumulativeCashFlow = 0;
   for (let yr = 0; yr < inp.holdYears; yr++) {
@@ -240,8 +250,8 @@ export function calcAppreciation(inp: AppreciationInputs, f: Financing): Appreci
 
   return {
     projectedValue, appreciationGain, principalPaid, remainingBalance,
-    equityBuilt, totalEquityAtSale, cumulativeCashFlow,
-    totalReturn, totalProceeds, annualizedRoi,
+    equityBuilt, totalEquityAtSale, principalPaidYear5, principalPaidYear10,
+    cumulativeCashFlow, totalReturn, totalProceeds, annualizedRoi,
     totalCashInvested: d.totalCashInvested,
   };
 }

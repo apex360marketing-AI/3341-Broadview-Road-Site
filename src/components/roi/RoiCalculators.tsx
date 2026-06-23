@@ -209,7 +209,52 @@ export default function RoiCalculators() {
         @media (max-width: 768px) { .roi-panel-grid { grid-template-columns: 1fr; } }
         .roi-island input:focus-visible, .roi-island button:focus-visible { outline: 2px solid ${T.lime}; outline-offset: 2px; }
       `}</style>
-      <div className="roi-island" style={{ maxWidth: 1180, margin: '0 auto', padding: '36px clamp(1rem,4vw,2.5rem) 90px' }}>
+      <div className="roi-island" style={{ position: 'relative', maxWidth: 1180, margin: '0 auto', padding: '36px clamp(1rem,4vw,2.5rem) 90px' }}>
+
+        {/* ── Chrome-silver brand watermark (decorative) ─────────────────────── */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 60 60"
+          style={{
+            position: 'absolute', top: '46%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'min(620px, 90%)', height: 'auto',
+            opacity: 0.05, pointerEvents: 'none', zIndex: 0,
+          }}
+        >
+          <defs>
+            <linearGradient id="roi-chrome" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#6B7079" />
+              <stop offset="32%" stopColor="#9AA0A8" />
+              <stop offset="55%" stopColor="#FFFFFF" />
+              <stop offset="74%" stopColor="#CFD4DA" />
+              <stop offset="100%" stopColor="#767B83" />
+            </linearGradient>
+          </defs>
+          <g stroke="url(#roi-chrome)" fill="none">
+            <circle cx="30" cy="30" r="28" strokeWidth="0.7" />
+            <g strokeWidth="1.3" strokeLinecap="round">
+              <line x1="30" y1="0.5" x2="30" y2="3.5" /><line x1="30" y1="56.5" x2="30" y2="59.5" />
+              <line x1="0.5" y1="30" x2="3.5" y2="30" /><line x1="56.5" y1="30" x2="59.5" y2="30" />
+            </g>
+            <circle cx="30" cy="30" r="22" strokeWidth="0.6" />
+            <g strokeWidth="1.7" strokeLinecap="round">
+              <line x1="30" y1="9" x2="30" y2="13" /><line x1="30" y1="47" x2="30" y2="51" />
+              <line x1="9" y1="30" x2="13" y2="30" /><line x1="47" y1="30" x2="51" y2="30" />
+            </g>
+            <g strokeWidth="0.9" strokeLinecap="round">
+              <line x1="40.6" y1="11.84" x2="42.5" y2="14.5" /><line x1="48.16" y1="19.4" x2="45.5" y2="21.3" />
+              <line x1="48.16" y1="40.6" x2="45.5" y2="38.7" /><line x1="40.6" y1="48.16" x2="42.5" y2="45.5" />
+              <line x1="19.4" y1="48.16" x2="17.5" y2="45.5" /><line x1="11.84" y1="40.6" x2="14.5" y2="38.7" />
+              <line x1="11.84" y1="19.4" x2="14.5" y2="21.3" /><line x1="19.4" y1="11.84" x2="17.5" y2="14.5" />
+            </g>
+            <path d="M27.5 13.5 L30 10.5 L32.5 13.5" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+          </g>
+          <circle cx="30" cy="30" r="2.4" fill="url(#roi-chrome)" />
+        </svg>
+
+        {/* All content sits above the watermark */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
 
         {/* ── Shared financing panel ─────────────────────────────────────────── */}
         <section style={{ ...glass, padding: 'clamp(20px,3vw,28px)', marginBottom: 26 }} aria-label="Shared financing assumptions">
@@ -414,6 +459,20 @@ export default function RoiCalculators() {
                 <Stat label="Cumulative Cash Flow" value={fmtCAD(ap.cumulativeCashFlow)} hint={`Over ${hold} years`} />
                 <Stat label="Equity at Sale" value={fmtCAD(ap.totalEquityAtSale)} hint="Value − remaining loan" />
               </div>
+              <div style={milestoneRow} aria-label="Principal paydown milestones">
+                <span style={milestoneTitle}>Principal Paydown</span>
+                <div style={milestoneCells}>
+                  <div style={milestoneCell}>
+                    <span style={milestoneYr}>After 5 Years</span>
+                    <span style={milestoneVal}>{fmtCAD(ap.principalPaidYear5)}</span>
+                  </div>
+                  <div style={milestoneDivider} aria-hidden="true" />
+                  <div style={milestoneCell}>
+                    <span style={milestoneYr}>After 10 Years</span>
+                    <span style={milestoneVal}>{fmtCAD(ap.principalPaidYear10)}</span>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
         )}
@@ -425,6 +484,7 @@ export default function RoiCalculators() {
           appreciation, and returns will vary. Mortgage figures assume a fixed rate over the full amortization. Verify all numbers
           independently and consult licensed professionals before making any purchase or investment decision.
         </p>
+        </div>
       </div>
     </div>
   );
@@ -437,3 +497,19 @@ const statGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'r
 const h2: React.CSSProperties = { margin: '0 0 8px', fontSize: 22, fontWeight: 800, color: '#EDE6D6', letterSpacing: '-0.03em' };
 const lede: React.CSSProperties = { margin: '0 0 22px', fontSize: 13.5, color: '#A29A8B', lineHeight: 1.65 };
 const note: React.CSSProperties = { margin: '4px 0 0', fontSize: 12, color: '#7A7266', lineHeight: 1.65 };
+
+// Principal-paydown milestone strip (5yr / 10yr)
+const milestoneRow: React.CSSProperties = {
+  ...glass, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12,
+  background: 'rgba(38,42,46,0.4)',
+};
+const milestoneTitle: React.CSSProperties = {
+  fontSize: 11, fontWeight: 600, color: T.label, textTransform: 'uppercase', letterSpacing: '0.08em',
+};
+const milestoneCells: React.CSSProperties = { display: 'flex', alignItems: 'stretch', gap: 0 };
+const milestoneCell: React.CSSProperties = {
+  flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: '0 4px',
+};
+const milestoneDivider: React.CSSProperties = { width: 1, background: T.border, margin: '2px 14px' };
+const milestoneYr: React.CSSProperties = { fontSize: 11.5, color: T.muted, letterSpacing: '0.02em' };
+const milestoneVal: React.CSSProperties = { fontSize: 20, fontWeight: 800, color: T.ink, letterSpacing: '-0.02em' };
