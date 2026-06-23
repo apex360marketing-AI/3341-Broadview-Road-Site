@@ -1,6 +1,6 @@
 ---
 import { tokens } from '../lib/tokens';
-import OctCTA from './ui/OctCTA.astro';
+import GlassCard from './ui/GlassCard.astro';
 ---
 <section class="relative h-[92vh] min-h-[680px] overflow-hidden">
   <img
@@ -26,10 +26,20 @@ import OctCTA from './ui/OctCTA.astro';
 
   <!-- BOTTOM block — tagline + price + buttons -->
   <div class="absolute inset-x-0 bottom-[64px] md:bottom-[72px] px-[var(--gutter)]">
-    <div class="max-w-[var(--max-w)] mx-auto text-center">
-      <div class="flex flex-wrap items-center justify-center gap-y-5 gap-x-10 md:gap-x-12">
-        <OctCTA variant="ghost" data-action="open-inquiry" id="hero-cta">Schedule a Showing</OctCTA>
-        <OctCTA variant="ghost" data-action="share-listing" id="hero-share">Share This Home</OctCTA>
+    <div class="max-w-[var(--max-w)] mx-auto">
+      <div class="flex flex-col sm:flex-row items-stretch justify-center gap-4 md:gap-6">
+        <GlassCard
+          title="Family Estate"
+          line="$3,800+/mo revenue from the basement alone"
+          pill="Explore"
+          href="#property"
+        />
+        <GlassCard
+          title="Cash Cow"
+          line="Multiple revenue options"
+          pill="See returns"
+          href="/roi"
+        />
       </div>
     </div>
   </div>
