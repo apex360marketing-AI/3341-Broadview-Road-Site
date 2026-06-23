@@ -93,7 +93,21 @@ const { title, line, pill, href } = Astro.props;
     font-size: 13px;
     line-height: 1.4;
     letter-spacing: 0.02em;
-    color: rgba(237, 230, 214, 0.82);
+    /* Polished metallic chrome silver (matches the bg ONE reference). */
+    background: linear-gradient(
+      105deg,
+      #6b7079 0%,
+      #cfd4da 22%,
+      #ffffff 40%,
+      #9aa0a8 58%,
+      #e4e8ed 76%,
+      #767b83 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   }
 
   /* Pill — the "click forward" affordance, attached at the bottom-left. */
