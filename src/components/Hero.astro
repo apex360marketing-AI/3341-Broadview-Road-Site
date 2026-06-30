@@ -1,14 +1,15 @@
 ---
 import { tokens } from '../lib/tokens';
-import OctCTA from './ui/OctCTA.astro';
+import GlassCard from './ui/GlassCard.astro';
 ---
 <section class="relative h-[92vh] min-h-[680px] overflow-hidden">
   <img
     src={tokens.HERO_PHOTO}
-    alt={tokens.GALLERY_ALT[0]}
+    alt={tokens.GALLERY_ALT[2]}
     fetchpriority="high"
     decoding="async"
     class="absolute inset-0 w-full h-[120%] object-cover hero-parallax"
+    style="object-position: center 78%;"
   />
   <div
     class="absolute inset-0"
@@ -20,23 +21,25 @@ import OctCTA from './ui/OctCTA.astro';
     <div class="max-w-[var(--max-w)] mx-auto">
       <p class="text-ink-primary text-xs sm:text-sm tracking-[0.24em] uppercase mb-2.5 opacity-95">{tokens.LISTING_ADDRESS_LINE}</p>
       <h1 class="hero-outlined-title text-6xl sm:text-7xl md:text-9xl max-w-5xl leading-[0.92] font-light">{tokens.LISTING_NAME}</h1>
-      <p class="text-ink-muted text-sm sm:text-base tracking-[0.3em] uppercase mt-3 opacity-75">3341 Broadview Road</p>
     </div>
   </div>
 
   <!-- BOTTOM block — tagline + price + buttons -->
   <div class="absolute inset-x-0 bottom-[64px] md:bottom-[72px] px-[var(--gutter)]">
-    <div class="max-w-[var(--max-w)] mx-auto text-center">
-      <p class="text-ink-primary/95 text-[15px] md:text-[26px] mb-2 font-serif italic uppercase tracking-[0.18em] leading-tight">
-        {tokens.LISTING_TAGLINE}
-      </p>
-      <p class="text-ink-muted text-base md:text-xl mb-7 md:mb-9 font-serif italic tracking-[0.12em]">
-        {tokens.ASKING_PRICE_DISPLAY} {tokens.CURRENCY} &nbsp;·&nbsp; MLS® {tokens.MLS_NUMBER}
-      </p>
-
-      <div class="flex flex-wrap items-center justify-center gap-y-5 gap-x-10 md:gap-x-12">
-        <OctCTA variant="ghost" data-action="open-inquiry" id="hero-cta">Schedule a Showing</OctCTA>
-        <OctCTA variant="ghost" data-action="share-listing" id="hero-share">Share This Home</OctCTA>
+    <div class="max-w-[var(--max-w)] mx-auto">
+      <div class="flex flex-col sm:flex-row items-end justify-center gap-4 md:gap-6">
+        <GlassCard
+          title="Family Estate"
+          line="$3,800+/mo revenue from the basement alone"
+          pill="Explore"
+          href="#property"
+        />
+        <GlassCard
+          title="Cash Cow"
+          line="Multiple revenue options"
+          pill="See returns"
+          href="/roi"
+        />
       </div>
     </div>
   </div>

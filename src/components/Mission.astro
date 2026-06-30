@@ -2,16 +2,17 @@
 /*
  * Mission — positioning statement just below the Hero.
  */
+import { tokens } from '../lib/tokens';
 ---
 <section class="relative py-10 md:py-14 overflow-hidden">
   <div class="relative z-10 max-w-3xl mx-auto px-[var(--gutter)] text-center">
-    <p class="text-[#C0FF00] text-[19px] tracking-[0.5em] uppercase mb-5 opacity-85">The VALORA Way</p>
+    <p class="text-[#C0FF00] text-[19px] tracking-[0.5em] uppercase mb-5 opacity-85">The <span class="brand-text font-serif font-light text-[1.55em] tracking-[0.08em] align-baseline">{tokens.LISTING_NAME}</span> Way</p>
     <div class="mx-auto w-28 md:w-36 h-px bg-[#C0FF00]/80 mb-7" aria-hidden="true"></div>
     <h2 class="text-4xl sm:text-5xl md:text-6xl font-light leading-[1.04] mb-7">
       <span class="italic text-white">A legacy.</span> <span class="italic text-[var(--accent-2)]">Not just a listing.</span>
     </h2>
     <p class="text-ink-muted text-lg md:text-2xl font-serif italic leading-relaxed max-w-2xl mx-auto">
-      A private Okanagan estate — built for those who know exactly what they're looking for.
+      A Private Okanagan Estate - Built for those who Enjoy Life, Relaxing and MONEY
     </p>
   </div>
 </section>
