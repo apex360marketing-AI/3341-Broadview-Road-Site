@@ -18,9 +18,7 @@ import OctCTA from './ui/OctCTA.astro';
   <!-- TOP-LEFT — kicker + property name -->
   <div class="absolute top-0 inset-x-0 px-[var(--gutter)] pt-[88px] md:pt-[100px]">
     <div class="max-w-[var(--max-w)] mx-auto">
-      <p class="text-ink-primary text-xs sm:text-sm tracking-[0.24em] uppercase mb-2.5 opacity-95">{tokens.LISTING_ADDRESS_LINE}</p>
-      <h1 class="hero-outlined-title text-6xl sm:text-7xl md:text-9xl max-w-5xl leading-[0.92] font-light">{tokens.LISTING_NAME}</h1>
-      <p class="text-ink-muted text-sm sm:text-base tracking-[0.3em] uppercase mt-3 opacity-75">3341 Broadview Road</p>
+      <p class="text-white text-[15.4px] sm:text-[17.6px] tracking-[0.3em] uppercase opacity-95">3341 Broadview Road</p>
     </div>
   </div>
 
@@ -34,9 +32,13 @@ import OctCTA from './ui/OctCTA.astro';
         {tokens.ASKING_PRICE_DISPLAY} {tokens.CURRENCY} &nbsp;·&nbsp; MLS® {tokens.MLS_NUMBER}
       </p>
 
-      <div class="flex flex-wrap items-center justify-center gap-y-5 gap-x-10 md:gap-x-12">
-        <OctCTA variant="ghost" data-action="open-inquiry" id="hero-cta">Schedule a Showing</OctCTA>
-        <OctCTA variant="ghost" data-action="share-listing" id="hero-share">Share This Home</OctCTA>
+      <div class="flex justify-center">
+        <OctCTA variant="ghost" href="/roi" id="hero-cta" class="hero-invest-cta">
+          <span class="flex flex-col items-center text-center leading-none">
+            <span class="text-[15px] md:text-[18px] tracking-[0.2em]">Investment Opportunity</span>
+            <span class="text-[9px] md:text-[11px] tracking-[0.26em] opacity-75 mt-2">Multiple Revenue Options</span>
+          </span>
+        </OctCTA>
       </div>
     </div>
   </div>
@@ -49,6 +51,16 @@ import OctCTA from './ui/OctCTA.astro';
     </svg>
   </div>
 </section>
+
+<!-- THE · VALORA · WAY — centred right below the pool image, no background.
+     "THE" / "WAY" flank the outlined VALORA logo in yellow, 25% larger (19px → 23.75px). -->
+<div class="px-[var(--gutter)] pt-10 pb-2 md:pt-12 md:pb-3">
+  <div class="flex items-center justify-center gap-3 sm:gap-5 md:gap-8">
+    <span class="text-[#C0FF00] text-[28.5px] tracking-[0.4em] uppercase font-light leading-none">The</span>
+    <h1 class="hero-outlined-title inline-block text-6xl sm:text-7xl md:text-9xl leading-[0.92] font-light">{tokens.LISTING_NAME}</h1>
+    <span class="text-[#C0FF00] text-[28.5px] tracking-[0.4em] uppercase font-light leading-none">Way</span>
+  </div>
+</div>
 
 <!-- Share toast -->
 <div
@@ -65,6 +77,11 @@ import OctCTA from './ui/OctCTA.astro';
     color: var(--ink-primary);
     -webkit-text-stroke: 2px #5BC2C2;
     paint-order: stroke fill;
+  }
+  /* Taller octagon so the two-line investment label breathes */
+  :global(.hero-invest-cta) {
+    --h: 84px;
+    --pad-x: 46px;
   }
 </style>
 

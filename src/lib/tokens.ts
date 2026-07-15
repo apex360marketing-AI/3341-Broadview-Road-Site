@@ -48,6 +48,8 @@ export type Tokens = {
   AGENT_PHOTO_URL: string;
   AGENT_EMAIL: string;
   AGENT_PHONE: string;
+  AGENT_OFFICE_PHONE: string;
+  AGENT_WEBSITE: string;
   AGENT_RESPONSE_TIME: string;
   AGENT_BADGE: string;
 

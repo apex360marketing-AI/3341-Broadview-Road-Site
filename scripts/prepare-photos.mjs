@@ -136,7 +136,10 @@ async function processOne(srcName, idx) {
   const trimmed = await sharp(oriented).trim({ threshold: 12 }).toBuffer();
   const patched = await patchRealtorBadge(trimmed);
   const out = await sharp(patched)
-    .jpeg({ quality: 82, progressive: true, mozjpeg: true })
+    // Gentle unsharp mask restores the crispness realtor.ca's re-encoding softens,
+    // then encode at high quality with full 4:4:4 chroma (no colour-detail loss).
+    .sharpen({ sigma: 1.0 })
+    .jpeg({ quality: 90, progressive: true, mozjpeg: true, chromaSubsampling: '4:4:4' })
     .toBuffer();
   await writeFile(dest, out);
   return { srcName, dest: `photo-${num}.jpg`, bytes: out.length };

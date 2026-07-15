@@ -5,6 +5,13 @@ import OctCTA from './ui/OctCTA.astro';
 const monogram = (tokens.AGENT_FIRST_NAME?.[0] || tokens.AGENT_NAME?.[0] || '·').toUpperCase();
 const hasPhoto = !!tokens.AGENT_PHOTO_URL;
 
+const telHref = (v: string) => (v ? `tel:${v.replace(/[^\d+]/g, '')}` : '');
+const cellHref = telHref(tokens.AGENT_PHONE);
+const officeHref = telHref(tokens.AGENT_OFFICE_PHONE);
+const websiteHref = tokens.AGENT_WEBSITE
+  ? (/^https?:\/\//i.test(tokens.AGENT_WEBSITE) ? tokens.AGENT_WEBSITE : `https://${tokens.AGENT_WEBSITE}`)
+  : '';
+
 const octClip = `polygon(
   18% 0, 82% 0,
   100% 18%, 100% 82%,
@@ -38,7 +45,36 @@ const octClip = `polygon(
         <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Listing Agent</p>
         <h2 class="text-3xl md:text-4xl mb-1">{tokens.AGENT_NAME}</h2>
         <p class="text-accent text-sm mb-4">{tokens.AGENT_BADGE} · Replies {tokens.AGENT_RESPONSE_TIME}</p>
-        <p class="text-ink-primary text-lg font-serif italic leading-relaxed mb-6">{tokens.AGENT_BLURB}</p>
+        <p class="text-ink-primary text-lg font-serif italic leading-relaxed mb-5">{tokens.AGENT_BLURB}</p>
+
+        <!-- Agent contact details -->
+        <ul class="text-sm space-y-1.5 mb-6">
+          {tokens.AGENT_PHONE && (
+            <li class="text-ink-muted">
+              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Cell</span>
+              <a href={cellHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_PHONE}</a>
+            </li>
+          )}
+          {tokens.AGENT_OFFICE_PHONE && (
+            <li class="text-ink-muted">
+              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Office</span>
+              <a href={officeHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_OFFICE_PHONE}</a>
+            </li>
+          )}
+          {tokens.AGENT_EMAIL && (
+            <li class="text-ink-muted">
+              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Email</span>
+              <a href={`mailto:${tokens.AGENT_EMAIL}`} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors break-all">{tokens.AGENT_EMAIL}</a>
+            </li>
+          )}
+          {tokens.AGENT_WEBSITE && (
+            <li class="text-ink-muted">
+              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Web</span>
+              <a href={websiteHref} target="_blank" rel="noopener" class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_WEBSITE}</a>
+            </li>
+          )}
+        </ul>
+
         <OctCTA variant="ghost" data-action="open-inquiry">Schedule a Showing</OctCTA>
       </div>
     </div>

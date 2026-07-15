@@ -1,31 +1,24 @@
 ---
 /*
- * OctCTA — elongated octagon CTA with compound hover.
+ * LineCTA — minimal transparent CTA with a hairline lime outline.
  *
- * Shape: 8-sided polygon (rectangle with 14px-chamfered corners). Flat top,
- * bottom, left, and right edges + 4 angled corners.
+ * Rest:  fully transparent, ~1px lime (#C0FF00) hairline outline, sharp corners.
+ * Hover: the button lifts toward the viewer (translateY + scale), the lime line
+ *        thickens slightly and blooms a soft lime glow. No fill, no arrow.
  *
- * Variants:
- *   - solid (default): cedar-amber gradient fill at rest.
- *   - ghost: transparent fill with cream outline at rest. On hover the
- *     outline flicks to bright teal, the body fills dark grey, the arrow
- *     turns teal — all on top of the compound effect (shimmer, cursor-glow,
- *     letter-spacing breathe, arrow advance, drop-shadow halo).
+ * The outline is drawn with an inset box-shadow (not `border`) so thickening it
+ * on hover causes zero layout shift.
  *
- * Hover stack (both variants):
- *   1. Cursor-tracking radial gradient — teal "light" follows the mouse
- *   2. Diagonal shimmer sweep — warm-cream streak slides L→R
- *   3. Arrow advances ~10px to the right + (ghost) shifts to teal
- *   4. Letter-spacing breathes 0.18em → 0.24em
- *   5. Drop-shadow halo: cedar + teal dual glow that follows the octagon
+ * Sizes: lg (60px H) · md (52px) · sm (44px). fullWidth stretches inline.
+ * Reduced motion: the lift is disabled, the glow/thicken still reads.
  *
- * Sizes: lg (60px H), md (52px), sm (44px). fullWidth stretches inline.
- * Reduced motion: shimmer hidden, transitions snap.
+ * (Filename kept as OctCTA for import compatibility across the 6 call sites.)
  */
 type Props = {
   size?: 'lg' | 'md' | 'sm';
   variant?: 'solid' | 'ghost';
   id?: string;
+  href?: string;
   type?: 'button' | 'submit';
   class?: string;
   fullWidth?: boolean;
@@ -34,53 +27,32 @@ type Props = {
 
 const {
   size = 'lg',
-  variant = 'solid',
   id,
+  href,
   type = 'button',
   class: className = '',
   fullWidth = false,
   ...rest
 } = Astro.props;
 
-const sizeClass = `oct-${size}`;
-const variantClass = `oct-${variant}`;
+const sizeClass = `line-${size}`;
+const cls = ['line-cta', sizeClass, fullWidth && 'line-full', className];
 ---
-<button
-  type={type}
-  id={id}
-  class:list={['oct-cta', sizeClass, variantClass, fullWidth && 'oct-full', className]}
-  {...rest}
->
-  <span class="oct-base" aria-hidden="true"></span>
-  <span class="oct-glow" aria-hidden="true"></span>
-  <span class="oct-shimmer" aria-hidden="true"></span>
-  <span class="oct-content">
-    <span class="oct-text"><slot /></span>
-    <span class="oct-arrow" aria-hidden="true">
-      <svg width="38" height="12" viewBox="0 0 38 12" fill="none">
-        <!-- Lime trace beneath — hidden at rest, fades in on hover. Wider stroke
-             so it shows as a thin lime line outlining each white stroke above. -->
-        <g class="oct-arrow-trace">
-          <line x1="0" y1="6" x2="30" y2="6" stroke="#C0FF00" stroke-width="2.6" stroke-linecap="round"/>
-          <path d="M25 1.5 L34 6 L25 10.5" stroke="#C0FF00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </g>
-        <!-- White arrow on top -->
-        <line x1="0" y1="6" x2="30" y2="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        <path d="M25 1.5 L34 6 L25 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-    </span>
-  </span>
-</button>
+{href ? (
+  <a href={href} id={id} class:list={cls} {...rest}>
+    <span class="line-cta__text"><slot /></span>
+  </a>
+) : (
+  <button type={type} id={id} class:list={cls} {...rest}>
+    <span class="line-cta__text"><slot /></span>
+  </button>
+)}
 
 <style>
-  .oct-cta {
-    --chamfer: 14px;
+  .line-cta {
     --h: 60px;
-    --pad-x: 38px;
-    --bg-1: var(--accent);
-    --bg-2: var(--accent-2);
-    --mx: 50%;
-    --my: 50%;
+    --pad-x: 42px;
+    --line: #C0FF00;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -88,196 +60,61 @@ const variantClass = `oct-${variant}`;
     height: var(--h);
     padding: 0 var(--pad-x);
     background: transparent;
-    color: var(--bg-base);
+    color: var(--ink-primary);
     font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 500;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     border: 0;
+    border-radius: 2px;
     cursor: pointer;
     isolation: isolate;
+    /* Hairline lime outline — inset shadow so thickening it never shifts layout */
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--line) 80%, transparent);
     transition:
-      letter-spacing 450ms cubic-bezier(0.16, 1, 0.3, 1),
-      filter 500ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-      color 350ms ease;
-    filter: drop-shadow(0 8px 24px rgba(15, 14, 12, 0.45));
+      transform 460ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
+      letter-spacing 460ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 300ms ease;
+    will-change: transform;
   }
 
-  .oct-cta.oct-md { --h: 52px; --pad-x: 32px; --chamfer: 12px; font-size: 12px; }
-  .oct-cta.oct-sm { --h: 44px; --pad-x: 26px; --chamfer: 10px; font-size: 11px; letter-spacing: 0.16em; }
-  .oct-cta.oct-full { display: flex; width: 100%; }
+  .line-cta.line-md { --h: 52px; --pad-x: 34px; font-size: 12px; }
+  .line-cta.line-sm { --h: 44px; --pad-x: 26px; font-size: 11px; letter-spacing: 0.16em; }
+  .line-cta.line-full { display: flex; width: 100%; }
 
-  .oct-base,
-  .oct-glow,
-  .oct-shimmer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    clip-path: polygon(
-      var(--chamfer) 0,
-      calc(100% - var(--chamfer)) 0,
-      100% var(--chamfer),
-      100% calc(100% - var(--chamfer)),
-      calc(100% - var(--chamfer)) 100%,
-      var(--chamfer) 100%,
-      0 calc(100% - var(--chamfer)),
-      0 var(--chamfer)
-    );
-  }
-
-  /* === SOLID variant === */
-  .oct-cta.oct-solid .oct-base {
-    z-index: 0;
-    background: linear-gradient(
-      135deg,
-      var(--bg-1) 0%,
-      var(--bg-1) 65%,
-      color-mix(in oklab, var(--bg-1) 78%, var(--bg-2) 22%) 100%
-    );
-    transition: background 350ms ease;
-  }
-
-  /* === GHOST variant === */
-  .oct-cta.oct-ghost {
-    color: var(--ink-primary);
-  }
-  .oct-cta.oct-ghost .oct-base {
-    z-index: 0;
-    background: transparent;
-    /* Static state: white/cream outline (the "white horizontal lines") */
-    box-shadow: inset 0 0 0 1.2px rgba(237, 230, 214, 0.55);
-    transition: background 350ms ease, box-shadow 350ms ease;
-  }
-  .oct-cta.oct-ghost:hover .oct-base {
-    background: #1F2024;
-    box-shadow: inset 0 0 0 1.4px var(--bg-2);
-  }
-  .oct-cta.oct-ghost:hover {
-    /* Text fill stays cream — the lime is added as a thin stroke around each
-       letter via .oct-text:hover below, not as a full color shift. Subtle. */
-    color: var(--ink-primary);
-  }
-  /* Ghost variant: arrow keeps the universal lime → white hover (no override) */
-
-  /* Cursor-tracking teal radial — invisible at rest, fades in on hover */
-  .oct-glow {
-    z-index: 1;
-    background: radial-gradient(
-      200px circle at var(--mx) var(--my),
-      var(--bg-2) 0%,
-      transparent 62%
-    );
-    mix-blend-mode: screen;
-    opacity: 0;
-    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* Shimmer sweep */
-  .oct-shimmer {
-    z-index: 2;
-    background: linear-gradient(
-      110deg,
-      transparent 30%,
-      rgba(237, 230, 214, 0.28) 50%,
-      transparent 70%
-    );
-    transform: translateX(-110%);
-    transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .oct-cta.oct-ghost .oct-shimmer {
-    background: linear-gradient(
-      110deg,
-      transparent 30%,
-      rgba(91, 194, 194, 0.28) 50%,
-      transparent 70%
-    );
-  }
-
-  .oct-content {
+  .line-cta__text {
     position: relative;
-    z-index: 3;
+    z-index: 1;
     display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    pointer-events: none;
   }
 
-  .oct-arrow {
-    display: inline-flex;
-    align-items: center;
+  /* HOVER — lifts toward you, the lime line thickens + blooms a soft glow */
+  .line-cta:hover,
+  .line-cta:focus-visible {
+    transform: translateY(-6px) scale(1.045);
+    letter-spacing: 0.235em;
     color: #FFFFFF;
-    transform: translateX(0);
-    transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+      inset 0 0 0 1.8px var(--line),
+      0 0 10px rgba(192, 255, 0, 0.38),
+      0 0 26px rgba(192, 255, 0, 0.18),
+      0 18px 34px rgba(15, 14, 12, 0.45);
   }
-  /* Lime trace under the arrow — hidden at rest, fades in on hover.
-     Wider stroke than the white arrow on top, so a thin lime line peeks
-     out around each white stroke. */
-  .oct-arrow-trace {
-    opacity: 0;
-    transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  /* Letter-stroke trace for the button text — invisible at rest, thin
-     lime line traces each glyph outline on hover. Matches the arrow. */
-  .oct-text {
-    -webkit-text-stroke: 0 transparent;
-    paint-order: stroke fill;
-    transition: -webkit-text-stroke-color 350ms ease,
-                -webkit-text-stroke-width 350ms ease;
-  }
+  .line-cta.line-sm:hover,
+  .line-cta.line-sm:focus-visible { transform: translateY(-4px) scale(1.05); }
 
-  /* HOVER (shared) — dual-layer teal halo follows the octagon silhouette */
-  .oct-cta:hover {
-    letter-spacing: 0.24em;
-    filter:
-      drop-shadow(0 14px 30px rgba(15, 14, 12, 0.55))
-      drop-shadow(0 0 28px rgba(91, 194, 194, 0.55))
-      drop-shadow(0 0 8px rgba(91, 194, 194, 0.40));
-  }
-  .oct-cta:hover .oct-glow { opacity: 1; }
-  .oct-cta:hover .oct-shimmer { transform: translateX(210%); }
-  .oct-cta:hover .oct-arrow {
-    transform: translateX(10px);
-    /* color stays white; the lime trace beneath is what fades in */
-  }
-  .oct-cta:hover .oct-arrow-trace { opacity: 1; }
-  .oct-cta:hover .oct-text {
-    -webkit-text-stroke: 0.6px #C0FF00;
-  }
+  .line-cta:active { transform: translateY(-2px) scale(0.99); }
 
-  .oct-cta:active { transform: scale(0.97); }
-
-  .oct-cta:focus-visible {
-    outline: 2px solid var(--bg-2);
-    outline-offset: 6px;
+  .line-cta:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 4px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .oct-cta,
-    .oct-base,
-    .oct-glow,
-    .oct-shimmer,
-    .oct-arrow {
-      transition-duration: 0.01ms !important;
-    }
-    .oct-shimmer { display: none; }
+    .line-cta { transition-duration: 0.01ms; }
+    .line-cta:hover,
+    .line-cta:focus-visible { transform: none; }
   }
 </style>
-
-<script>
-  // Cursor-position tracking — the radial gradient follows the mouse.
-  document.querySelectorAll<HTMLElement>('.oct-cta').forEach((btn) => {
-    btn.addEventListener('mousemove', (e: MouseEvent) => {
-      const rect = btn.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      btn.style.setProperty('--mx', `${x}%`);
-      btn.style.setProperty('--my', `${y}%`);
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.setProperty('--mx', '50%');
-      btn.style.setProperty('--my', '50%');
-    });
-  });
-</script>
