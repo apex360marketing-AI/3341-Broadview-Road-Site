@@ -2,6 +2,22 @@
   command = "npm run build"
   publish = "dist"
 
+# Astro `build.format: file` emits area.html etc.; serve clean paths too.
+[[redirects]]
+  from = "/area"
+  to = "/area.html"
+  status = 200
+
+[[redirects]]
+  from = "/roi"
+  to = "/roi.html"
+  status = 200
+
+[[redirects]]
+  from = "/dials"
+  to = "/dials.html"
+  status = 200
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

@@ -8,6 +8,11 @@ import OctCTA from './ui/OctCTA.astro';
       <div class="text-ink-primary text-sm font-medium">{tokens.ASKING_PRICE_DISPLAY} {tokens.CURRENCY}</div>
       <div class="text-ink-muted text-xs">MLS® {tokens.MLS_NUMBER}</div>
     </div>
-    <OctCTA size="sm" variant="ghost" data-action="open-inquiry">Contact Agent</OctCTA>
+    <OctCTA size="sm" variant="ghost" class="sticky-cta-yellow" data-action="open-inquiry">Contact Agent</OctCTA>
   </div>
 </div>
+
+<style is:global>
+  /* Bottom sticky bar — render the "Contact Agent" label in the brand lime. */
+  .sticky-cta-yellow .oct-text { color: #C0FF00; }
+</style>

@@ -1,0 +1,222 @@
+---
+/*
+ * GlassCard — glass-morphism panel with a pill CTA fused to the bottom via a
+ * smooth concave neck (matches the supplied reference mockup).
+ *
+ * The card + connecting neck + pill are ONE continuous outline drawn as a
+ * single vector path, so the lime (#C0FF00 — the VALORA accent) rim flows
+ * around the entire shape on hover. The fill is a very translucent frosted
+ * glass so the hero image shows through. Corner bracket marks sit in the
+ * panel corners like the reference.
+ *
+ * Props:
+ *   title — short headline, rendered in lime.
+ *   line  — one clean supporting line, rendered in metallic silver.
+ *   pill  — short pill label (1–2 words).
+ *   href  — navigation target.
+ */
+type Props = {
+  title: string;
+  line: string;
+  pill: string;
+  href: string;
+};
+
+const { title, line, pill, href } = Astro.props;
+
+// Unique id so multiple cards don't collide on the clip-path reference.
+const uid = 'gm-' + Math.random().toString(36).slice(2, 9);
+
+// Single continuous outline (panel → concave neck → pill), userSpace 480×300.
+const OUTLINE =
+  'M24 0 H456 A24 24 0 0 1 480 24 V132 A24 24 0 0 1 456 156 H168 ' +
+  'C150 156 144 176 144 196 C144 218 150 208 168 208 H454 ' +
+  'A26 26 0 0 1 480 234 V274 A26 26 0 0 1 454 300 H104 ' +
+  'A46 46 0 0 0 104 208 C104 180 112 156 132 156 H24 ' +
+  'A24 24 0 0 1 0 132 V24 A24 24 0 0 1 24 0 Z';
+
+// Same outline normalised to 0–1 (objectBoundingBox) for the clip-path so the
+// frosted-glass fill scales responsively with the element.
+const CLIP =
+  'M0.05 0 H0.95 A0.05 0.08 0 0 1 1 0.08 V0.44 A0.05 0.08 0 0 1 0.95 0.52 H0.35 ' +
+  'C0.3125 0.52 0.3 0.5867 0.3 0.6533 C0.3 0.7267 0.3125 0.6933 0.35 0.6933 H0.9458 ' +
+  'A0.0542 0.0867 0 0 1 1 0.78 V0.9133 A0.0542 0.0867 0 0 1 0.9458 1 H0.2167 ' +
+  'A0.0958 0.1533 0 0 0 0.2167 0.6933 C0.2167 0.6 0.2333 0.52 0.275 0.52 H0.05 ' +
+  'A0.05 0.08 0 0 1 0 0.44 V0.08 A0.05 0.08 0 0 1 0.05 0 Z';
+---
+<a href={href} class="glass-card" aria-label={`${title} — ${line}`}>
+  <svg width="0" height="0" class="glass-defs" aria-hidden="true">
+    <defs>
+      <clipPath id={uid} clipPathUnits="objectBoundingBox"><path d={CLIP} /></clipPath>
+    </defs>
+  </svg>
+
+  <!-- Frosted glass fill, clipped to the continuous outline -->
+  <span class="glass-fill" style={`clip-path: url(#${uid}); -webkit-clip-path: url(#${uid});`} aria-hidden="true"></span>
+
+  <!-- Vector rim: faint at rest, lime neon on hover -->
+  <svg class="glass-rim" viewBox="0 0 480 300" preserveAspectRatio="none" aria-hidden="true">
+    <path d={OUTLINE} fill="none" vector-effect="non-scaling-stroke" />
+  </svg>
+
+  <!-- Content overlay -->
+  <span class="glass-overlay">
+    <span class="glass-bracket glass-bracket--tl" aria-hidden="true"></span>
+    <span class="glass-bracket glass-bracket--tr" aria-hidden="true"></span>
+    <span class="glass-bracket glass-bracket--bl" aria-hidden="true"></span>
+
+    <span class="glass-head">
+      <span class="glass-title">{title}</span>
+      <span class="glass-line">{line}</span>
+    </span>
+
+    <span class="glass-pill">
+      <span class="glass-pill-label">{pill}</span>
+      <svg width="24" height="9" viewBox="0 0 24 9" fill="none" aria-hidden="true" class="glass-pill-arrow">
+        <line x1="0" y1="4.5" x2="18" y2="4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M14.5 1 L21 4.5 L14.5 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </span>
+</a>
+
+<style>
+  .glass-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 480 / 300;
+    color: var(--ink-primary);
+    text-decoration: none;
+    transition: transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-defs { position: absolute; }
+
+  /* Very translucent frosted glass — the hero clearly shows through. */
+  .glass-fill {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.045);
+    -webkit-backdrop-filter: blur(12px) saturate(115%);
+    backdrop-filter: blur(12px) saturate(115%);
+    transition: background 350ms ease;
+  }
+
+  .glass-rim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .glass-rim path {
+    stroke: rgba(237, 230, 214, 0.22);
+    stroke-width: 1;
+    transition: stroke 320ms ease;
+  }
+
+  .glass-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* ---- corner bracket marks ---- */
+  .glass-bracket {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    transition: opacity 320ms ease;
+  }
+  .glass-bracket::before,
+  .glass-bracket::after {
+    content: '';
+    position: absolute;
+    background: var(--ink-primary);
+  }
+  .glass-bracket::before { width: 100%; height: 1.4px; }
+  .glass-bracket::after { width: 1.4px; height: 100%; }
+  .glass-bracket--tl { top: 9%; left: 6%; }
+  .glass-bracket--tl::before { top: 0; left: 0; }
+  .glass-bracket--tl::after { top: 0; left: 0; }
+  .glass-bracket--tr { top: 9%; right: 6%; }
+  .glass-bracket--tr::before { top: 0; right: 0; }
+  .glass-bracket--tr::after { top: 0; right: 0; }
+  .glass-bracket--bl { top: 38%; left: 6%; }
+  .glass-bracket--bl::before { bottom: 0; left: 0; }
+  .glass-bracket--bl::after { bottom: 0; left: 0; }
+
+  /* ---- headline block (panel area, top-left) ---- */
+  .glass-head {
+    position: absolute;
+    top: 17%;
+    left: 8%;
+    right: 8%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .glass-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 1.1rem + 0.9vw, 1.6rem);
+    font-weight: 400;
+    line-height: 1.02;
+    color: #C0FF00;
+  }
+  .glass-line {
+    font-size: clamp(11px, 10px + 0.35vw, 13px);
+    line-height: 1.35;
+    letter-spacing: 0.015em;
+    max-width: 92%;
+    background: linear-gradient(105deg,#6b7079 0%,#cfd4da 22%,#ffffff 40%,#9aa0a8 58%,#e4e8ed 76%,#767b83 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  }
+
+  /* ---- pill label (pill area, bottom) ---- */
+  .glass-pill {
+    position: absolute;
+    left: 14%;
+    right: 5%;
+    top: 70%;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: clamp(9.5px, 9px + 0.2vw, 11px);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ink-primary);
+  }
+  .glass-pill-arrow { transition: transform 450ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+  /* ===== HOVER — lime rim ignites around the whole shape ===== */
+  .glass-card:hover { transform: translateY(-3px); }
+  .glass-card:hover .glass-fill { background: rgba(255, 255, 255, 0.07); }
+  .glass-card:hover .glass-rim path {
+    stroke: #C0FF00;
+    stroke-width: 1.6;
+  }
+  .glass-card:hover .glass-rim {
+    filter: drop-shadow(0 0 4px rgba(192, 255, 0, 0.7)) drop-shadow(0 0 12px rgba(192, 255, 0, 0.4));
+  }
+  .glass-card:hover .glass-bracket { opacity: 1; }
+  .glass-card:hover .glass-pill-arrow { transform: translateX(5px); }
+
+  .glass-card:active { transform: translateY(-1px) scale(0.99); }
+  .glass-card:focus-visible { outline: 2px solid #C0FF00; outline-offset: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glass-card, .glass-fill, .glass-rim, .glass-rim path, .glass-bracket, .glass-pill-arrow {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

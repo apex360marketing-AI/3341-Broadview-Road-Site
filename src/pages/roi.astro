@@ -7,7 +7,7 @@ import { tokens } from '../lib/tokens';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BookingModal from '../components/BookingModal.astro';
-import RoiDashboard from '../components/roi/RoiDashboard';
+import RoiCalculators from '../components/roi/RoiCalculators';
 import BankerBot from '../components/roi/BankerBot.astro';
 import AirbnbButton from '../components/AirbnbButton.astro';
 ---
@@ -36,16 +36,16 @@ import AirbnbButton from '../components/AirbnbButton.astro';
           {tokens.LISTING_ADDRESS_FULL}
         </p>
         <h1 class="font-sans text-[clamp(26px,4vw,40px)] font-bold text-ink-primary tracking-[-0.03em] leading-tight mb-3">
-          Investor ROI Calculator
+          Investment ROI Sheet
         </h1>
         <p class="text-ink-muted font-sans text-[15px] leading-relaxed max-w-[580px]">
-          Two income strategies modelled side-by-side. Adjust rents, nightly rates, down payment, and mortgage rate to see live cash flow and total return.
+          Three calculators in one sheet &mdash; basement-suite income, blended multi-stream revenue, and long-term appreciation. Shared financing inputs recalculate every figure live.
         </p>
       </div>
     </header>
 
     <!-- React island -->
-    <RoiDashboard client:load />
+    <RoiCalculators client:load />
 
     <div class="flex justify-center px-[var(--gutter)] py-12"><AirbnbButton label="Book VALORA on Airbnb" /></div>
 

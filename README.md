@@ -4,6 +4,12 @@ White-label premium short-term rental listing template. Seeded with **VALORA** i
 
 > **This README is a placeholder.** The full README — local preview, swapping clients, wiring the live feed in GHL — lands in Commit 8. See `CLAUDE.md` for current architecture and conventions.
 
+## Live preview (Vercel)
+
+**https://3341-broadview-road-site.vercel.app/**
+
+Pages: `/` (listing), `/area`, `/roi`, `/dials`. Pushes to `main` auto-deploy.
+
 ## Quick start
 
 ```
@@ -12,4 +18,4 @@ npm run prepare:photos
 npm run dev
 ```
 
-Branch: `claude/airbnb-rental-template-XewnD`.
+Dev server: http://localhost:4321

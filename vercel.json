@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/area", "destination": "/area.html" },
+    { "source": "/roi", "destination": "/roi.html" },
+    { "source": "/dials", "destination": "/dials.html" }
+  ]
+}
