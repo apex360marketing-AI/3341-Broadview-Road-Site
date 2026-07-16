@@ -1,0 +1,205 @@
+---
+/*
+ * Menu concepts — 10 next-level, interactive menu treatments to choose from.
+ * Not linked in the live nav. Pick a number and I'll wire it into the site.
+ */
+import '../styles/global.css';
+const items = ['The Property', 'The Area', 'Investor ROI', 'Contact'];
+const concepts = [
+  { n: 1, cls: 'm1', name: 'Radial fan', note: 'items swing out like a hand of cards' },
+  { n: 2, cls: 'm2', name: 'Spotlight reveal', note: 'a cursor-tracking light uncovers items' },
+  { n: 3, cls: 'm3', name: 'Magnetic pull', note: 'items lean toward your cursor' },
+  { n: 4, cls: 'm4', name: 'Neon border draw', note: 'a lime outline traces the hovered item' },
+  { n: 5, cls: 'm5', name: 'Split-flap flip', note: 'text flips like a departure board' },
+  { n: 6, cls: 'm6', name: 'Liquid indicator', note: 'a gooey pill stretches between items' },
+  { n: 7, cls: 'm7', name: '3D tilt cards', note: 'items tilt in 3D toward the cursor' },
+  { n: 8, cls: 'm8', name: 'Kinetic marquee', note: 'the label sweeps across on hover' },
+  { n: 9, cls: 'm9', name: 'Command palette', note: 'type-to-filter with a live caret' },
+  { n: 10, cls: 'm10', name: 'Liquid glass', note: 'glass panes with a moving sheen' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Menu concepts — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500;600&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="text-[#C0FF00] text-xs tracking-[0.4em] uppercase mb-3">VALORA · Menu concepts</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Ten next-level menus.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Each one is live — hover, move your cursor, or (concept 9) type. Nothing standard. Tell me a number and I'll wire it into the site's logo menu.</p>
+
+      <div class="mgrid">
+        {concepts.map((c) => (
+          <div class="mcard">
+            <div class={`mstage ${c.cls}`}>
+              {c.cls === 'm1' && (
+                <div class="m1-wrap">
+                  <button class="m1-trigger" type="button">MENU</button>
+                  {items.map((l, i) => <a href="#" class="m1-item" style={`--i:${i}`}>{l}</a>)}
+                </div>
+              )}
+              {c.cls === 'm9' ? (
+                <div class="m9-wrap">
+                  <input class="m9-input" type="text" placeholder="Type to filter…" />
+                  <div class="m9-list">{items.map((l) => <a href="#" class="m9-item" data-label={l.toLowerCase()}>{l}</a>)}</div>
+                </div>
+              ) : c.cls === 'm1' ? null : (
+                <nav class={`mlist ${c.cls}-list`}>
+                  {items.map((l) => (
+                    <a href="#" class="mitem">
+                      {c.cls === 'm5' ? <span class="flap" data-t={l}>{l}</span> : c.cls === 'm8' ? <span class="mq"><span>{l}</span><span aria-hidden="true">{l}</span></span> : <span>{l}</span>}
+                    </a>
+                  ))}
+                  {c.cls === 'm6' && <span class="m6-blob" aria-hidden="true"></span>}
+                </nav>
+              )}
+            </div>
+            <p class="mname"><b>{c.n}.</b> {c.name} <span class="mhint">{c.note}</span></p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      :root { --lime: #C0FF00; --teal: #5BC2C2; }
+      .mgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px 26px; }
+      .mcard { padding: 20px; border-radius: 16px; background: rgba(255,255,255,0.02); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+      .mstage { min-height: 230px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: radial-gradient(120% 120% at 50% 0, rgba(91,194,194,0.05), transparent 60%); overflow: hidden; position: relative; }
+      .mname { margin-top: 12px; color: var(--ink-primary); font-size: 14px; }
+      .mname b { color: var(--lime); }
+      .mhint { display: block; color: var(--ink-faint); font-size: 11.5px; margin-top: 3px; }
+
+      /* base list used by several concepts */
+      .mlist { display: flex; flex-direction: column; gap: 6px; position: relative; }
+      .mitem { position: relative; padding: 10px 18px; border-radius: 9px; color: #fff; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; text-decoration: none; transition: color .25s ease, background .25s ease, transform .3s cubic-bezier(.16,1,.3,1); }
+
+      /* 1 · Radial fan */
+      .m1-wrap { position: relative; width: 90px; height: 90px; }
+      .m1-trigger { position: absolute; inset: 0; margin: auto; width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer; color: #05130a; font-size: 11px; letter-spacing: 0.1em; background: linear-gradient(140deg, var(--teal), var(--lime)); box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 3; transition: transform .3s ease; }
+      .m1-wrap:hover .m1-trigger { transform: scale(0.92); }
+      .m1-item { position: absolute; left: 50%; top: 50%; padding: 8px 14px; border-radius: 999px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; text-decoration: none; white-space: nowrap; background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(192,255,0,0.5); backdrop-filter: blur(8px); transform: translate(-50%,-50%) rotate(0) translateX(0); opacity: 0; pointer-events: none; transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .4s ease; }
+      .m1-wrap:hover .m1-item { opacity: 1; pointer-events: auto; transform: translate(-50%,-50%) rotate(calc(var(--i) * 26deg - 39deg)) translateX(115px) rotate(calc(var(--i) * -26deg + 39deg)); transition-delay: calc(var(--i) * 0.05s); }
+
+      /* 2 · Spotlight reveal */
+      .m2 .mlist { padding: 6px; }
+      .m2 .mitem { color: rgba(255,255,255,0.28); }
+      .m2-list { --mx: 50%; --my: 50%; -webkit-mask: radial-gradient(90px circle at var(--mx) var(--my), #000 0, rgba(0,0,0,0.25) 70%); mask: radial-gradient(90px circle at var(--mx) var(--my), #000 0, rgba(0,0,0,0.25) 70%); }
+      .m2 .mitem:hover { color: var(--lime); }
+
+      /* 3 · Magnetic pull */
+      .m3 .mitem { will-change: transform; }
+      .m3 .mitem:hover { color: var(--lime); }
+
+      /* 4 · Neon border draw */
+      .m4 .mitem { box-shadow: inset 0 0 0 1px transparent; overflow: hidden; }
+      .m4 .mitem::before { content: ''; position: absolute; inset: 0; border-radius: 9px; padding: 1.5px; background: conic-gradient(from 0deg, transparent 0 60%, var(--lime) 80%, var(--teal) 100%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity .3s ease; animation: m4spin 3s linear infinite; }
+      .m4 .mitem:hover { color: var(--lime); }
+      .m4 .mitem:hover::before { opacity: 1; }
+      @keyframes m4spin { to { --a: 360deg; } }
+      @property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+      /* 5 · Split-flap */
+      .m5 .mitem { perspective: 400px; }
+      .m5 .flap { display: inline-block; position: relative; transition: transform .45s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+      .m5 .flap::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: var(--lime); transform: rotateX(-90deg); transform-origin: top; backface-visibility: hidden; }
+      .m5 .mitem:hover .flap { transform: rotateX(90deg); }
+
+      /* 6 · Liquid indicator */
+      .m6-list { position: relative; }
+      .m6-blob { position: absolute; left: 6px; top: 0; height: 40px; width: 120px; border-radius: 999px; background: linear-gradient(100deg, var(--teal), var(--lime)); opacity: 0; z-index: 0; transition: transform .45s cubic-bezier(.34,1.56,.64,1), width .45s cubic-bezier(.34,1.56,.64,1), opacity .3s ease; }
+      .m6 .mitem { z-index: 1; }
+      .m6-list:hover .m6-blob { opacity: 0.9; }
+      .m6 .mitem:hover { color: #05130a; }
+
+      /* 7 · 3D tilt cards */
+      .m7 .mlist { gap: 8px; perspective: 700px; }
+      .m7 .mitem { background: rgba(255,255,255,0.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); transform-style: preserve-3d; will-change: transform; }
+      .m7 .mitem:hover { color: var(--lime); box-shadow: inset 0 0 0 1.4px var(--lime), 0 14px 30px rgba(0,0,0,0.5); }
+
+      /* 8 · Kinetic marquee */
+      .m8 .mitem { overflow: hidden; }
+      .m8 .mq { display: inline-flex; gap: 40px; transition: transform .5s cubic-bezier(.16,1,.3,1); }
+      .m8 .mitem:hover .mq { transform: translateX(calc(-50% - 20px)); }
+      .m8 .mitem:hover { color: var(--lime); }
+
+      /* 9 · Command palette */
+      .m9-wrap { width: 240px; }
+      .m9-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 0; background: rgba(255,255,255,0.05); box-shadow: inset 0 0 0 1px rgba(192,255,0,0.4); color: #fff; font-size: 13px; outline: none; margin-bottom: 8px; caret-color: var(--lime); }
+      .m9-input:focus { box-shadow: inset 0 0 0 1.5px var(--lime); }
+      .m9-list { display: flex; flex-direction: column; gap: 2px; }
+      .m9-item { padding: 9px 14px; border-radius: 8px; color: #fff; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: background .2s ease, color .2s ease; }
+      .m9-item.hide { display: none; }
+      .m9-item:hover, .m9-item.active { background: rgba(192,255,0,0.14); color: var(--lime); }
+
+      /* 10 · Liquid glass */
+      .m10 .mitem { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); overflow: hidden; }
+      .m10 .mitem::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%); transform: translateX(-120%); transition: transform .8s cubic-bezier(.16,1,.3,1); }
+      .m10 .mitem:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1.3px var(--lime), 0 12px 26px rgba(0,0,0,0.45); color: var(--lime); }
+      .m10 .mitem:hover::after { transform: translateX(120%); }
+
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    </style>
+
+    <script>
+      // @ts-nocheck
+      // 2 · spotlight
+      document.querySelectorAll('.m2-list').forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+      });
+      // 3 · magnetic
+      document.querySelectorAll('.m3 .mitem').forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left - r.width / 2) * 0.4;
+          const y = (e.clientY - r.top - r.height / 2) * 0.5;
+          el.style.transform = `translate(${x}px, ${y}px)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      });
+      // 6 · liquid indicator — blob follows hovered item
+      document.querySelectorAll('.m6-list').forEach((list) => {
+        const blob = list.querySelector('.m6-blob');
+        list.querySelectorAll('.mitem').forEach((it) => {
+          it.addEventListener('mouseenter', () => {
+            blob.style.transform = `translateY(${it.offsetTop}px)`;
+            blob.style.width = it.offsetWidth + 'px';
+            blob.style.height = it.offsetHeight + 'px';
+          });
+        });
+      });
+      // 7 · 3D tilt
+      document.querySelectorAll('.m7 .mitem').forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const rx = -((e.clientY - r.top) / r.height - 0.5) * 18;
+          const ry = ((e.clientX - r.left) / r.width - 0.5) * 18;
+          el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      });
+      // 9 · command palette filter
+      document.querySelectorAll('.m9-wrap').forEach((wrap) => {
+        const input = wrap.querySelector('.m9-input');
+        const its = [...wrap.querySelectorAll('.m9-item')];
+        input.addEventListener('input', () => {
+          const q = input.value.toLowerCase().trim();
+          its.forEach((it) => it.classList.toggle('hide', q && !it.dataset.label.includes(q)));
+          const first = its.find((it) => !it.classList.contains('hide'));
+          its.forEach((it) => it.classList.remove('active'));
+          if (first) first.classList.add('active');
+        });
+      });
+    </script>
+  </body>
+</html>

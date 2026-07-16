@@ -14,7 +14,7 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
 const telCell = tokens.AGENT_PHONE ? `tel:+1${tokens.AGENT_PHONE.replace(/\D/g, '')}` : '';
 const telOffice = tokens.AGENT_OFFICE_PHONE ? `tel:+1${tokens.AGENT_OFFICE_PHONE.replace(/\D/g, '')}` : '';
 ---
-<footer class="relative bg-bg-surface border-t border-[var(--accent-2)]/15 mt-4 overflow-hidden">
+<footer class="relative bg-transparent border-t border-[var(--accent-2)]/15 mt-4 overflow-hidden">
   <Honeycomb unique="footer" opacity={0.028} />
 
   <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-14 md:py-20">
@@ -42,7 +42,7 @@ const telOffice = tokens.AGENT_OFFICE_PHONE ? `tel:+1${tokens.AGENT_OFFICE_PHONE
           </g>
           <path d="M27.5 13.5 L30 10.5 L32.5 13.5" fill="none" stroke="#5BC2C2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="30" cy="30" r="2.4" fill="#5BC2C2"/>
-          <circle cx="30" cy="30" r="0.9" fill="#1F2024"/>
+          <circle cx="30" cy="30" r="0.9" fill="#0F0E0C"/>
         </svg>
         <h3 class="font-serif text-3xl md:text-4xl font-light leading-none tracking-[0.05em]">{tokens.LISTING_NAME}</h3>
       </div>

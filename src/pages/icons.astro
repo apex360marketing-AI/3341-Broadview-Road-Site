@@ -1,0 +1,173 @@
+---
+/*
+ * Icon-button concepts — 15 next-level treatments for the top-right Contact.
+ * Pick a number and I'll wire it into the nav (opens the inquiry form).
+ */
+import '../styles/global.css';
+const mail = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="m4 6 8 6 8-6"/></svg>';
+const chat = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 20l1.4-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>';
+const items = [
+  { n: 1, c: 'ib1', name: 'Spinning neon ring', ic: mail },
+  { n: 2, c: 'ib2', name: 'Radar ping', ic: mail },
+  { n: 3, c: 'ib3', name: 'Magnetic', ic: mail },
+  { n: 4, c: 'ib4', name: 'Liquid morph', ic: mail },
+  { n: 5, c: 'ib5', name: 'Expanding pill', ic: mail },
+  { n: 6, c: 'ib6', name: 'Glass light-sweep', ic: mail },
+  { n: 7, c: 'ib7', name: '3D flip (mail→chat)', ic: mail },
+  { n: 8, c: 'ib8', name: 'Orbiting dot', ic: mail },
+  { n: 9, c: 'ib9', name: 'Gradient fill-up', ic: mail },
+  { n: 10, c: 'ib10', name: 'Breathing glow', ic: mail },
+  { n: 11, c: 'ib11', name: 'Neon outline trace', ic: mail },
+  { n: 12, c: 'ib12', name: 'Ripple (click)', ic: mail },
+  { n: 13, c: 'ib13', name: 'Spin + scale', ic: mail },
+  { n: 14, c: 'ib14', name: 'Corner brackets', ic: mail },
+  { n: 15, c: 'ib15', name: 'Halo pulse fill', ic: mail },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Icon-button concepts — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="text-[#C0FF00] text-xs tracking-[0.4em] uppercase mb-3">VALORA · Contact icon buttons</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Fifteen ways to say "Contact".</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">All see-through glass, all interactive — hover each (12 also reacts to a click). Pick a number and it goes top-right, opening your inquiry form.</p>
+      <div class="ig">
+        {items.map((it) => (
+          <div class="icard">
+            {it.c === 'ib5' ? (
+              <button class={`ibtn ${it.c}`} type="button"><span class="ic" set:html={it.ic}></span><span class="lbl">Contact</span></button>
+            ) : it.c === 'ib7' ? (
+              <button class={`ibtn ${it.c}`} type="button"><span class="face f-front" set:html={mail}></span><span class="face f-back" set:html={chat}></span></button>
+            ) : (
+              <button class={`ibtn ${it.c}`} type="button"><span class="ic" set:html={it.ic}></span></button>
+            )}
+            <p class="iname"><b>{it.n}.</b> {it.name}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      @property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+      :root { --lime: #C0FF00; --teal: #5BC2C2; }
+      .ig { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 30px 20px; }
+      .icard { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px; border-radius: 14px; background: rgba(255,255,255,0.02); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
+      .iname { text-align: center; color: var(--ink-primary); font-size: 12.5px; }
+      .iname b { color: var(--lime); }
+
+      .ibtn { position: relative; width: 54px; height: 54px; border-radius: 50%; border: 0; cursor: pointer; color: #fff; background: transparent; display: flex; align-items: center; justify-content: center; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1.4px rgba(255,255,255,0.18); transition: all .35s cubic-bezier(.16,1,.3,1); isolation: isolate; }
+      .ibtn .ic { width: 22px; height: 22px; display: block; }
+      .ibtn .ic svg { width: 100%; height: 100%; }
+
+      /* 1 spinning neon ring */
+      .ib1 { box-shadow: none; }
+      .ib1::before { content:''; position:absolute; inset:0; border-radius:50%; padding:1.6px; background: conic-gradient(from var(--a), transparent 0 55%, var(--lime) 80%, var(--teal) 100%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity:.35; animation: spin 3s linear infinite; }
+      .ib1:hover::before { opacity: 1; }
+      .ib1:hover { color: var(--lime); }
+      @keyframes spin { to { --a: 360deg; } }
+
+      /* 2 radar ping */
+      .ib2::after, .ib2::before { content:''; position:absolute; inset:0; border-radius:50%; box-shadow: 0 0 0 1.4px var(--teal); opacity:0; }
+      .ib2:hover::before { animation: ping 1.4s ease-out infinite; }
+      .ib2:hover::after { animation: ping 1.4s ease-out .7s infinite; }
+      .ib2:hover { color: var(--teal); }
+      @keyframes ping { 0%{opacity:.6; transform:scale(1);} 100%{opacity:0; transform:scale(1.8);} }
+
+      /* 3 magnetic (JS) */
+      .ib3:hover { color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); }
+      .ib3 .ic { transition: transform .2s ease; }
+
+      /* 4 liquid morph */
+      .ib4 { border-radius: 42% 58% 55% 45% / 55% 42% 58% 45%; transition: border-radius .6s ease, color .3s; animation: morph 6s ease-in-out infinite; }
+      .ib4:hover { color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); }
+      @keyframes morph { 0%,100%{border-radius:42% 58% 55% 45% / 55% 42% 58% 45%;} 50%{border-radius:58% 42% 40% 60% / 45% 58% 42% 55%;} }
+
+      /* 5 expanding pill */
+      .ib5 { width: 54px; gap: 0; overflow: hidden; justify-content: flex-start; padding-left: 15px; transition: width .45s cubic-bezier(.16,1,.3,1), color .3s; }
+      .ib5 .lbl { max-width: 0; opacity: 0; white-space: nowrap; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-left: 0; transition: all .45s cubic-bezier(.16,1,.3,1); }
+      .ib5:hover { width: 150px; color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); border-radius: 27px; }
+      .ib5:hover .lbl { max-width: 90px; opacity: 1; margin-left: 10px; }
+
+      /* 6 glass light-sweep */
+      .ib6 { overflow: hidden; }
+      .ib6::before { content:''; position:absolute; inset:0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%); transform: translateX(-120%); transition: transform .8s cubic-bezier(.16,1,.3,1); }
+      .ib6:hover::before { transform: translateX(120%); }
+      .ib6:hover { box-shadow: inset 0 0 0 1.6px var(--teal); color: var(--teal); }
+
+      /* 7 3D flip */
+      .ib7 { perspective: 300px; box-shadow: none; }
+      .ib7 .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: inset 0 0 0 1.4px rgba(255,255,255,0.18); backface-visibility: hidden; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+      .ib7 .face svg { width: 22px; height: 22px; }
+      .ib7 .f-back { transform: rotateY(180deg); color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); }
+      .ib7:hover .f-front { transform: rotateY(180deg); }
+      .ib7:hover .f-back { transform: rotateY(360deg); }
+
+      /* 8 orbiting dot */
+      .ib8::before { content:''; position:absolute; top:-2px; left:50%; width:5px; height:5px; border-radius:50%; background: var(--lime); box-shadow:0 0 8px var(--lime); transform-origin: 0 29px; opacity:0; transition: opacity .3s; }
+      .ib8:hover::before { opacity:1; animation: orbit 2.2s linear infinite; }
+      .ib8:hover { color: var(--lime); }
+      @keyframes orbit { to { transform: rotate(360deg); } }
+
+      /* 9 gradient fill-up */
+      .ib9::before { content:''; position:absolute; inset:0; border-radius:50%; background: linear-gradient(0deg, var(--teal), var(--lime)); transform: translateY(100%); transition: transform .45s cubic-bezier(.16,1,.3,1); z-index:-1; }
+      .ib9:hover::before { transform: translateY(0); }
+      .ib9:hover { color: #05130a; box-shadow: inset 0 0 0 1.6px var(--lime); }
+
+      /* 10 breathing glow */
+      .ib10:hover { color: var(--teal); animation: breathe 1.6s ease-in-out infinite; }
+      @keyframes breathe { 0%,100%{ box-shadow: inset 0 0 0 1.4px var(--teal), 0 0 0 0 rgba(91,194,194,0.4);} 50%{ box-shadow: inset 0 0 0 1.6px var(--teal), 0 0 22px 3px rgba(91,194,194,0.4);} }
+
+      /* 11 neon outline trace */
+      .ib11 { box-shadow: none; }
+      .ib11 svg path { transition: stroke .3s; }
+      .ib11::before { content:''; position:absolute; inset:0; border-radius:50%; box-shadow: inset 0 0 0 1.4px rgba(255,255,255,0.18); transition: box-shadow .4s ease; }
+      .ib11:hover::before { box-shadow: inset 0 0 0 2px var(--lime), 0 0 16px rgba(192,255,0,0.4); }
+      .ib11:hover { color: var(--lime); }
+
+      /* 12 ripple (JS adds .rip) */
+      .ib12 { overflow: hidden; }
+      .ib12:hover { color: var(--teal); box-shadow: inset 0 0 0 1.6px var(--teal); }
+      .ib12 .rip { position: absolute; border-radius: 50%; background: rgba(91,194,194,0.4); transform: translate(-50%,-50%) scale(0); animation: rip .6s ease-out; pointer-events: none; }
+      @keyframes rip { to { transform: translate(-50%,-50%) scale(4); opacity: 0; } }
+
+      /* 13 spin + scale */
+      .ib13 .ic { transition: transform .5s cubic-bezier(.16,1,.3,1); }
+      .ib13:hover .ic { transform: rotate(360deg) scale(1.15); }
+      .ib13:hover { color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); }
+
+      /* 14 corner brackets */
+      .ib14 { border-radius: 12px; box-shadow: none; }
+      .ib14::before, .ib14::after { content:''; position:absolute; width:14px; height:14px; border:1.6px solid var(--lime); transition: all .35s ease; }
+      .ib14::before { top:6px; left:6px; border-right:0; border-bottom:0; }
+      .ib14::after { bottom:6px; right:6px; border-left:0; border-top:0; }
+      .ib14:hover::before, .ib14:hover::after { width: calc(100% - 12px); height: calc(100% - 12px); }
+      .ib14:hover { color: var(--lime); }
+
+      /* 15 halo pulse fill */
+      .ib15::before { content:''; position:absolute; inset:0; border-radius:50%; background: radial-gradient(circle, rgba(192,255,0,0.25), transparent 70%); opacity:0; transform: scale(0.6); transition: all .4s ease; }
+      .ib15:hover::before { opacity:1; transform: scale(1.5); }
+      .ib15:hover { color: var(--lime); box-shadow: inset 0 0 0 1.6px var(--lime); }
+
+      @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+    </style>
+
+    <script>
+      // @ts-nocheck
+      document.querySelectorAll('.ib3').forEach((b) => {
+        const ic = b.querySelector('.ic');
+        b.addEventListener('mousemove', (e) => { const r = b.getBoundingClientRect(); ic.style.transform = `translate(${(e.clientX-r.left-r.width/2)*0.35}px, ${(e.clientY-r.top-r.height/2)*0.35}px)`; });
+        b.addEventListener('mouseleave', () => { ic.style.transform = ''; });
+      });
+      document.querySelectorAll('.ib12').forEach((b) => {
+        b.addEventListener('click', (e) => { const r = b.getBoundingClientRect(); const s = document.createElement('span'); s.className = 'rip'; s.style.left = (e.clientX-r.left)+'px'; s.style.top = (e.clientY-r.top)+'px'; s.style.width = s.style.height = '20px'; b.appendChild(s); setTimeout(() => s.remove(), 600); });
+      });
+    </script>
+  </body>
+</html>

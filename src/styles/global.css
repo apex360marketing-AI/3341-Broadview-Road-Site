@@ -27,6 +27,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Site-wide hexagon-outline pattern (backgrounds concept 12, at 40% more
+   transparent). Sits on the body so transparent sections reveal it. */
+body {
+  background-color: var(--bg-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='48' viewBox='0 0 56 48'%3E%3Cg fill='none' stroke='%2396b2ad' stroke-opacity='0.12'%3E%3Cpath d='M14 0 L42 0 L56 24 L42 48 L14 48 L0 24 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 56px 48px;
+}
+
 /* ===== Sitewide honeycomb watermark =====
    Cream stroke at 4.5% opacity. Reads as a subtle sheen on the deepest bg.
    Sections with bg-surface stack their own <Honeycomb /> overlay on top. */

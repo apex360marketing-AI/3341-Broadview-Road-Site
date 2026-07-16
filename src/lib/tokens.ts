@@ -62,6 +62,7 @@ export type Tokens = {
   WALKSCORE_WSAPIKEY: string;
 
   INQUIRY_WEBHOOK_URL: string;
+  AIRBNB_URL: string;
   LIVE_FEED_URL: string;
   LIVE_FEED_HOST: string;
   TOS_URL: string;

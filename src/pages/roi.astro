@@ -9,6 +9,7 @@ import Footer from '../components/Footer.astro';
 import BookingModal from '../components/BookingModal.astro';
 import RoiDashboard from '../components/roi/RoiDashboard';
 import BankerBot from '../components/roi/BankerBot.astro';
+import AirbnbButton from '../components/AirbnbButton.astro';
 ---
 
 <!doctype html>
@@ -29,7 +30,7 @@ import BankerBot from '../components/roi/BankerBot.astro';
     <Nav />
 
     <!-- Page header -->
-    <header class="bg-bg-surface border-b border-ink-faint/20" style="padding: calc(5rem + 48px) clamp(1rem,4vw,2.5rem) 32px;">
+    <header class="bg-transparent border-b border-ink-faint/20" style="padding: calc(5rem + 48px) clamp(1rem,4vw,2.5rem) 32px;">
       <div style="max-width:1280px; margin:0 auto;">
         <p class="text-ink-faint text-[11px] uppercase tracking-[0.18em] mb-2 font-sans">
           {tokens.LISTING_ADDRESS_FULL}
@@ -45,6 +46,8 @@ import BankerBot from '../components/roi/BankerBot.astro';
 
     <!-- React island -->
     <RoiDashboard client:load />
+
+    <div class="flex justify-center px-[var(--gutter)] py-12"><AirbnbButton label="Book VALORA on Airbnb" /></div>
 
     <BookingModal />
     <BankerBot />

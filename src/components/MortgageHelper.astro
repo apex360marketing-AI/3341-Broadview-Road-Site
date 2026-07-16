@@ -1,18 +1,15 @@
 ---
 /*
- * MortgageHelper — interactive "will the suites carry the mortgage?" calculator.
+ * MortgageHelper — "will the suites carry the mortgage?" calculator.
  *
- * Fixed rents:   upstairs $4,500 · 2-bed $2,100 · 1-bed $1,650 / mo
- * Fixed costs:   taxes $4,800/yr · utilities $800 · misc $150 · insurance $225 / mo
- * Two scenarios: owner lives upstairs (2 suites rented) OR fully rented (all 3).
- * User inputs their mortgage (price / down / rate / amortization); we show the
- * monthly cash-flow picture and how much of the mortgage the suites cover.
+ * Defaults: $1,248,888 · 20% down · 3.5% (5-yr fixed) · 30-yr amort (toggle 25).
+ * Rate adjustable in 0.25 steps. BC Property Transfer Tax auto-calculated from price.
+ * Four occupancy scenarios. Optional principal-paydown view.
+ * Operating expenses intentionally excluded (see footnote).
  */
-import { tokens } from '../lib/tokens';
 import Honeycomb from './Honeycomb.astro';
-const defaultPrice = tokens.ASKING_PRICE || 1200000;
 ---
-<section id="mortgage" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
+<section id="mortgage" class="relative border-y border-ink-faint/30 bg-transparent overflow-hidden">
   <Honeycomb unique="mort" opacity={0.03} />
   <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-14 md:py-20">
     <div class="text-center mb-10">
@@ -24,29 +21,46 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
     <div class="grid lg:grid-cols-[1fr_1.05fr] gap-6 md:gap-8 items-start max-w-4xl mx-auto">
       <!-- INPUTS -->
       <div class="mh-panel">
-        <h3 class="mh-h">Your mortgage</h3>
+        <h3 class="mh-h">Your mortgage <span class="mh-term">5-yr fixed</span></h3>
+
         <label class="mh-field">Purchase price
-          <span class="mh-inputwrap"><i>$</i><input id="mh-price" type="number" value={defaultPrice} min="0" step="10000" /></span>
+          <span class="mh-inputwrap"><i>$</i><input id="mh-price" type="number" value="1248888" min="0" step="1000" /></span>
         </label>
         <label class="mh-field">Down payment
           <span class="mh-inputwrap"><input id="mh-down" type="number" value="20" min="0" max="100" step="1" /><i>%</i></span>
         </label>
-        <label class="mh-field">Interest rate
-          <span class="mh-inputwrap"><input id="mh-rate" type="number" value="5.5" min="0" max="20" step="0.05" /><i>%</i></span>
-        </label>
-        <label class="mh-field">Amortization
-          <span class="mh-inputwrap"><input id="mh-amort" type="number" value="25" min="1" max="35" step="1" /><i>yr</i></span>
-        </label>
+        <div class="mh-field">Interest rate
+          <span class="mh-stepper">
+            <button type="button" class="mh-step" data-step="-0.25" aria-label="Lower rate">&minus;</button>
+            <span class="mh-inputwrap"><input id="mh-rate" type="number" value="3.5" min="0" max="25" step="0.25" /><i>%</i></span>
+            <button type="button" class="mh-step" data-step="0.25" aria-label="Raise rate">+</button>
+          </span>
+        </div>
+        <div class="mh-field">Amortization
+          <span class="mh-toggle2">
+            <button type="button" class="mh-amort is-active" data-amort="30">30 yr</button>
+            <button type="button" class="mh-amort" data-amort="25">25 yr</button>
+          </span>
+        </div>
+
         <div class="mh-payment">
           <span>Estimated mortgage (P&amp;I)</span>
           <strong id="mh-mortgage">$0<em> /mo</em></strong>
         </div>
+        <div class="mh-ptt">
+          <span>Property transfer tax <em>· one-time (BC)</em></span>
+          <strong id="mh-ptt">$0</strong>
+        </div>
 
-        <div class="mh-tabs" role="tablist" aria-label="Occupancy scenario">
-          <button class="mh-tab is-active" data-scenario="live" role="tab" aria-selected="true">I live upstairs</button>
-          <button class="mh-tab" data-scenario="rented" role="tab" aria-selected="false">Fully rented</button>
+        <div class="mh-tabs" role="tablist" aria-label="Who lives here">
+          <button class="mh-tab is-active" data-scenario="up" role="tab">Live upstairs</button>
+          <button class="mh-tab" data-scenario="two" role="tab">Live in 2-bed</button>
+          <button class="mh-tab" data-scenario="one" role="tab">Live in 1-bed</button>
+          <button class="mh-tab" data-scenario="rented" role="tab">Fully rented</button>
         </div>
         <p class="mh-note" id="mh-note"></p>
+
+        <label class="mh-check"><input type="checkbox" id="mh-pp" /> <span>Show principal paydown (equity built)</span></label>
       </div>
 
       <!-- RESULTS -->
@@ -54,26 +68,34 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
         <h3 class="mh-h">Monthly picture</h3>
         <ul class="mh-lines">
           <li><span>Rental income</span><b id="mh-income" class="pos">$0</b></li>
-          <li><span>Operating expenses</span><b id="mh-exp" class="neg">$0</b></li>
-          <li class="mh-sub"><span>Net operating income</span><b id="mh-noi">$0</b></li>
           <li><span>Mortgage (P&amp;I)</span><b id="mh-mort2" class="neg">$0</b></li>
         </ul>
         <div class="mh-total">
           <span>Monthly cash flow</span>
           <strong id="mh-cash">$0</strong>
         </div>
+
+        <div class="mh-pp-block" id="mh-pp-block" hidden>
+          <ul class="mh-lines">
+            <li><span>+ Principal paydown</span><b id="mh-ppval" class="pos">$0</b></li>
+            <li class="mh-sub"><span>Total monthly benefit</span><b id="mh-benefit">$0</b></li>
+          </ul>
+        </div>
+
         <div class="mh-cover">
           <div class="mh-bar"><span id="mh-coverfill"></span></div>
-          <p id="mh-covertext">Suites cover 0% of your mortgage.</p>
+          <p id="mh-covertext">The suites cover 0% of your mortgage.</p>
         </div>
+
         <details class="mh-break">
           <summary>Assumptions</summary>
           <ul>
             <li>Rents — upstairs $4,500 · 2-bed $2,100 · 1-bed $1,650 / mo</li>
-            <li>Costs — taxes $4,800/yr · utilities $800 · misc $150 · insurance $225 / mo</li>
-            <li>Estimates only — not financial advice. Verify with your lender.</li>
+            <li>Property transfer tax (BC) — 1% on first $200k · 2% on $200k–$2M · 3% above $2M</li>
+            <li>5-yr fixed term · estimates only, not financial advice — verify with your lender</li>
           </ul>
         </details>
+        <p class="mh-footnote">*Monthly operating expenses are not included.</p>
       </div>
     </div>
   </div>
@@ -81,31 +103,37 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
 
 <style>
   .mh-eyebrow { color: var(--accent-2); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 0.5rem; }
-  .mh-panel {
-    position: relative;
-    background: rgba(15, 14, 12, 0.5);
-    border: 1px solid rgba(91, 194, 194, 0.18);
-    border-radius: 16px;
-    padding: 26px 24px;
-    backdrop-filter: blur(6px);
-  }
-  .mh-h { color: var(--ink-primary); font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: 0.02em; margin-bottom: 18px; }
+  .mh-panel { position: relative; background: rgba(15, 14, 12, 0.5); border: 1px solid rgba(91, 194, 194, 0.18); border-radius: 16px; padding: 26px 24px; backdrop-filter: blur(6px); }
+  .mh-h { color: var(--ink-primary); font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: 0.02em; margin-bottom: 18px; display: flex; align-items: baseline; justify-content: space-between; }
+  .mh-term { font-family: var(--font-sans); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); }
   .mh-field { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 13px; color: var(--ink-muted); margin-bottom: 12px; }
   .mh-inputwrap { display: inline-flex; align-items: center; gap: 4px; background: rgba(237,230,214,0.05); border: 1px solid rgba(237,230,214,0.14); border-radius: 8px; padding: 8px 12px; transition: border-color .25s ease; }
   .mh-inputwrap:focus-within { border-color: var(--accent-2); }
   .mh-inputwrap i { color: var(--ink-faint); font-style: normal; font-size: 12px; }
-  .mh-inputwrap input { width: 96px; background: transparent; border: 0; color: var(--ink-primary); font-size: 14px; text-align: right; outline: none; -moz-appearance: textfield; }
+  .mh-inputwrap input { width: 92px; background: transparent; border: 0; color: var(--ink-primary); font-size: 14px; text-align: right; outline: none; -moz-appearance: textfield; }
   .mh-inputwrap input::-webkit-outer-spin-button, .mh-inputwrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .mh-payment { display: flex; align-items: baseline; justify-content: space-between; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(237,230,214,0.1); }
-  .mh-payment span { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .mh-stepper { display: inline-flex; align-items: center; gap: 6px; }
+  .mh-step { width: 30px; height: 34px; border-radius: 8px; border: 1px solid rgba(237,230,214,0.16); background: transparent; color: var(--ink-primary); font-size: 16px; cursor: pointer; transition: all .2s ease; }
+  .mh-step:hover { border-color: var(--accent-2); color: var(--accent-2); }
+  .mh-toggle2, .mh-tabs { display: inline-flex; gap: 6px; }
+  .mh-amort { padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(237,230,214,0.16); background: transparent; color: var(--ink-muted); font-size: 12px; cursor: pointer; transition: all .2s ease; }
+  .mh-amort:hover { color: var(--ink-primary); border-color: rgba(91,194,194,0.5); }
+  .mh-amort.is-active { color: #0F0E0C; background: var(--accent-2); border-color: var(--accent-2); font-weight: 600; }
+
+  .mh-payment, .mh-ptt { display: flex; align-items: baseline; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(237,230,214,0.1); }
+  .mh-payment span, .mh-ptt span { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .mh-payment em, .mh-ptt em { font-style: normal; color: var(--ink-faint); text-transform: none; letter-spacing: 0; font-size: 11px; }
   .mh-payment strong { color: var(--accent-2); font-size: 1.5rem; font-weight: 500; }
-  .mh-payment em { font-size: 12px; color: var(--ink-faint); font-style: normal; }
+  .mh-payment em { font-size: 12px; color: var(--ink-faint); }
+  .mh-ptt strong { color: var(--ink-primary); font-size: 1.05rem; font-weight: 500; }
 
   .mh-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
-  .mh-tab { padding: 11px 8px; border-radius: 9px; border: 1px solid rgba(237,230,214,0.16); background: transparent; color: var(--ink-muted); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: all .25s ease; }
+  .mh-tab { padding: 10px 6px; border-radius: 9px; border: 1px solid rgba(237,230,214,0.16); background: transparent; color: var(--ink-muted); font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all .25s ease; }
   .mh-tab:hover { color: var(--ink-primary); border-color: rgba(91,194,194,0.5); }
   .mh-tab.is-active { color: #0F0E0C; background: var(--accent-2); border-color: var(--accent-2); font-weight: 600; }
-  .mh-note { margin-top: 14px; font-size: 12.5px; color: var(--ink-muted); font-style: italic; line-height: 1.5; min-height: 34px; }
+  .mh-note { margin-top: 14px; font-size: 12.5px; color: var(--ink-muted); font-style: italic; line-height: 1.5; min-height: 20px; }
+  .mh-check { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12.5px; color: var(--ink-muted); cursor: pointer; }
+  .mh-check input { accent-color: var(--accent-2); width: 15px; height: 15px; }
 
   .mh-results { display: flex; flex-direction: column; }
   .mh-lines { list-style: none; }
@@ -121,6 +149,7 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
   .mh-total strong { font-size: 1.7rem; font-weight: 500; font-variant-numeric: tabular-nums; }
   .mh-total strong.pos { color: #8FE39C; }
   .mh-total strong.neg { color: #E88F84; }
+  .mh-pp-block { margin-top: 4px; }
 
   .mh-cover { margin-top: 18px; }
   .mh-bar { height: 8px; border-radius: 99px; background: rgba(237,230,214,0.1); overflow: hidden; }
@@ -131,49 +160,66 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
   .mh-break { margin-top: 16px; }
   .mh-break summary { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-faint); cursor: pointer; }
   .mh-break ul { list-style: none; margin-top: 8px; font-size: 11.5px; color: var(--ink-faint); line-height: 1.7; }
+  .mh-footnote { margin-top: 10px; font-size: 11px; font-style: italic; color: var(--ink-faint); }
 </style>
 
 <script>
   // @ts-nocheck
   (function () {
     const $ = (id) => document.getElementById(id);
-    const price = $('mh-price'), down = $('mh-down'), rate = $('mh-rate'), amort = $('mh-amort');
-    if (!price) return;
+    const priceEl = $('mh-price'), downEl = $('mh-down'), rateEl = $('mh-rate');
+    if (!priceEl) return;
 
-    const EXP = 4800 / 12 + 800 + 150 + 225; // 1575/mo
-    const RENT = { up: 4500, two: 2100, one: 1650 };
-    let scenario = 'live';
-
-    const NOTES = {
-      live: 'You live upstairs; the 1-bed and 2-bed suites are rented — $3,750/mo works against your mortgage.',
-      rented: 'All three suites rented — $8,250/mo gross income as a pure investment play.',
+    const RENT = { up: 4500, one: 1650, two: 2100 };
+    const INCOME = {
+      up: RENT.one + RENT.two,          // 3750
+      two: RENT.up + RENT.one,          // 6150
+      one: RENT.up + RENT.two,          // 6600
+      rented: RENT.up + RENT.one + RENT.two, // 8250
     };
+    const NOTES = {
+      up: 'You live upstairs; the 1-bed + 2-bed suites are rented — $3,750/mo works against your mortgage.',
+      two: 'You live in the 2-bed; the upstairs + 1-bed are rented — $6,150/mo.',
+      one: 'You live in the 1-bed; the upstairs + 2-bed are rented — $6,600/mo.',
+      rented: 'All three suites rented — $8,250/mo gross as a pure investment.',
+    };
+    let scenario = 'up', amort = 30, showPP = false;
 
     const fmt = (n) => (n < 0 ? '-$' : '$') + Math.round(Math.abs(n)).toLocaleString();
 
-    function mortgage() {
-      const P = Math.max(0, (+price.value || 0) * (1 - (+down.value || 0) / 100));
-      const r = (+rate.value || 0) / 100 / 12;
-      const n = Math.max(1, (+amort.value || 25) * 12);
-      return r > 0 ? (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : P / n;
+    function ptt(price) {
+      return Math.min(price, 200000) * 0.01
+        + Math.max(0, Math.min(price, 2000000) - 200000) * 0.02
+        + Math.max(0, price - 2000000) * 0.03;
     }
 
     function update() {
-      const M = mortgage();
-      const income = scenario === 'live' ? RENT.two + RENT.one : RENT.up + RENT.two + RENT.one;
-      const noi = income - EXP;
-      const cash = noi - M;
-      const cover = M > 0 ? Math.max(0, (noi / M) * 100) : 0;
+      const price = +priceEl.value || 0;
+      const down = +downEl.value || 0;
+      const rate = +rateEl.value || 0;
+      const P = Math.max(0, price * (1 - down / 100));
+      const r = rate / 100 / 12;
+      const n = Math.max(1, amort * 12);
+      const M = r > 0 ? (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : P / n;
+      const income = INCOME[scenario];
+      const cash = income - M;
+      const principal = Math.max(0, M - P * r); // month-1 principal portion
+      const benefit = cash + principal;
+      const cover = M > 0 ? (income / M) * 100 : 0;
 
       $('mh-mortgage').innerHTML = fmt(M) + '<em> /mo</em>';
+      $('mh-ptt').textContent = fmt(ptt(price));
       $('mh-income').textContent = fmt(income);
-      $('mh-exp').textContent = '-' + fmt(EXP);
-      $('mh-noi').textContent = fmt(noi);
       $('mh-mort2').textContent = '-' + fmt(M);
 
       const cashEl = $('mh-cash');
       cashEl.textContent = fmt(cash);
       cashEl.className = cash >= 0 ? 'pos' : 'neg';
+
+      $('mh-ppval').textContent = '+' + fmt(principal);
+      const benefitEl = $('mh-benefit');
+      benefitEl.textContent = fmt(benefit);
+      $('mh-pp-block').hidden = !showPP;
 
       $('mh-coverfill').style.width = Math.min(100, cover) + '%';
       $('mh-covertext').innerHTML = cover >= 100
@@ -182,7 +228,22 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
       $('mh-note').textContent = NOTES[scenario];
     }
 
-    [price, down, rate, amort].forEach((el) => el.addEventListener('input', update));
+    [priceEl, downEl, rateEl].forEach((el) => el.addEventListener('input', update));
+
+    document.querySelectorAll('.mh-step').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const step = parseFloat(btn.getAttribute('data-step'));
+        rateEl.value = Math.max(0, Math.round((( +rateEl.value || 0) + step) * 100) / 100).toFixed(2);
+        update();
+      });
+    });
+    document.querySelectorAll('.mh-amort').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        amort = parseInt(btn.getAttribute('data-amort'), 10);
+        document.querySelectorAll('.mh-amort').forEach((b) => b.classList.toggle('is-active', b === btn));
+        update();
+      });
+    });
     document.querySelectorAll('.mh-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
         scenario = tab.getAttribute('data-scenario');
@@ -194,6 +255,7 @@ const defaultPrice = tokens.ASKING_PRICE || 1200000;
         update();
       });
     });
+    $('mh-pp').addEventListener('change', (e) => { showPP = e.target.checked; update(); });
 
     update();
   })();

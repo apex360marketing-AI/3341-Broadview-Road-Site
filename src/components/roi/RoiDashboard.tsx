@@ -24,7 +24,7 @@ const T = {
   muted:    '#7A7266',
   label:    '#5C544A',
   border:   'rgba(92,84,74,0.35)',
-  surface:  '#1F2024',
+  surface:  '#0F0E0C',
   elevated: '#262A2E',
   page:     '#0F0E0C',
   yellow:   '#C0FF00',

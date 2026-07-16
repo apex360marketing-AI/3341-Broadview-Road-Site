@@ -1,0 +1,126 @@
+---
+/*
+ * Background patterns — 20 posh, subtle geometric patterns (herringbone,
+ * honeycomb, art-deco, etc.) in the site's dark palette. Pick a number and
+ * I'll apply it (globally or on the section bands) at production subtlety.
+ */
+import '../styles/global.css';
+const pats = [
+  { n: 1, c: 'p1', name: 'Elongated honeycomb' },
+  { n: 2, c: 'p2', name: 'Herringbone' },
+  { n: 3, c: 'p3', name: 'Chevron' },
+  { n: 4, c: 'p4', name: 'Harlequin diamonds' },
+  { n: 5, c: 'p5', name: 'Greek key' },
+  { n: 6, c: 'p6', name: 'Fine grid' },
+  { n: 7, c: 'p7', name: 'Diagonal pinstripe' },
+  { n: 8, c: 'p8', name: 'Basketweave' },
+  { n: 9, c: 'p9', name: 'Fish-scale (scallop)' },
+  { n: 10, c: 'p10', name: 'Cross-hatch' },
+  { n: 11, c: 'p11', name: 'Triangles' },
+  { n: 12, c: 'p12', name: 'Hexagon outline' },
+  { n: 13, c: 'p13', name: 'Isometric cubes' },
+  { n: 14, c: 'p14', name: 'Argyle' },
+  { n: 15, c: 'p15', name: 'Quatrefoil' },
+  { n: 16, c: 'p16', name: 'Vertical pinstripe' },
+  { n: 17, c: 'p17', name: 'Pin-dot grid' },
+  { n: 18, c: 'p18', name: 'Art-deco arcs' },
+  { n: 19, c: 'p19', name: 'Micro-chevron' },
+  { n: 20, c: 'p20', name: 'Diamond lattice' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Background patterns — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="text-[#C0FF00] text-xs tracking-[0.4em] uppercase mb-3">VALORA · Pattern backgrounds</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Twenty posh patterns.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Subtle, tailored, luxe — in the honeycomb spirit. Shown at a slightly boosted contrast so you can read each; I'll dial them back to whisper-level when applied. Pick a number.</p>
+      <div class="pgrid">
+        {pats.map((p) => (
+          <div class="pcard">
+            <div class={`pcell ${p.c}`}></div>
+            <p class="pname"><b>{p.n}.</b> {p.name}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      :root { --ln: rgba(150, 178, 173, 0.16); --ln2: rgba(150, 178, 173, 0.10); }
+      .pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 26px 20px; }
+      .pcell { height: 170px; border-radius: 14px; background-color: #0e0f10; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+      .pname { margin-top: 11px; color: var(--ink-primary); font-size: 13.5px; }
+      .pname b { color: var(--lime, #C0FF00); }
+
+      /* 1 elongated honeycomb */
+      .p1 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='68' viewBox='0 0 42 68'%3E%3Cg fill='none' stroke='%2396b2ad' stroke-opacity='0.2'%3E%3Cpath d='M21 0 L42 12 L42 34 L21 46 L0 34 L0 12 Z M21 46 L42 58 M21 46 L0 58 M42 12 L42 -12 M0 12 L0 -12'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 2 herringbone */
+      .p2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cg stroke='%2396b2ad' stroke-opacity='0.22' stroke-width='1.4' fill='none'%3E%3Cpath d='M0 20 L20 0 L20 20 L40 0 M0 40 L20 20 L20 40 L40 20'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 3 chevron */
+      .p3 { background:
+        linear-gradient(135deg, var(--ln) 25%, transparent 25%) -16px 0/32px 32px,
+        linear-gradient(225deg, var(--ln) 25%, transparent 25%) -16px 0/32px 32px,
+        linear-gradient(315deg, var(--ln) 25%, transparent 25%) 0 0/32px 32px,
+        linear-gradient(45deg, var(--ln) 25%, transparent 25%) 0 0/32px 32px, #0e0f10; }
+      /* 4 harlequin diamonds */
+      .p4 { background:
+        linear-gradient(45deg, var(--ln) 25%, transparent 25% 75%, var(--ln) 75%) 0 0/34px 34px,
+        linear-gradient(45deg, var(--ln) 25%, transparent 25% 75%, var(--ln) 75%) 17px 17px/34px 34px, #0e0f10; }
+      /* 5 greek key */
+      .p5 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42'%3E%3Cg stroke='%2396b2ad' stroke-opacity='0.24' stroke-width='1.4' fill='none'%3E%3Cpath d='M6 6 h30 v30 h-24 v-18 h12 v6 h-6'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 6 fine grid */
+      .p6 { background-image: linear-gradient(var(--ln) 1px, transparent 1px), linear-gradient(90deg, var(--ln) 1px, transparent 1px); background-size: 26px 26px; }
+      /* 7 diagonal pinstripe */
+      .p7 { background: repeating-linear-gradient(45deg, transparent 0 13px, var(--ln) 13px 14.5px), #0e0f10; }
+      /* 8 basketweave */
+      .p8 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg stroke='%2396b2ad' stroke-opacity='0.2' stroke-width='1.3' fill='none'%3E%3Crect x='2' y='2' width='12' height='12'/%3E%3Crect x='18' y='18' width='12' height='12'/%3E%3Cpath d='M18 8 h12 M8 18 v12'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 9 fish scale */
+      .p9 { background:
+        radial-gradient(circle at 50% 0, transparent 10px, var(--ln) 11px, transparent 12.5px) 0 0/28px 14px,
+        radial-gradient(circle at 50% 0, transparent 10px, var(--ln) 11px, transparent 12.5px) 14px 7px/28px 14px, #0e0f10; }
+      /* 10 cross-hatch */
+      .p10 { background: repeating-linear-gradient(45deg, transparent 0 12px, var(--ln2) 12px 13px), repeating-linear-gradient(-45deg, transparent 0 12px, var(--ln2) 12px 13px), #0e0f10; }
+      /* 11 triangles */
+      .p11 { background:
+        linear-gradient(60deg, var(--ln2) 25%, transparent 25.5%) 0 0/30px 52px,
+        linear-gradient(-60deg, var(--ln2) 25%, transparent 25.5%) 0 0/30px 52px,
+        linear-gradient(60deg, transparent 74.5%, var(--ln2) 75%) 0 0/30px 52px,
+        linear-gradient(-60deg, transparent 74.5%, var(--ln2) 75%) 0 0/30px 52px, #0e0f10; }
+      /* 12 hexagon outline */
+      .p12 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='48' viewBox='0 0 56 48'%3E%3Cg fill='none' stroke='%2396b2ad' stroke-opacity='0.2'%3E%3Cpath d='M14 0 L42 0 L56 24 L42 48 L14 48 L0 24 Z'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 13 isometric cubes */
+      .p13 { background:
+        conic-gradient(from -30deg at 50% 50%, var(--ln2) 0 60deg, transparent 0 180deg, var(--ln2) 0 240deg, transparent 0) 0 0/40px 46px, #0e0f10; }
+      /* 14 argyle */
+      .p14 { background:
+        linear-gradient(45deg, var(--ln2) 25%, transparent 25% 75%, var(--ln2) 75%) 0 0/40px 40px,
+        linear-gradient(-45deg, var(--ln2) 25%, transparent 25% 75%, var(--ln2) 75%) 0 0/40px 40px,
+        repeating-linear-gradient(45deg, transparent 0 19px, rgba(192,255,0,0.06) 19px 20px) 0 0,
+        repeating-linear-gradient(-45deg, transparent 0 19px, rgba(192,255,0,0.06) 19px 20px) 0 0, #0e0f10; }
+      /* 15 quatrefoil */
+      .p15 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cg fill='none' stroke='%2396b2ad' stroke-opacity='0.22'%3E%3Cpath d='M20 6 a8 8 0 0 1 8 8 a8 8 0 0 1 8 8 a8 8 0 0 1 -8 8 a8 8 0 0 1 -8 8 a8 8 0 0 1 -8 -8 a8 8 0 0 1 -8 -8 a8 8 0 0 1 8 -8 a8 8 0 0 1 8 -8 z'/%3E%3C/g%3E%3C/svg%3E"); }
+      /* 16 vertical pinstripe */
+      .p16 { background: repeating-linear-gradient(90deg, transparent 0 11px, var(--ln) 11px 12px), #0e0f10; }
+      /* 17 pin-dot grid */
+      .p17 { background-image: radial-gradient(var(--ln) 1.3px, transparent 1.6px); background-size: 20px 20px; }
+      /* 18 art-deco arcs */
+      .p18 { background:
+        radial-gradient(circle at 0 100%, transparent 13px, var(--ln) 14px, transparent 15.5px, transparent 25px, var(--ln) 26px, transparent 27.5px) 0 0/38px 38px, #0e0f10; }
+      /* 19 micro-chevron */
+      .p19 { background:
+        linear-gradient(135deg, var(--ln2) 25%, transparent 25%) -8px 0/16px 16px,
+        linear-gradient(225deg, var(--ln2) 25%, transparent 25%) -8px 0/16px 16px,
+        linear-gradient(315deg, var(--ln2) 25%, transparent 25%) 0 0/16px 16px,
+        linear-gradient(45deg, var(--ln2) 25%, transparent 25%) 0 0/16px 16px, #0e0f10; }
+      /* 20 diamond lattice */
+      .p20 { background: repeating-linear-gradient(45deg, transparent 0 18px, var(--ln) 18px 19px), repeating-linear-gradient(-45deg, transparent 0 18px, var(--ln) 18px 19px), #0e0f10; }
+    </style>
+  </body>
+</html>

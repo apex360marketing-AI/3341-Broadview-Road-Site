@@ -5,7 +5,7 @@ import Honeycomb from './Honeycomb.astro';
 const entry = await getEntry('static', 'about');
 const { Content } = entry ? await render(entry) : { Content: null };
 ---
-<section class="relative py-10 md:py-14 bg-bg-surface overflow-hidden">
+<section class="relative py-10 md:py-14 bg-transparent overflow-hidden">
   <Honeycomb opacity={0.04} />
   <div class="relative z-10 max-w-3xl mx-auto px-[var(--gutter)]">
     <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-3">About this place</p>

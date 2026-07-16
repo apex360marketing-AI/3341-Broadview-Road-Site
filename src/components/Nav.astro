@@ -3,173 +3,192 @@ import { tokens } from '../lib/tokens';
 ---
 <nav class="fixed top-0 inset-x-0 z-40 bg-gradient-to-b from-black/40 via-black/10 to-transparent">
   <div class="relative max-w-[var(--max-w)] mx-auto px-[var(--gutter)] h-20 flex items-center justify-end">
-
-    <!-- ===== RIGHT: glass-pill menu ===== -->
-    <div class="nav-glass hidden sm:flex items-center gap-1 p-1.5 rounded-full">
-      <a href="/#property" class="nav-pill-link">The Property</a>
-      <a href="/area" class="nav-pill-link">The Area</a>
-      <a href="/roi" class="nav-pill-link">Investor ROI</a>
-      <a href="/#contact" class="nav-pill-link" data-action="open-inquiry">Contact</a>
-    </div>
+    <button type="button" class="nav-contact" data-action="open-inquiry" aria-label="Contact Kevin">
+      <span class="ck-text">Contact Kevin</span>
+    </button>
   </div>
 
-  <!-- ===== LEFT CORNER: giant compass + VALORA = the menu button ===== -->
+  <!-- Compass (= Home) + VALORA, with a radial fan menu -->
   <div class="brand-menu">
-    <button type="button" id="brand-trigger" class="brand-link" aria-haspopup="true" aria-expanded="false" aria-label="Open site menu">
+    <a href="/" class="brand-link" aria-label="Home — VALORA">
       <svg class="brand-compass shrink-0" width="156" height="156" viewBox="0 0 60 60" aria-hidden="true">
-        <!-- Static double ring -->
-        <circle cx="30" cy="30" r="28" fill="none" stroke="#EDE6D6" stroke-opacity="0.4" stroke-width="0.9"/>
-        <circle cx="30" cy="30" r="21" fill="none" stroke="#EDE6D6" stroke-opacity="0.4" stroke-width="0.8"/>
-        <!-- Cardinal nubs (cream) -->
-        <g stroke="#EDE6D6" stroke-opacity="0.7" stroke-width="0.9" stroke-linecap="round">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#5BC2C2" stroke-opacity="1" stroke-width="2.2"/>
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.92" stroke-width="1.0"/>
+        <circle cx="30" cy="30" r="21" fill="none" stroke="#5BC2C2" stroke-opacity="1" stroke-width="2.0"/>
+        <circle cx="30" cy="30" r="21" fill="none" stroke="#FFFFFF" stroke-opacity="0.92" stroke-width="0.9"/>
+        <g stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="0.9" stroke-linecap="round">
           <line x1="30" y1="5" x2="30" y2="2"/><line x1="55" y1="30" x2="58" y2="30"/>
           <line x1="30" y1="55" x2="30" y2="58"/><line x1="5" y1="30" x2="2" y2="30"/>
-        </g>
-        <!-- Diagonal nubs between N/E/S/W (yellow) -->
-        <g stroke="#C0FF00" stroke-opacity="0.85" stroke-width="0.8" stroke-linecap="round">
           <line x1="48.39" y1="11.62" x2="49.80" y2="10.20"/><line x1="48.39" y1="48.39" x2="49.80" y2="49.80"/>
           <line x1="11.62" y1="48.39" x2="10.20" y2="49.80"/><line x1="11.62" y1="11.62" x2="10.20" y2="10.20"/>
         </g>
-        <!-- Faceted 8-point star — the part that spins -->
         <g class="dial-compass">
           <path d="M30,30 L29.24,28.15 L30,16 Z M30,30 L30.77,28.15 L34.6,25.4 Z M30,30 L31.85,29.24 L44,30 Z M30,30 L31.85,30.77 L34.6,34.6 Z M30,30 L30.77,31.85 L30,44 Z M30,30 L29.24,31.85 L25.4,34.6 Z M30,30 L28.15,30.77 L16,30 Z M30,30 L28.15,29.24 L25.4,25.4 Z" fill="#EDE6D6"/>
           <path d="M30,30 L30,16 L30.77,28.15 Z M30,30 L34.6,25.4 L31.85,29.24 Z M30,30 L44,30 L31.85,30.77 Z M30,30 L34.6,34.6 L30.77,31.85 Z M30,30 L30,44 L29.24,31.85 Z M30,30 L25.4,34.6 L28.15,30.77 Z M30,30 L16,30 L28.15,29.24 Z M30,30 L25.4,25.4 L29.24,28.15 Z" fill="#5BC2C2"/>
         </g>
-        <!-- Static cardinals — small, lime, just inside the inner ring -->
         <text class="cardinal" x="30" y="11.5" text-anchor="middle" dominant-baseline="middle">N</text>
         <text class="cardinal" x="48.5" y="30" text-anchor="middle" dominant-baseline="middle">E</text>
         <text class="cardinal" x="30" y="48.5" text-anchor="middle" dominant-baseline="middle">S</text>
         <text class="cardinal" x="11.5" y="30" text-anchor="middle" dominant-baseline="middle">W</text>
       </svg>
-      <span class="brand-text font-serif text-[3.2rem] font-light leading-[0.92]">
-        {tokens.LISTING_NAME}
-      </span>
-    </button>
+      <span class="brand-text font-serif text-[2.77rem] font-light">{tokens.LISTING_NAME}</span>
+    </a>
 
-    <!-- Dropdown — opens on hover, locks open on click -->
-    <div class="brand-dropdown" role="menu">
-      <a href="/" role="menuitem">Home</a>
-      <a href="/#property" role="menuitem">The Property</a>
-      <a href="/area" role="menuitem">The Area</a>
-      <a href="/roi" role="menuitem">Investor ROI</a>
-      <a href="/#mortgage" role="menuitem">Mortgage Helper</a>
-      <a href="/#contact" role="menuitem" data-action="open-inquiry">Contact Agent</a>
+    <!-- Radial fan menu — swings out on hover, neon-outline on each item -->
+    <div class="radial-menu">
+      <a class="rad-item" style="--i:0" href="/area">The Area</a>
+      <a class="rad-item" style="--i:1" href="/roi">Investor ROI</a>
+      <a class="rad-item" style="--i:2" href="/#mortgage">Mortgage</a>
     </div>
   </div>
 
   <style>
-    /* Compass tucked into the top-left corner; VALORA up in the nav bar. */
-    .brand-menu {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 41;
-    }
-    .brand-link {
+    @property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+    .brand-menu { position: absolute; top: 0; left: 0; z-index: 41; }
+    .brand-link { position: relative; display: block; cursor: pointer; }
+    .brand-compass { display: block; position: absolute; top: -25px; left: -25px; z-index: 1; }
+    .cardinal { fill: #FFFFFF; font-family: var(--font-serif); font-size: 4.5px; font-weight: 400; opacity: 0.92; }
+
+    /* Top-right "Contact Kevin" — elongated corner brackets (14) that close + glow (11) */
+    .nav-contact {
       position: relative;
-      display: flex;
-      align-items: center;   /* VALORA vertically centred in the bar = up top */
-      height: 80px;          /* nav bar height */
-      padding-left: 136px;   /* clears the tucked compass + E label */
+      width: 178px;
+      height: 40px;
+      border-radius: 8px;
       background: transparent;
       border: 0;
       cursor: pointer;
+      transition: box-shadow .45s ease;
     }
-    .brand-compass {
-      display: block;
+    .nav-contact::before, .nav-contact::after {
+      content: '';
       position: absolute;
-      top: -25px;            /* ~16% corner cutoff, N/E/S/W still on-screen */
-      left: -25px;
+      width: 14px; height: 14px;
+      border: 1.6px solid #C0FF00;
+      pointer-events: none;
+      transition: width .5s cubic-bezier(.16, 1, .3, 1), height .5s cubic-bezier(.16, 1, .3, 1), box-shadow .4s ease;
     }
-    /* Static N/E/S/W — yellow, subtle but noticeable */
-    .cardinal {
-      fill: #C0FF00;
-      font-family: var(--font-serif);
-      font-size: 4.5px;
-      font-weight: 400;
-      opacity: 0.82;
+    .nav-contact::before { top: 3px; left: 3px; border-right: 0; border-bottom: 0; border-top-left-radius: 6px; }
+    .nav-contact::after { bottom: 3px; right: 3px; border-left: 0; border-top: 0; border-bottom-right-radius: 6px; }
+    /* Hover: brackets close into the full rectangle + it glows */
+    .nav-contact:hover::before, .nav-contact:hover::after {
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
+      box-shadow: 0 0 9px rgba(192, 255, 0, 0.55);
     }
+    .nav-contact:hover { box-shadow: 0 0 20px rgba(192, 255, 0, 0.3); }
+    /* "Contact Kevin" wipes in left→right, centred — smooth, no stepping */
+    .ck-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #C0FF00;
+      font-size: 11.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path .6s cubic-bezier(.16, 1, .3, 1) .12s;
+    }
+    .nav-contact:hover .ck-text { clip-path: inset(0 0 0 0); }
 
-    /* Blue trim, white inside — sized between the two prior sizes (~3.2rem). */
+    /* VALORA — vertical, just below the compass */
     .brand-text {
+      position: absolute;
+      top: 130px;
+      left: 53px;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      letter-spacing: 0.14em;
       color: #FFFFFF;
-      -webkit-text-stroke: 1.25px #5BC2C2;
+      -webkit-text-stroke: 3px #5BC2C2;
       paint-order: stroke fill;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-      transform: translate(5%, 5%); /* nudge right ~5% / down ~5% */
+      transform-origin: center top;
+      transform: translateX(-50%) perspective(520px) translateZ(0);
+      transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1), text-shadow 480ms ease;
+      will-change: transform;
+    }
+    .brand-menu:hover .brand-text {
+      transform: translateX(-50%) perspective(520px) translateZ(15px);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 4px rgba(91, 194, 194, 0.85), 0 0 9px rgba(91, 194, 194, 0.5);
     }
     .brand-link svg {
       color: #EDE6D6;
       filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
-      transition: filter 450ms cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center;
+      transform: perspective(520px) translateZ(0);
+      transition: filter 450ms cubic-bezier(0.16, 1, 0.3, 1), transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
     }
+    .brand-menu:hover .brand-link svg { transform: perspective(520px) translateZ(22px); }
     .dial-compass { transform-box: view-box; transform-origin: 30px 30px; }
-
-    /* While scrolling: compass stays cream/white — just glows. */
     .brand-link svg.is-spinning {
       filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(91, 194, 194, 0.65));
     }
 
-    /* Dropdown — anchored just under the nav bar, left corner */
-    .brand-dropdown {
+    /* ===== Radial fan (concept 1) with concept-4 neon items ===== */
+    .radial-menu { position: absolute; top: 53px; left: 53px; z-index: 60; pointer-events: none; }
+    .rad-item {
+      --ang: calc(var(--i) * 24deg);
       position: absolute;
-      top: 84px;
-      left: 14px;
-      min-width: 230px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      background: rgba(18, 19, 22, 0.9);
-      -webkit-backdrop-filter: blur(16px);
-      backdrop-filter: blur(16px);
-      border-radius: 14px;
-      box-shadow: inset 0 0 0 1.5px rgba(192, 255, 0, 0.5), 0 22px 44px rgba(0, 0, 0, 0.55);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-8px);
-      transition: opacity .3s ease, transform .3s cubic-bezier(.16, 1, .3, 1), visibility .3s;
-      z-index: 50;
-    }
-    .brand-menu:hover .brand-dropdown,
-    .brand-menu.open .brand-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
-    .brand-dropdown a {
-      padding: 11px 16px;
-      border-radius: 9px;
-      color: #fff;
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: background .25s ease, color .25s ease;
-    }
-    .brand-dropdown a:hover { background: rgba(192, 255, 0, 0.15); color: #C0FF00; }
-
-    /* Glass pill */
-    .nav-glass {
-      background: rgba(255, 255, 255, 0.08);
-      -webkit-backdrop-filter: blur(14px);
-      backdrop-filter: blur(14px);
-      box-shadow:
-        inset 0 0 0 1.5px rgba(192, 255, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.28);
-    }
-    .nav-pill-link {
+      left: 0; top: 0;
+      padding: 9px 15px;
+      border-radius: 10px;
       color: #fff;
       font-size: 11px;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 8px 15px;
-      border-radius: 999px;
       white-space: nowrap;
-      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      /* completely see-through glass — the neon outline reveals the shape on hover only */
+      background: transparent;
+      -webkit-backdrop-filter: blur(5px);
+      backdrop-filter: blur(5px);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+      /* collapsed at the compass centre */
+      transform: translate(-50%, -50%) rotate(var(--ang)) translateX(0) rotate(calc(-1 * var(--ang)));
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .55s cubic-bezier(.16, 1, .3, 1), opacity .4s ease, color .25s ease, box-shadow .3s ease;
     }
-    .nav-pill-link:hover { background: rgba(192, 255, 0, 0.16); color: #C0FF00; }
+    .brand-menu.open .rad-item {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) rotate(var(--ang)) translateX(148px) rotate(calc(-1 * var(--ang)));
+      transition-delay: calc(var(--i) * 0.05s);
+    }
+    .rad-item:hover { color: #C0FF00; z-index: 5; }
+    /* Concept 4 — spinning neon outline, one at a time (only the hovered item) */
+    .rad-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      padding: 1.5px;
+      background: conic-gradient(from var(--a), transparent 0 55%, #C0FF00 78%, #5BC2C2 100%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+      animation: rad-spin 3s linear infinite;
+    }
+    .rad-item:hover::before { opacity: 1; }
+    @keyframes rad-spin { to { --a: 360deg; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rad-item, .rad-item::before, .brand-text, .brand-link svg { transition: none; animation: none; }
+    }
   </style>
 </nav>
 
 <script>
   // @ts-nocheck
+  // Compass spin + glow on scroll
   const compass = document.querySelector('.dial-compass');
   const compassSvg = document.querySelector('.brand-link svg');
   if (compass) {
@@ -193,25 +212,11 @@ import { tokens } from '../lib/tokens';
     }
   }
 
-  const trigger = document.getElementById('brand-trigger');
+  // Radial fan open/close — hover to fan out; a small close delay bridges the gap
   const menu = document.querySelector('.brand-menu');
-  if (trigger && menu) {
-    trigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      const open = menu.classList.toggle('open');
-      trigger.setAttribute('aria-expanded', String(open));
-    });
-    document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target)) {
-        menu.classList.remove('open');
-        trigger.setAttribute('aria-expanded', 'false');
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        menu.classList.remove('open');
-        trigger.setAttribute('aria-expanded', 'false');
-      }
-    });
+  if (menu) {
+    let closeT;
+    menu.addEventListener('mouseenter', () => { clearTimeout(closeT); menu.classList.add('open'); });
+    menu.addEventListener('mouseleave', () => { closeT = setTimeout(() => menu.classList.remove('open'), 240); });
   }
 </script>
