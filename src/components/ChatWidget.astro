@@ -1,0 +1,104 @@
+---
+/*
+ * ChatWidget — bottom-right sales / customer-service launcher.
+ *
+ * GHL INTEGRATION: the live bot is configured in GHL. To go live, paste the GHL
+ * chat-widget embed <script> into index.astro <head> (it renders its own bubble),
+ * then this placeholder launcher can be removed — OR wire the quick-start form
+ * below to your GHL inbound webhook. Until then this is a functional lead-capture
+ * launcher that routes to the existing inquiry flow. No "GHL" text is guest-visible.
+ */
+import { tokens } from '../lib/tokens';
+const telCell = tokens.AGENT_PHONE ? `tel:+1${tokens.AGENT_PHONE.replace(/\D/g, '')}` : '';
+---
+<div id="chat-widget">
+  <!-- Panel -->
+  <div class="cw-panel" role="dialog" aria-label="Chat" aria-hidden="true">
+    <div class="cw-head">
+      <span class="cw-dot" aria-hidden="true"></span>
+      <div>
+        <p class="cw-title">VALORA Concierge</p>
+        <p class="cw-sub">Typically replies in minutes</p>
+      </div>
+      <button type="button" class="cw-close" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="cw-body">
+      <p class="cw-msg">Hi 👋 Interested in 3341 Broadview? I can pull the investment numbers, book you a private showing, or connect you with Kevin. What works best?</p>
+      <div class="cw-actions">
+        <a href="/roi" class="cw-action">See the investment numbers</a>
+        <button type="button" class="cw-action" data-action="open-inquiry">Book a private showing</button>
+        <a href={telCell} class="cw-action">Call Kevin now</a>
+      </div>
+    </div>
+    <!-- GHL widget mount point (paste embed here / replace launcher when wiring GHL) -->
+    <div id="ghl-chat-mount"></div>
+  </div>
+
+  <!-- Launcher bubble -->
+  <button type="button" class="cw-launch" aria-label="Open chat" aria-expanded="false">
+    <svg class="cw-ico-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 20l1.4-5.6A8.5 8.5 0 1 1 21 11.5z"/>
+      <circle cx="8.5" cy="12" r="0.6" fill="currentColor"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/><circle cx="15.5" cy="12" r="0.6" fill="currentColor"/>
+    </svg>
+    <svg class="cw-ico-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+</div>
+
+<style>
+  #chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 45; }
+  .cw-launch {
+    width: 60px; height: 60px; border-radius: 50%; border: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; margin-left: auto;
+    color: #0F0E0C; background: linear-gradient(140deg, #5BC2C2, #C0FF00);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 0 1.5px rgba(192,255,0,0.4);
+    transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease;
+  }
+  .cw-launch:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 16px 30px rgba(0,0,0,0.5), 0 0 22px rgba(91,194,194,0.45); }
+  .cw-ico-close { display: none; }
+  #chat-widget.open .cw-ico-chat { display: none; }
+  #chat-widget.open .cw-ico-close { display: block; }
+
+  .cw-panel {
+    position: absolute; bottom: 74px; right: 0; width: 320px; max-width: calc(100vw - 40px);
+    background: rgba(18,19,22,0.92); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: inset 0 0 0 1.5px rgba(192,255,0,0.4), 0 26px 50px rgba(0,0,0,0.6);
+    opacity: 0; visibility: hidden; transform: translateY(14px) scale(0.98);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.16,1,.3,1), visibility .3s;
+  }
+  #chat-widget.open .cw-panel { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+  .cw-head { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; border-bottom: 1px solid rgba(237,230,214,0.1); }
+  .cw-dot { width: 10px; height: 10px; border-radius: 50%; background: #C0FF00; box-shadow: 0 0 8px #C0FF00; flex-shrink: 0; }
+  .cw-title { color: var(--ink-primary); font-family: var(--font-serif); font-size: 15px; }
+  .cw-sub { color: var(--ink-faint); font-size: 11px; }
+  .cw-close { margin-left: auto; background: transparent; border: 0; color: var(--ink-muted); font-size: 22px; line-height: 1; cursor: pointer; }
+  .cw-close:hover { color: var(--ink-primary); }
+  .cw-body { padding: 16px; }
+  .cw-msg { color: var(--ink-primary); font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; }
+  .cw-actions { display: flex; flex-direction: column; gap: 8px; }
+  .cw-action {
+    display: block; text-align: left; padding: 11px 14px; border-radius: 10px;
+    background: rgba(91,194,194,0.08); border: 1px solid rgba(91,194,194,0.3);
+    color: var(--ink-primary); font-size: 12.5px; cursor: pointer; transition: all .25s ease;
+  }
+  .cw-action:hover { background: rgba(192,255,0,0.12); border-color: #C0FF00; color: #fff; }
+  @media (prefers-reduced-motion: reduce) { .cw-launch, .cw-panel { transition: none; } }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function () {
+    const w = document.getElementById('chat-widget');
+    if (!w) return;
+    const launch = w.querySelector('.cw-launch');
+    const close = w.querySelector('.cw-close');
+    const toggle = (open) => {
+      w.classList.toggle('open', open);
+      launch.setAttribute('aria-expanded', String(open));
+      w.querySelector('.cw-panel')?.setAttribute('aria-hidden', String(!open));
+    };
+    launch.addEventListener('click', () => toggle(!w.classList.contains('open')));
+    close?.addEventListener('click', () => toggle(false));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggle(false); });
+  })();
+</script>

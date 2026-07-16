@@ -1,95 +1,188 @@
 ---
 import { tokens } from '../lib/tokens';
 ---
-<nav class="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#1F2024]/90 border-b border-[var(--accent-2)]/20">
-  <div class="relative max-w-[var(--max-w)] mx-auto px-[var(--gutter)] h-20 flex items-center justify-between">
+<nav class="fixed top-0 inset-x-0 z-40 bg-gradient-to-b from-black/40 via-black/10 to-transparent">
+  <div class="relative max-w-[var(--max-w)] mx-auto px-[var(--gutter)] h-20 flex items-center justify-end">
 
-    <!-- ===== LEFT: Compass dial + VALORA brand ===== -->
-    <a href="/" class="brand-link flex items-center gap-3 md:gap-4 group">
-      <svg width="37" height="37" viewBox="0 0 60 60" aria-hidden="true" class="shrink-0">
-        <circle cx="30" cy="30" r="28" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="1.2"/>
-        <g stroke="currentColor" stroke-opacity="0.95" stroke-width="2.1" stroke-linecap="round">
-          <line x1="30" y1="0.5" x2="30" y2="3.5"/><line x1="30" y1="56.5" x2="30" y2="59.5"/>
-          <line x1="0.5" y1="30" x2="3.5" y2="30"/><line x1="56.5" y1="30" x2="59.5" y2="30"/>
+    <!-- ===== RIGHT: glass-pill menu ===== -->
+    <div class="nav-glass hidden sm:flex items-center gap-1 p-1.5 rounded-full">
+      <a href="/#property" class="nav-pill-link">The Property</a>
+      <a href="/area" class="nav-pill-link">The Area</a>
+      <a href="/roi" class="nav-pill-link">Investor ROI</a>
+      <a href="/#contact" class="nav-pill-link" data-action="open-inquiry">Contact</a>
+    </div>
+  </div>
+
+  <!-- ===== LEFT CORNER: giant compass + VALORA = the menu button ===== -->
+  <div class="brand-menu">
+    <button type="button" id="brand-trigger" class="brand-link" aria-haspopup="true" aria-expanded="false" aria-label="Open site menu">
+      <svg class="brand-compass shrink-0" width="156" height="156" viewBox="0 0 60 60" aria-hidden="true">
+        <!-- Static double ring -->
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#EDE6D6" stroke-opacity="0.4" stroke-width="0.9"/>
+        <circle cx="30" cy="30" r="21" fill="none" stroke="#EDE6D6" stroke-opacity="0.4" stroke-width="0.8"/>
+        <!-- Cardinal nubs (cream) -->
+        <g stroke="#EDE6D6" stroke-opacity="0.7" stroke-width="0.9" stroke-linecap="round">
+          <line x1="30" y1="5" x2="30" y2="2"/><line x1="55" y1="30" x2="58" y2="30"/>
+          <line x1="30" y1="55" x2="30" y2="58"/><line x1="5" y1="30" x2="2" y2="30"/>
         </g>
+        <!-- Diagonal nubs between N/E/S/W (yellow) -->
+        <g stroke="#C0FF00" stroke-opacity="0.85" stroke-width="0.8" stroke-linecap="round">
+          <line x1="48.39" y1="11.62" x2="49.80" y2="10.20"/><line x1="48.39" y1="48.39" x2="49.80" y2="49.80"/>
+          <line x1="11.62" y1="48.39" x2="10.20" y2="49.80"/><line x1="11.62" y1="11.62" x2="10.20" y2="10.20"/>
+        </g>
+        <!-- Faceted 8-point star — the part that spins -->
         <g class="dial-compass">
-          <circle cx="30" cy="30" r="22" fill="none" stroke="currentColor" stroke-opacity="0.75" stroke-width="1.1"/>
-          <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-            <line x1="30" y1="9" x2="30" y2="13"/><line x1="30" y1="47" x2="30" y2="51"/>
-            <line x1="9" y1="30" x2="13" y2="30"/><line x1="47" y1="30" x2="51" y2="30"/>
-          </g>
-          <g stroke="currentColor" stroke-width="1.5" stroke-opacity="1" stroke-linecap="round">
-            <line x1="40.6" y1="11.84" x2="42.5" y2="14.5"/><line x1="48.16" y1="19.4" x2="45.5" y2="21.3"/>
-            <line x1="48.16" y1="40.6" x2="45.5" y2="38.7"/><line x1="40.6" y1="48.16" x2="42.5" y2="45.5"/>
-            <line x1="19.4" y1="48.16" x2="17.5" y2="45.5"/><line x1="11.84" y1="40.6" x2="14.5" y2="38.7"/>
-            <line x1="11.84" y1="19.4" x2="14.5" y2="21.3"/><line x1="19.4" y1="11.84" x2="17.5" y2="14.5"/>
-          </g>
-          <path d="M27 14 L30 10 L33 14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M30,30 L29.24,28.15 L30,16 Z M30,30 L30.77,28.15 L34.6,25.4 Z M30,30 L31.85,29.24 L44,30 Z M30,30 L31.85,30.77 L34.6,34.6 Z M30,30 L30.77,31.85 L30,44 Z M30,30 L29.24,31.85 L25.4,34.6 Z M30,30 L28.15,30.77 L16,30 Z M30,30 L28.15,29.24 L25.4,25.4 Z" fill="#EDE6D6"/>
+          <path d="M30,30 L30,16 L30.77,28.15 Z M30,30 L34.6,25.4 L31.85,29.24 Z M30,30 L44,30 L31.85,30.77 Z M30,30 L34.6,34.6 L30.77,31.85 Z M30,30 L30,44 L29.24,31.85 Z M30,30 L25.4,34.6 L28.15,30.77 Z M30,30 L16,30 L28.15,29.24 Z M30,30 L25.4,25.4 L29.24,28.15 Z" fill="#5BC2C2"/>
         </g>
-        <circle cx="30" cy="30" r="3.1" fill="currentColor"/>
-        <circle cx="30" cy="30" r="1" fill="#1F2024"/>
+        <!-- Static cardinals — small, lime, just inside the inner ring -->
+        <text class="cardinal" x="30" y="11.5" text-anchor="middle" dominant-baseline="middle">N</text>
+        <text class="cardinal" x="48.5" y="30" text-anchor="middle" dominant-baseline="middle">E</text>
+        <text class="cardinal" x="30" y="48.5" text-anchor="middle" dominant-baseline="middle">S</text>
+        <text class="cardinal" x="11.5" y="30" text-anchor="middle" dominant-baseline="middle">W</text>
       </svg>
-      <span class="brand-text font-serif text-[2.15rem] md:text-[2.76rem] font-light tracking-[0.05em] leading-none">
+      <span class="brand-text font-serif text-[3.2rem] font-light leading-[0.92]">
         {tokens.LISTING_NAME}
       </span>
-    </a>
+    </button>
 
-    <!-- ===== RIGHT: nav links ===== -->
-    <div class="flex items-center gap-7 sm:gap-8 text-sm tracking-wide">
-      <a href="#property" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline uppercase tracking-[0.14em] text-[11px]">The Property</a>
-      <a href="/area" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline uppercase tracking-[0.14em] text-[11px]">The Area</a>
-      <a href="/roi" class="text-[#C0FF00] hover:text-white transition-colors hidden lg:inline uppercase tracking-[0.14em] text-[11px]">Investor ROI</a>
-      <a href="#contact" class="text-[var(--accent-2)] uppercase tracking-[0.18em] text-[11px] hover:text-[#7DD8D8] transition-colors" data-action="open-inquiry">Contact Agent</a>
+    <!-- Dropdown — opens on hover, locks open on click -->
+    <div class="brand-dropdown" role="menu">
+      <a href="/" role="menuitem">Home</a>
+      <a href="/#property" role="menuitem">The Property</a>
+      <a href="/area" role="menuitem">The Area</a>
+      <a href="/roi" role="menuitem">Investor ROI</a>
+      <a href="/#mortgage" role="menuitem">Mortgage Helper</a>
+      <a href="/#contact" role="menuitem" data-action="open-inquiry">Contact Agent</a>
     </div>
   </div>
 
   <style>
+    /* Compass tucked into the top-left corner; VALORA up in the nav bar. */
+    .brand-menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 41;
+    }
+    .brand-link {
+      position: relative;
+      display: flex;
+      align-items: center;   /* VALORA vertically centred in the bar = up top */
+      height: 80px;          /* nav bar height */
+      padding-left: 136px;   /* clears the tucked compass + E label */
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+    .brand-compass {
+      display: block;
+      position: absolute;
+      top: -25px;            /* ~16% corner cutoff, N/E/S/W still on-screen */
+      left: -25px;
+    }
+    /* Static N/E/S/W — yellow, subtle but noticeable */
+    .cardinal {
+      fill: #C0FF00;
+      font-family: var(--font-serif);
+      font-size: 4.5px;
+      font-weight: 400;
+      opacity: 0.82;
+    }
+
+    /* Blue trim, white inside — sized between the two prior sizes (~3.2rem). */
     .brand-text {
-      color: var(--ink-primary);
-      -webkit-text-fill-color: transparent;
-      -webkit-text-stroke: 0.7px var(--accent-2);
+      color: #FFFFFF;
+      -webkit-text-stroke: 1.25px #5BC2C2;
+      paint-order: stroke fill;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      transform: translate(5%, 5%); /* nudge right ~5% / down ~5% */
     }
     .brand-link svg {
-      /* Rest: ~30% darker than the teal accent (#5BC2C2 → #408888) for a bolder,
-         more grounded compass that still reads as brand teal. */
-      color: #408888;
-      transition: filter 450ms cubic-bezier(0.16, 1, 0.3, 1), color 500ms ease;
+      color: #EDE6D6;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
+      transition: filter 450ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    /* Spin the compass around its own centre (30,30 in the 60×60 viewBox).
-       Without this, CSS rotation pivots on the viewBox corner and the compass
-       swings off-canvas — the reason the scroll effect looked dead. */
-    .dial-compass {
-      transform-box: view-box;
-      transform-origin: 30px 30px;
-    }
-    /* "Activated" while scrolling — lights up to full brand teal + soft glow,
-       then settles back to the darker rest colour after scrolling stops. */
+    .dial-compass { transform-box: view-box; transform-origin: 30px 30px; }
+
+    /* While scrolling: compass stays cream/white — just glows. */
     .brand-link svg.is-spinning {
-      color: #5BC2C2;
-      filter: drop-shadow(0 0 7px rgba(91, 194, 194, 0.6));
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(91, 194, 194, 0.65));
     }
+
+    /* Dropdown — anchored just under the nav bar, left corner */
+    .brand-dropdown {
+      position: absolute;
+      top: 84px;
+      left: 14px;
+      min-width: 230px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: rgba(18, 19, 22, 0.9);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 1.5px rgba(192, 255, 0, 0.5), 0 22px 44px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity .3s ease, transform .3s cubic-bezier(.16, 1, .3, 1), visibility .3s;
+      z-index: 50;
+    }
+    .brand-menu:hover .brand-dropdown,
+    .brand-menu.open .brand-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+    .brand-dropdown a {
+      padding: 11px 16px;
+      border-radius: 9px;
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: background .25s ease, color .25s ease;
+    }
+    .brand-dropdown a:hover { background: rgba(192, 255, 0, 0.15); color: #C0FF00; }
+
+    /* Glass pill */
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.08);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      box-shadow:
+        inset 0 0 0 1.5px rgba(192, 255, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+    .nav-pill-link {
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 8px 15px;
+      border-radius: 999px;
+      white-space: nowrap;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .nav-pill-link:hover { background: rgba(192, 255, 0, 0.16); color: #C0FF00; }
   </style>
 </nav>
 
 <script>
   // @ts-nocheck
-  const compass = document.querySelector('.dial-compass') as SVGGElement | null;
-  const compassSvg = document.querySelector('.brand-link svg') as SVGElement | null;
+  const compass = document.querySelector('.dial-compass');
+  const compassSvg = document.querySelector('.brand-link svg');
   if (compass) {
-    let rot = 0;
-    let lastY = window.scrollY;
-    let rafId: number | null = null;
-    let litTimer: number | null = null;
+    let rot = 0, lastY = window.scrollY, rafId = null, litTimer = null;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reduced) {
       window.addEventListener('scroll', () => {
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(() => {
           const y = window.scrollY;
-          rot += (y - lastY) * 1.0;
+          rot += (y - lastY) * 0.5;
           lastY = y;
           compass.style.transform = `rotate(${rot}deg)`;
-          // Light the compass up while scrolling, decay back after it stops.
           if (compassSvg) {
             compassSvg.classList.add('is-spinning');
             if (litTimer) clearTimeout(litTimer);
@@ -98,5 +191,27 @@ import { tokens } from '../lib/tokens';
         });
       }, { passive: true });
     }
+  }
+
+  const trigger = document.getElementById('brand-trigger');
+  const menu = document.querySelector('.brand-menu');
+  if (trigger && menu) {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      const open = menu.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target)) {
+        menu.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        menu.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 </script>

@@ -1,0 +1,200 @@
+---
+/*
+ * MortgageHelper — interactive "will the suites carry the mortgage?" calculator.
+ *
+ * Fixed rents:   upstairs $4,500 · 2-bed $2,100 · 1-bed $1,650 / mo
+ * Fixed costs:   taxes $4,800/yr · utilities $800 · misc $150 · insurance $225 / mo
+ * Two scenarios: owner lives upstairs (2 suites rented) OR fully rented (all 3).
+ * User inputs their mortgage (price / down / rate / amortization); we show the
+ * monthly cash-flow picture and how much of the mortgage the suites cover.
+ */
+import { tokens } from '../lib/tokens';
+import Honeycomb from './Honeycomb.astro';
+const defaultPrice = tokens.ASKING_PRICE || 1200000;
+---
+<section id="mortgage" class="relative border-y border-ink-faint/30 bg-bg-surface overflow-hidden">
+  <Honeycomb unique="mort" opacity={0.03} />
+  <div class="relative z-10 max-w-[var(--max-w)] mx-auto px-[var(--gutter)] py-14 md:py-20">
+    <div class="text-center mb-10">
+      <p class="mh-eyebrow">Make the numbers work</p>
+      <h2 class="text-3xl md:text-5xl font-light">Mortgage Helper</h2>
+      <p class="text-ink-muted mt-3 font-serif italic">See how the three suites offset your mortgage.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-[1fr_1.05fr] gap-6 md:gap-8 items-start max-w-4xl mx-auto">
+      <!-- INPUTS -->
+      <div class="mh-panel">
+        <h3 class="mh-h">Your mortgage</h3>
+        <label class="mh-field">Purchase price
+          <span class="mh-inputwrap"><i>$</i><input id="mh-price" type="number" value={defaultPrice} min="0" step="10000" /></span>
+        </label>
+        <label class="mh-field">Down payment
+          <span class="mh-inputwrap"><input id="mh-down" type="number" value="20" min="0" max="100" step="1" /><i>%</i></span>
+        </label>
+        <label class="mh-field">Interest rate
+          <span class="mh-inputwrap"><input id="mh-rate" type="number" value="5.5" min="0" max="20" step="0.05" /><i>%</i></span>
+        </label>
+        <label class="mh-field">Amortization
+          <span class="mh-inputwrap"><input id="mh-amort" type="number" value="25" min="1" max="35" step="1" /><i>yr</i></span>
+        </label>
+        <div class="mh-payment">
+          <span>Estimated mortgage (P&amp;I)</span>
+          <strong id="mh-mortgage">$0<em> /mo</em></strong>
+        </div>
+
+        <div class="mh-tabs" role="tablist" aria-label="Occupancy scenario">
+          <button class="mh-tab is-active" data-scenario="live" role="tab" aria-selected="true">I live upstairs</button>
+          <button class="mh-tab" data-scenario="rented" role="tab" aria-selected="false">Fully rented</button>
+        </div>
+        <p class="mh-note" id="mh-note"></p>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="mh-panel mh-results">
+        <h3 class="mh-h">Monthly picture</h3>
+        <ul class="mh-lines">
+          <li><span>Rental income</span><b id="mh-income" class="pos">$0</b></li>
+          <li><span>Operating expenses</span><b id="mh-exp" class="neg">$0</b></li>
+          <li class="mh-sub"><span>Net operating income</span><b id="mh-noi">$0</b></li>
+          <li><span>Mortgage (P&amp;I)</span><b id="mh-mort2" class="neg">$0</b></li>
+        </ul>
+        <div class="mh-total">
+          <span>Monthly cash flow</span>
+          <strong id="mh-cash">$0</strong>
+        </div>
+        <div class="mh-cover">
+          <div class="mh-bar"><span id="mh-coverfill"></span></div>
+          <p id="mh-covertext">Suites cover 0% of your mortgage.</p>
+        </div>
+        <details class="mh-break">
+          <summary>Assumptions</summary>
+          <ul>
+            <li>Rents — upstairs $4,500 · 2-bed $2,100 · 1-bed $1,650 / mo</li>
+            <li>Costs — taxes $4,800/yr · utilities $800 · misc $150 · insurance $225 / mo</li>
+            <li>Estimates only — not financial advice. Verify with your lender.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .mh-eyebrow { color: var(--accent-2); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .mh-panel {
+    position: relative;
+    background: rgba(15, 14, 12, 0.5);
+    border: 1px solid rgba(91, 194, 194, 0.18);
+    border-radius: 16px;
+    padding: 26px 24px;
+    backdrop-filter: blur(6px);
+  }
+  .mh-h { color: var(--ink-primary); font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: 0.02em; margin-bottom: 18px; }
+  .mh-field { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 13px; color: var(--ink-muted); margin-bottom: 12px; }
+  .mh-inputwrap { display: inline-flex; align-items: center; gap: 4px; background: rgba(237,230,214,0.05); border: 1px solid rgba(237,230,214,0.14); border-radius: 8px; padding: 8px 12px; transition: border-color .25s ease; }
+  .mh-inputwrap:focus-within { border-color: var(--accent-2); }
+  .mh-inputwrap i { color: var(--ink-faint); font-style: normal; font-size: 12px; }
+  .mh-inputwrap input { width: 96px; background: transparent; border: 0; color: var(--ink-primary); font-size: 14px; text-align: right; outline: none; -moz-appearance: textfield; }
+  .mh-inputwrap input::-webkit-outer-spin-button, .mh-inputwrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .mh-payment { display: flex; align-items: baseline; justify-content: space-between; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(237,230,214,0.1); }
+  .mh-payment span { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .mh-payment strong { color: var(--accent-2); font-size: 1.5rem; font-weight: 500; }
+  .mh-payment em { font-size: 12px; color: var(--ink-faint); font-style: normal; }
+
+  .mh-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+  .mh-tab { padding: 11px 8px; border-radius: 9px; border: 1px solid rgba(237,230,214,0.16); background: transparent; color: var(--ink-muted); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; transition: all .25s ease; }
+  .mh-tab:hover { color: var(--ink-primary); border-color: rgba(91,194,194,0.5); }
+  .mh-tab.is-active { color: #0F0E0C; background: var(--accent-2); border-color: var(--accent-2); font-weight: 600; }
+  .mh-note { margin-top: 14px; font-size: 12.5px; color: var(--ink-muted); font-style: italic; line-height: 1.5; min-height: 34px; }
+
+  .mh-results { display: flex; flex-direction: column; }
+  .mh-lines { list-style: none; }
+  .mh-lines li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 14px; color: var(--ink-primary); border-bottom: 1px solid rgba(237,230,214,0.07); }
+  .mh-lines li span { color: var(--ink-muted); }
+  .mh-lines b { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .mh-lines .pos { color: #7CD98A; }
+  .mh-lines .neg { color: #E0857A; }
+  .mh-lines .mh-sub { font-weight: 600; }
+  .mh-lines .mh-sub span, .mh-lines .mh-sub b { color: var(--ink-primary); }
+  .mh-total { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 16px 18px; border-radius: 12px; background: rgba(91,194,194,0.08); border: 1px solid rgba(91,194,194,0.25); }
+  .mh-total span { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); }
+  .mh-total strong { font-size: 1.7rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .mh-total strong.pos { color: #8FE39C; }
+  .mh-total strong.neg { color: #E88F84; }
+
+  .mh-cover { margin-top: 18px; }
+  .mh-bar { height: 8px; border-radius: 99px; background: rgba(237,230,214,0.1); overflow: hidden; }
+  .mh-bar span { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--accent-2), #C0FF00); transition: width .5s cubic-bezier(0.16,1,0.3,1); }
+  .mh-cover p { margin-top: 8px; font-size: 12.5px; color: var(--ink-muted); }
+  .mh-cover p b { color: #C0FF00; }
+
+  .mh-break { margin-top: 16px; }
+  .mh-break summary { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-faint); cursor: pointer; }
+  .mh-break ul { list-style: none; margin-top: 8px; font-size: 11.5px; color: var(--ink-faint); line-height: 1.7; }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const price = $('mh-price'), down = $('mh-down'), rate = $('mh-rate'), amort = $('mh-amort');
+    if (!price) return;
+
+    const EXP = 4800 / 12 + 800 + 150 + 225; // 1575/mo
+    const RENT = { up: 4500, two: 2100, one: 1650 };
+    let scenario = 'live';
+
+    const NOTES = {
+      live: 'You live upstairs; the 1-bed and 2-bed suites are rented — $3,750/mo works against your mortgage.',
+      rented: 'All three suites rented — $8,250/mo gross income as a pure investment play.',
+    };
+
+    const fmt = (n) => (n < 0 ? '-$' : '$') + Math.round(Math.abs(n)).toLocaleString();
+
+    function mortgage() {
+      const P = Math.max(0, (+price.value || 0) * (1 - (+down.value || 0) / 100));
+      const r = (+rate.value || 0) / 100 / 12;
+      const n = Math.max(1, (+amort.value || 25) * 12);
+      return r > 0 ? (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : P / n;
+    }
+
+    function update() {
+      const M = mortgage();
+      const income = scenario === 'live' ? RENT.two + RENT.one : RENT.up + RENT.two + RENT.one;
+      const noi = income - EXP;
+      const cash = noi - M;
+      const cover = M > 0 ? Math.max(0, (noi / M) * 100) : 0;
+
+      $('mh-mortgage').innerHTML = fmt(M) + '<em> /mo</em>';
+      $('mh-income').textContent = fmt(income);
+      $('mh-exp').textContent = '-' + fmt(EXP);
+      $('mh-noi').textContent = fmt(noi);
+      $('mh-mort2').textContent = '-' + fmt(M);
+
+      const cashEl = $('mh-cash');
+      cashEl.textContent = fmt(cash);
+      cashEl.className = cash >= 0 ? 'pos' : 'neg';
+
+      $('mh-coverfill').style.width = Math.min(100, cover) + '%';
+      $('mh-covertext').innerHTML = cover >= 100
+        ? 'The suites <b>fully cover</b> your mortgage — and then some.'
+        : 'The suites cover <b>' + Math.round(cover) + '%</b> of your mortgage.';
+      $('mh-note').textContent = NOTES[scenario];
+    }
+
+    [price, down, rate, amort].forEach((el) => el.addEventListener('input', update));
+    document.querySelectorAll('.mh-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        scenario = tab.getAttribute('data-scenario');
+        document.querySelectorAll('.mh-tab').forEach((t) => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', String(on));
+        });
+        update();
+      });
+    });
+
+    update();
+  })();
+</script>

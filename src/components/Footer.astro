@@ -9,6 +9,10 @@ const privacy = await getEntry('static', 'privacy');
 const HouseRulesContent = houseRules ? (await render(houseRules)).Content : null;
 const CancelContent = cancel ? (await render(cancel)).Content : null;
 const PrivacyContent = privacy ? (await render(privacy)).Content : null;
+
+// Click-to-call links — strip formatting, assume +1 (North America).
+const telCell = tokens.AGENT_PHONE ? `tel:+1${tokens.AGENT_PHONE.replace(/\D/g, '')}` : '';
+const telOffice = tokens.AGENT_OFFICE_PHONE ? `tel:+1${tokens.AGENT_OFFICE_PHONE.replace(/\D/g, '')}` : '';
 ---
 <footer class="relative bg-bg-surface border-t border-[var(--accent-2)]/15 mt-4 overflow-hidden">
   <Honeycomb unique="footer" opacity={0.028} />
@@ -92,10 +96,20 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
       <div class="text-ink-muted">
         <p class="text-[var(--accent-2)] text-[10px] tracking-[0.3em] uppercase mb-2 opacity-75">Listing Agent</p>
         <p class="text-ink-primary font-medium">{tokens.AGENT_NAME} · {tokens.AGENT_BROKERAGE}</p>
-        <p>
+        <p class="mt-1.5">
+          <a href={telCell} class="text-[var(--accent-2)] text-base font-medium hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_PHONE}</a>
+          <span class="text-ink-faint text-xs"> · tap to call</span>
+        </p>
+        {tokens.AGENT_OFFICE_PHONE && (
+          <p class="text-xs mt-0.5">Office <a href={telOffice} class="text-ink-primary hover:text-[var(--accent-2)] transition-colors">{tokens.AGENT_OFFICE_PHONE}</a></p>
+        )}
+        <p class="mt-1">
           <a href={`mailto:${tokens.AGENT_EMAIL}`} class="text-ink-primary hover:text-[var(--accent-2)] transition-colors">{tokens.AGENT_EMAIL}</a>
         </p>
-        <p class="mt-1 text-xs">Replies {tokens.AGENT_RESPONSE_TIME}</p>
+        <button type="button" class="stay-informed" data-action="open-inquiry">
+          Stay Informed
+          <span class="si-expand">Stay Informed with weekly / monthly real estate reports — so you're in the know. Things aren't what they used to be, and being informed can make all the difference…</span>
+        </button>
       </div>
       <div class="text-ink-muted md:text-right">
         <p class="text-xs leading-relaxed mb-3">
@@ -142,6 +156,54 @@ const PrivacyContent = privacy ? (await render(privacy)).Content : null;
      Cream outline at rest → teal outline on hover / open. Open state also
      gets a faint teal wash inside. */
   .ftr-card { position: relative; }
+
+  /* "Stay Informed" — lime pill by the agent info; hover reveals the pitch. */
+  .stay-informed {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 16px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: #C0FF00;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 0 1.5px rgba(192, 255, 0, 0.6);
+    transition: background .3s ease, box-shadow .3s ease;
+  }
+  .stay-informed:hover {
+    background: rgba(192, 255, 0, 0.12);
+    box-shadow: inset 0 0 0 1.5px #C0FF00, 0 0 16px rgba(192, 255, 0, 0.28);
+  }
+  .si-expand {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    width: 300px;
+    max-width: 80vw;
+    padding: 12px 15px;
+    border-radius: 12px;
+    background: rgba(18, 19, 22, 0.96);
+    box-shadow: inset 0 0 0 1px rgba(192, 255, 0, 0.4), 0 18px 34px rgba(0, 0, 0, 0.5);
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.16,1,.3,1), visibility .3s;
+    z-index: 20;
+  }
+  .stay-informed:hover .si-expand,
+  .stay-informed:focus-visible .si-expand { opacity: 1; visibility: visible; transform: translateY(0); }
+
   .ftr-summary {
     position: relative;
     cursor: pointer;

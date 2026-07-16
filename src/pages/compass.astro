@@ -1,0 +1,105 @@
+---
+/*
+ * Compass options v2 — full compass-rose treatments: double ring + tick nubs +
+ * faceted spinning star + static N/E/S/W. 8 options, each shown spinning + static.
+ * MOCKUP ONLY — the live nav compass is NOT touched until a pick is approved.
+ */
+import '../styles/global.css';
+
+const RAD = Math.PI / 180;
+const pt = (r: number, d: number): [number, number] => [30 + r * Math.cos(d * RAD), 30 + r * Math.sin(d * RAD)];
+const f = (n: number) => n.toFixed(2);
+
+function ticks(count: number, rIn: number, rOut: number, opts: any = {}) {
+  const { start = -90, sw = 0.8, color = '#EDE6D6', op = 0.7 } = opts;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x1, y1] = pt(rIn, a), [x2, y2] = pt(rOut, a);
+    s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function dots(count: number, r: number, opts: any = {}) {
+  const { rad = 0.55, start = -90, color = '#EDE6D6', op = 0.7 } = opts;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x, y] = pt(r, a);
+    s += `<circle cx="${f(x)}" cy="${f(y)}" r="${rad}" fill="${color}" fill-opacity="${op}"/>`;
+  }
+  return s;
+}
+const RING = (r: number, opts: any = {}) => {
+  const { sw = 0.9, color = '#EDE6D6', op = 0.4 } = opts;
+  return `<circle cx="30" cy="30" r="${r}" fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}"/>`;
+};
+
+const FLIGHT = 'M30,30 L29.07,27.75 L30,13 Z M30,30 L30.93,27.75 L35.58,24.42 Z M30,30 L32.25,29.07 L47,30 Z M30,30 L32.25,30.93 L35.58,35.58 Z M30,30 L30.93,32.25 L30,47 Z M30,30 L29.07,32.25 L24.42,35.58 Z M30,30 L27.75,30.93 L13,30 Z M30,30 L27.75,29.07 L24.42,24.42 Z';
+const FDARK  = 'M30,30 L30,13 L30.93,27.75 Z M30,30 L35.58,24.42 L32.25,29.07 Z M30,30 L47,30 L32.25,30.93 Z M30,30 L35.58,35.58 L30.93,32.25 Z M30,30 L30,47 L29.07,32.25 Z M30,30 L24.42,35.58 L27.75,30.93 Z M30,30 L13,30 L27.75,29.07 Z M30,30 L24.42,24.42 L29.07,27.75 Z';
+const OUTLINE = 'M30,13 L30.93,27.75 L35.58,24.42 L32.25,29.07 L47,30 L32.25,30.93 L35.58,35.58 L30.93,32.25 L30,47 L29.07,32.25 L24.42,35.58 L27.75,30.93 L13,30 L27.75,29.07 L24.42,24.42 L29.07,27.75 Z';
+
+const STAR_FACET = `<path d="${FLIGHT}" fill="#EDE6D6"/><path d="${FDARK}" fill="#5BC2C2"/>`;
+const STAR_OUTLINE = `<path d="${OUTLINE}" fill="none" stroke="#EDE6D6" stroke-width="0.9" stroke-linejoin="round"/>`;
+const LETTERS = `<text class="cl" x="30" y="6.4" text-anchor="middle" dominant-baseline="middle">N</text><text class="cl" x="53.6" y="30" text-anchor="middle" dominant-baseline="middle">E</text><text class="cl" x="30" y="53.6" text-anchor="middle" dominant-baseline="middle">S</text><text class="cl" x="6.4" y="30" text-anchor="middle" dominant-baseline="middle">W</text>`;
+
+const teal = '#5BC2C2';
+const options = [
+  { n: 1, name: 'Classic rose',   star: STAR_FACET, deco: RING(28) + RING(21) + ticks(4, 25, 28, { sw: 0.9 }) + ticks(4, 26, 28, { start: -45, sw: 0.6 }) },
+  { n: 2, name: 'Dotted bezel',   star: STAR_FACET, deco: RING(28) + RING(21) + dots(16, 25.5, { rad: 0.55 }) },
+  { n: 3, name: 'Ticked bezel',   star: STAR_FACET, deco: RING(28) + RING(21) + ticks(12, 25, 28, { sw: 0.7 }) },
+  { n: 4, name: 'Teal inner ring', star: STAR_FACET, deco: RING(28) + RING(21, { color: teal, op: 0.6 }) + ticks(8, 25, 28, { sw: 0.7 }) },
+  { n: 5, name: 'Minimal nubs',   star: STAR_FACET, deco: RING(28) + RING(21) + ticks(4, 24.5, 28, { sw: 1.1 }) },
+  { n: 6, name: 'Dense dots',     star: STAR_FACET, deco: RING(28) + RING(20.5) + dots(24, 25.8, { rad: 0.42 }) },
+  { n: 7, name: 'Outline star',   star: STAR_OUTLINE, deco: RING(28) + RING(21) + ticks(8, 25, 28, { sw: 0.7 }) },
+  { n: 8, name: 'Bold rose',      star: STAR_FACET, deco: RING(28, { sw: 1.2 }) + RING(20, { sw: 1.0 }) + ticks(4, 24, 28, { sw: 1.2 }) + ticks(4, 25, 28, { start: -45, sw: 0.7 }) + dots(8, 22.3, { rad: 0.4, start: -67.5, color: teal, op: 0.8 }) },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Compass options v2 — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="text-[#C0FF00] text-xs tracking-[0.4em] uppercase mb-3">VALORA · Compass options v2</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Make it a compass.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Now with a <span class="text-white">double ring</span>, the little <span class="text-white">tick nubs</span>, the faceted star, and static yellow <b>N/E/S/W</b>. Each shown <span class="text-white">spinning</span> + <span class="text-white">static</span> — the star turns inside a fixed bezel. <b class="text-[#C0FF00]">Nothing on the live site has changed</b> — pick a number and I'll wire it in.</p>
+
+      <div class="cmp-grid">
+        {options.map((o) => (
+          <div class="cmp-cell">
+            <div class="cmp-pair">
+              <div class="cmp-face"><svg class="cmp-svg" viewBox="0 0 60 60" aria-hidden="true" set:html={`${o.deco}<g class="spin">${o.star}</g>${LETTERS}`}></svg></div>
+              <div class="cmp-face"><svg class="cmp-svg" viewBox="0 0 60 60" aria-hidden="true" set:html={`${o.deco}<g>${o.star}</g>${LETTERS}`}></svg></div>
+            </div>
+            <p class="cmp-name"><b>{o.n}.</b> {o.name} <span class="cmp-hint">spinning · static</span></p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      .cmp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 34px 24px; }
+      .cmp-cell { padding: 22px; border-radius: 16px; background: rgba(255,255,255,0.02); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+      .cmp-pair { display: flex; justify-content: center; gap: 20px; }
+      .cmp-face { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; }
+      .cmp-svg { width: 128px; height: 128px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); overflow: visible; }
+      .cmp-svg .spin { transform-box: fill-box; transform-origin: center; animation: cspin 11s linear infinite; }
+      @keyframes cspin { to { transform: rotate(360deg); } }
+      .cl { fill: #C0FF00; font-family: var(--font-serif); font-size: 6px; opacity: 0.82; }
+
+      .cmp-name { margin-top: 14px; text-align: center; color: var(--ink-primary); font-size: 14px; }
+      .cmp-name b { color: #C0FF00; }
+      .cmp-hint { display: block; color: var(--ink-faint); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+
+      @media (prefers-reduced-motion: reduce) { .cmp-svg .spin { animation: none; } }
+    </style>
+  </body>
+</html>
