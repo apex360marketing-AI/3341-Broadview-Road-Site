@@ -3,7 +3,6 @@ import { tokens } from '../lib/tokens';
 import OctCTA from './ui/OctCTA.astro';
 
 const monogram = (tokens.AGENT_FIRST_NAME?.[0] || tokens.AGENT_NAME?.[0] || '·').toUpperCase();
-const hasPhoto = !!tokens.AGENT_PHOTO_URL;
 
 const telHref = (v: string) => (v ? `tel:${v.replace(/[^\d+]/g, '')}` : '');
 const cellHref = telHref(tokens.AGENT_PHONE);
@@ -11,72 +10,96 @@ const officeHref = telHref(tokens.AGENT_OFFICE_PHONE);
 const websiteHref = tokens.AGENT_WEBSITE
   ? (/^https?:\/\//i.test(tokens.AGENT_WEBSITE) ? tokens.AGENT_WEBSITE : `https://${tokens.AGENT_WEBSITE}`)
   : '';
-
-const octClip = `polygon(
-  18% 0, 82% 0,
-  100% 18%, 100% 82%,
-  82% 100%, 18% 100%,
-  0 82%, 0 18%
-)`;
 ---
-<section id="contact" class="py-10 md:py-14">
-  <div class="max-w-3xl mx-auto px-[var(--gutter)]">
-    <div class="flex flex-col sm:flex-row gap-8 items-start">
-      <div class="shrink-0 relative w-28 h-28">
-        <span
-          class="absolute inset-0 bg-bg-base"
-          style={`clip-path: ${octClip}; box-shadow: inset 0 0 0 1.4px rgba(91, 194, 194, 0.55);`}
-          aria-hidden="true"
-        ></span>
-        {hasPhoto ? (
+<section id="contact" class="py-14 md:py-20">
+  <div class="max-w-lg mx-auto px-[var(--gutter)] flex flex-col items-center text-center">
+    <p class="text-[var(--accent-2)] text-xs tracking-[0.28em] uppercase mb-7">Listing Agent</p>
+
+    <!-- Photo — Kevin inside a silver-framed elongated hexagon -->
+    <div class="agent-hex mb-8">
+      <div class="agent-hex-photo">
+        <span class="agent-mono" aria-hidden="true">{monogram}</span>
+        {tokens.AGENT_PHOTO_URL && (
           <img
             src={tokens.AGENT_PHOTO_URL}
             alt={`Listing agent: ${tokens.AGENT_NAME}`}
-            class="absolute inset-0 w-full h-full object-cover"
-            style={`clip-path: ${octClip};`}
+            onerror="this.style.display='none';"
           />
-        ) : (
-          <span class="absolute inset-0 flex items-center justify-center text-[var(--accent)] text-5xl font-serif font-light" aria-label={`Listing agent: ${tokens.AGENT_NAME}`}>
-            {monogram}
-          </span>
         )}
       </div>
-      <div class="flex-1">
-        <p class="text-[var(--accent-2)] text-xs tracking-[0.24em] uppercase mb-2">Listing Agent</p>
-        <h2 class="text-3xl md:text-4xl mb-1">{tokens.AGENT_NAME}</h2>
-        <p class="text-accent text-sm mb-4">{tokens.AGENT_BADGE}</p>
-        <p class="text-ink-primary text-lg font-serif italic leading-relaxed mb-5">{tokens.AGENT_BLURB}</p>
-
-        <!-- Agent contact details -->
-        <ul class="text-sm space-y-1.5 mb-6">
-          {tokens.AGENT_PHONE && (
-            <li class="text-ink-muted">
-              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Cell</span>
-              <a href={cellHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_PHONE}</a>
-            </li>
-          )}
-          {tokens.AGENT_OFFICE_PHONE && (
-            <li class="text-ink-muted">
-              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Office</span>
-              <a href={officeHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_OFFICE_PHONE}</a>
-            </li>
-          )}
-          {tokens.AGENT_EMAIL && (
-            <li class="text-ink-muted">
-              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Email</span>
-              <a href={`mailto:${tokens.AGENT_EMAIL}`} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors break-all">{tokens.AGENT_EMAIL}</a>
-            </li>
-          )}
-          {tokens.AGENT_WEBSITE && (
-            <li class="text-ink-muted">
-              <span class="inline-block w-14 text-ink-faint uppercase tracking-[0.14em] text-[11px]">Web</span>
-              <a href={websiteHref} target="_blank" rel="noopener" class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_WEBSITE}</a>
-            </li>
-          )}
-        </ul>
-
-        <OctCTA variant="ghost" data-action="open-inquiry">Schedule a Showing</OctCTA>
-      </div>
     </div>
+
+    <h2 class="text-3xl md:text-4xl font-light mb-1">{tokens.AGENT_NAME}</h2>
+    <p class="text-accent text-sm tracking-[0.14em] mb-8">{tokens.AGENT_BADGE}</p>
+
+    <ul class="text-sm space-y-2.5 mb-9">
+      {tokens.AGENT_PHONE && (
+        <li class="flex items-center justify-center gap-3">
+          <span class="w-14 text-right text-ink-faint uppercase tracking-[0.14em] text-[11px]">Cell</span>
+          <a href={cellHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_PHONE}</a>
+        </li>
+      )}
+      {tokens.AGENT_OFFICE_PHONE && (
+        <li class="flex items-center justify-center gap-3">
+          <span class="w-14 text-right text-ink-faint uppercase tracking-[0.14em] text-[11px]">Office</span>
+          <a href={officeHref} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_OFFICE_PHONE}</a>
+        </li>
+      )}
+      {tokens.AGENT_EMAIL && (
+        <li class="flex items-center justify-center gap-3">
+          <span class="w-14 text-right text-ink-faint uppercase tracking-[0.14em] text-[11px]">Email</span>
+          <a href={`mailto:${tokens.AGENT_EMAIL}`} class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors break-all">{tokens.AGENT_EMAIL}</a>
+        </li>
+      )}
+      {tokens.AGENT_WEBSITE && (
+        <li class="flex items-center justify-center gap-3">
+          <span class="w-14 text-right text-ink-faint uppercase tracking-[0.14em] text-[11px]">Web</span>
+          <a href={websiteHref} target="_blank" rel="noopener" class="text-[var(--accent-2)] hover:text-[#7DD8D8] transition-colors">{tokens.AGENT_WEBSITE}</a>
+        </li>
+      )}
+    </ul>
+
+    <OctCTA variant="ghost" data-action="open-inquiry">Schedule a Showing</OctCTA>
   </div>
 </section>
+
+<style>
+  /* Kevin in a silver-framed elongated hexagon (same hex shape as the site bg) */
+  .agent-hex {
+    position: relative;
+    width: 218px;
+    height: 244px;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    /* brushed chrome / silver */
+    background: linear-gradient(140deg, #7d8186 0%, #edeff2 20%, #a5a9af 42%, #f8fafc 60%, #797d82 80%, #cacdd2 100%);
+    filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.6));
+  }
+  .agent-hex-photo {
+    position: absolute;
+    inset: 5px;                 /* silver frame thickness */
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    /* same background as the site (hex pattern on base) so Kevin sits on it seamlessly */
+    background-color: var(--bg-base);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='48' viewBox='0 0 56 48'%3E%3Cg fill='none' stroke='%2396b2ad' stroke-opacity='0.12'%3E%3Cpath d='M14 0 L42 0 L56 24 L42 48 L14 48 L0 24 Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 56px 48px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .agent-hex-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 50%;   /* framed on Kevin (face + torso) */
+  }
+  .agent-mono {
+    color: var(--accent);
+    font-family: var(--font-serif);
+    font-size: 4.5rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+</style>
