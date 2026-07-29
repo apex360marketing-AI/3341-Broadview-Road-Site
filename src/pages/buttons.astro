@@ -1,0 +1,199 @@
+---
+/*
+ * Button mockups — 15 "Contact Kevin" CTA treatments in the VALORA palette.
+ * Same idea as /backgrounds: pick a number and I'll wire it into the Nav
+ * (top-right) and reuse it for the throughout-the-site CTAs. Hover each to
+ * see its motion. Palette: teal #5BC2C2 accent, lime #C0FF00 neon, ink #EDE6D6,
+ * base #0F0E0C.
+ */
+import '../styles/global.css';
+const btns = [
+  { n: 1,  c: 'b1',  name: 'Corner brackets (current)' },
+  { n: 2,  c: 'b2',  name: 'Solid teal fill' },
+  { n: 3,  c: 'b3',  name: 'Ghost → fill wipe' },
+  { n: 4,  c: 'b4',  name: 'Underline sweep' },
+  { n: 5,  c: 'b5',  name: 'Neon glow pulse' },
+  { n: 6,  c: 'b6',  name: 'Sheen sweep' },
+  { n: 7,  c: 'b7',  name: 'Border draw' },
+  { n: 8,  c: 'b8',  name: 'Conic gradient border' },
+  { n: 9,  c: 'b9',  name: 'Arrow slide' },
+  { n: 10, c: 'b10', name: 'Layer slide-up' },
+  { n: 11, c: 'b11', name: 'Glass pill' },
+  { n: 12, c: 'b12', name: 'Dot → pill expand' },
+  { n: 13, c: 'b13', name: 'Letter-spacing open' },
+  { n: 14, c: 'b14', name: 'Dot corners + fill' },
+  { n: 15, c: 'b15', name: 'Pulsing ring pill' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Button mockups — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="eyebrow">VALORA · CTA buttons</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Fifteen “Contact Kevin” buttons.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Hover each to see its motion. These are the CTA that lives top-right in the nav and repeats through the site. Pick a number and I’ll wire it in everywhere.</p>
+      <div class="bgrid">
+        {btns.map((b) => (
+          <div class="bcard">
+            <div class="bstage">
+              <button type="button" class={`ck ${b.c}`}><span class="lbl">Contact Kevin</span></button>
+            </div>
+            <p class="bname"><b>{b.n}.</b> {b.name}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      :root {
+        --teal: #5BC2C2; --teal-hi: #7DD8D8; --teal-dp: #3FA6A6;
+        --lime: #C0FF00; --base: #0F0E0C; --ink: #EDE6D6; --faint: #5C544A;
+      }
+      .eyebrow { color: var(--lime); font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 12px; }
+      .bgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 26px 20px; }
+      .bcard { }
+      .bstage {
+        height: 132px; border-radius: 14px; background: #131417;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .bname { margin-top: 11px; color: var(--ink); font-size: 13.5px; }
+      .bname b { color: var(--lime); }
+
+      /* shared button reset */
+      .ck {
+        position: relative; cursor: pointer; border: 0; background: transparent;
+        color: var(--ink); font-family: var(--font-sans, 'Inter', sans-serif);
+        font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+        padding: 0 26px; height: 42px; min-width: 180px; border-radius: 8px;
+        display: inline-flex; align-items: center; justify-content: center;
+        white-space: nowrap; transition: all .4s cubic-bezier(.16,1,.3,1);
+      }
+      .ck .lbl { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 8px; }
+
+      /* 1 — corner brackets (current nav) */
+      .b1 { color: var(--lime); transition: box-shadow .45s ease; }
+      .b1::before, .b1::after { content: ''; position: absolute; width: 14px; height: 14px; border: 1.6px solid var(--lime); pointer-events: none; transition: width .5s cubic-bezier(.16,1,.3,1), height .5s cubic-bezier(.16,1,.3,1), box-shadow .4s ease; }
+      .b1::before { top: 3px; left: 3px; border-right: 0; border-bottom: 0; border-top-left-radius: 6px; }
+      .b1::after { bottom: 3px; right: 3px; border-left: 0; border-top: 0; border-bottom-right-radius: 6px; }
+      .b1 .lbl { clip-path: inset(0 100% 0 0); transition: clip-path .6s cubic-bezier(.16,1,.3,1) .12s; }
+      .b1:hover::before, .b1:hover::after { width: calc(100% - 6px); height: calc(100% - 6px); box-shadow: 0 0 9px rgba(192,255,0,.55); }
+      .b1:hover { box-shadow: 0 0 20px rgba(192,255,0,.3); }
+      .b1:hover .lbl { clip-path: inset(0 0 0 0); }
+
+      /* 2 — solid teal fill */
+      .b2 { background: var(--teal); color: var(--base); font-weight: 500; }
+      .b2:hover { background: var(--teal-hi); box-shadow: 0 6px 22px rgba(91,194,194,.35); transform: translateY(-1px); }
+      .b2:active { background: var(--teal-dp); transform: translateY(0); }
+
+      /* 3 — ghost → fill wipe */
+      .b3 { border: 1px solid var(--teal); color: var(--teal); overflow: hidden; }
+      .b3::before { content: ''; position: absolute; inset: 0; background: var(--teal); transform: translateY(101%); transition: transform .45s cubic-bezier(.16,1,.3,1); z-index: 1; }
+      .b3:hover { color: var(--base); }
+      .b3:hover::before { transform: translateY(0); }
+
+      /* 4 — underline sweep */
+      .b4 { color: var(--ink); }
+      .b4::after { content: ''; position: absolute; left: 22px; right: 22px; bottom: 9px; height: 1.5px; background: var(--teal); transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(.16,1,.3,1); }
+      .b4:hover { color: var(--teal); }
+      .b4:hover::after { transform: scaleX(1); }
+
+      /* 5 — neon glow pulse */
+      .b5 { border: 1.4px solid var(--lime); color: var(--lime); }
+      .b5:hover { box-shadow: 0 0 8px rgba(192,255,0,.5), 0 0 22px rgba(192,255,0,.3), inset 0 0 12px rgba(192,255,0,.12); animation: pulse5 1.4s ease-in-out infinite; }
+      @keyframes pulse5 { 0%,100% { box-shadow: 0 0 8px rgba(192,255,0,.45), 0 0 20px rgba(192,255,0,.25); } 50% { box-shadow: 0 0 14px rgba(192,255,0,.7), 0 0 34px rgba(192,255,0,.4); } }
+
+      /* 6 — sheen sweep */
+      .b6 { background: var(--teal); color: var(--base); font-weight: 500; overflow: hidden; }
+      .b6::before { content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent); transform: skewX(-18deg); transition: left .6s ease; z-index: 1; }
+      .b6:hover::before { left: 120%; }
+
+      /* 7 — border draw */
+      .b7 { color: var(--ink); border-radius: 8px; }
+      .b7 svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+      .b7 rect { fill: none; stroke: var(--teal); stroke-width: 2; rx: 8; stroke-dasharray: 460; stroke-dashoffset: 460; transition: stroke-dashoffset .7s cubic-bezier(.16,1,.3,1); }
+      .b7:hover { color: var(--teal); }
+      .b7:hover rect { stroke-dashoffset: 0; }
+
+      /* 8 — conic gradient border */
+      .b8 { color: var(--ink); background: #131417; z-index: 0; }
+      .b8::before { content: ''; position: absolute; inset: 0; border-radius: 8px; padding: 1.6px; background: conic-gradient(from var(--a), var(--teal), var(--lime), var(--teal-dp), var(--teal)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; z-index: -1; }
+      .b8:hover { animation: spin8 2.4s linear infinite; color: var(--teal); }
+      @property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+      @keyframes spin8 { to { --a: 360deg; } }
+
+      /* 9 — arrow slide */
+      .b9 { background: var(--teal); color: var(--base); font-weight: 500; }
+      .b9 .lbl::after { content: '→'; opacity: 0; margin-left: -14px; transition: opacity .3s ease, margin-left .3s cubic-bezier(.16,1,.3,1); }
+      .b9:hover { padding-right: 34px; box-shadow: 0 6px 18px rgba(91,194,194,.3); }
+      .b9:hover .lbl::after { opacity: 1; margin-left: 2px; }
+
+      /* 10 — layer slide-up (two-tone) */
+      .b10 { color: var(--ink); border: 1px solid var(--faint); overflow: hidden; }
+      .b10::before { content: ''; position: absolute; inset: 0; background: linear-gradient(var(--teal-dp), var(--teal)); transform: translateY(100%); transition: transform .4s cubic-bezier(.16,1,.3,1); z-index: 1; }
+      .b10:hover { border-color: var(--teal); color: var(--base); }
+      .b10:hover::before { transform: translateY(0); }
+
+      /* 11 — glass pill */
+      .b11 { border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: var(--ink); backdrop-filter: blur(6px); }
+      .b11:hover { background: rgba(91,194,194,.16); border-color: var(--teal); color: var(--teal-hi); box-shadow: 0 4px 20px rgba(91,194,194,.2); }
+
+      /* 12 — dot → pill expand */
+      .b12 { border-radius: 999px; min-width: 42px; width: 42px; padding: 0; background: var(--teal); color: var(--base); font-weight: 500; overflow: hidden; transition: width .5s cubic-bezier(.16,1,.3,1); }
+      .b12 .lbl { opacity: 0; transition: opacity .3s ease .12s; }
+      .b12::before { content: '＋'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: opacity .2s ease; }
+      .b12:hover { width: 190px; }
+      .b12:hover .lbl { opacity: 1; }
+      .b12:hover::before { opacity: 0; }
+
+      /* 13 — letter-spacing open */
+      .b13 { border: 1px solid var(--faint); color: var(--ink); letter-spacing: 0.16em; }
+      .b13:hover { border-color: var(--teal); color: var(--teal); letter-spacing: 0.34em; padding-left: 30px; padding-right: 30px; }
+
+      /* 14 — dot corners + fill */
+      .b14 { color: var(--teal); overflow: hidden; }
+      .b14 i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); transition: transform .45s cubic-bezier(.16,1,.3,1); z-index: 2; }
+      .b14 i:nth-child(1) { top: 6px; left: 6px; }
+      .b14 i:nth-child(2) { top: 6px; right: 6px; }
+      .b14 i:nth-child(3) { bottom: 6px; left: 6px; }
+      .b14 i:nth-child(4) { bottom: 6px; right: 6px; }
+      .b14::before { content: ''; position: absolute; inset: 4px; border-radius: 6px; background: rgba(91,194,194,.12); box-shadow: inset 0 0 0 1px rgba(91,194,194,.4); opacity: 0; transition: opacity .4s ease; z-index: 1; }
+      .b14:hover::before { opacity: 1; }
+      .b14:hover i:nth-child(1) { transform: translate(2px,2px); }
+      .b14:hover i:nth-child(2) { transform: translate(-2px,2px); }
+      .b14:hover i:nth-child(3) { transform: translate(2px,-2px); }
+      .b14:hover i:nth-child(4) { transform: translate(-2px,-2px); }
+
+      /* 15 — pulsing ring pill */
+      .b15 { border-radius: 999px; background: var(--teal); color: var(--base); font-weight: 500; }
+      .b15::before { content: ''; position: absolute; inset: 0; border-radius: 999px; border: 1.5px solid var(--teal); opacity: 0; }
+      .b15:hover::before { animation: ring15 1.3s ease-out infinite; }
+      @keyframes ring15 { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.35); opacity: 0; } }
+      .b15:hover { box-shadow: 0 4px 16px rgba(91,194,194,.35); }
+    </style>
+
+    <script>
+      // Inject the SVG rect for button 7 (border draw) after render.
+      document.querySelectorAll('.b7').forEach((el) => {
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('x', '1'); rect.setAttribute('y', '1');
+        rect.setAttribute('width', '99%'); rect.setAttribute('height', '99%');
+        rect.setAttribute('rx', '8');
+        svg.appendChild(rect); el.appendChild(svg);
+      });
+      // Inject corner dots for button 14.
+      document.querySelectorAll('.b14').forEach((el) => {
+        for (let k = 0; k < 4; k++) el.appendChild(document.createElement('i'));
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+---
+/*
+ * Octagon background options — 15 tessellating horizontally-elongated octagon
+ * patterns (4.8.8 truncated-square tiling, stretched on X). Three treatments:
+ * silver, the site yellow (#C0FF00), and a blue (#6B9FD4), at watermark /
+ * semi-opaque levels. Pick a number and I'll apply it site-wide at whisper
+ * subtlety (like /backgrounds). Shown boosted here so each reads.
+ */
+import '../styles/global.css';
+
+const silver = '#C9CDD4', yellow = '#C0FF00', blue = '#6B9FD4';
+
+function tile(o: any): string {
+  const oct = 'M14 0 L34 0 L48 14 L48 34 L34 48 L14 48 L0 34 L0 14 Z';
+  const fill = o.fillC ? `<path d='${oct}' fill='${o.fillC}' fill-opacity='${o.fillOp}'/>` : '';
+  const stroke = o.strokeC ? `<path d='${oct}' fill='none' stroke='${o.strokeC}' stroke-opacity='${o.strokeOp}' stroke-width='${o.sw}'/>` : '';
+  const inner = o.inner ? `<path d='M18 4 L30 4 L44 18 L44 30 L30 44 L18 44 L4 30 L4 18 Z' fill='none' stroke='${o.innerC}' stroke-opacity='${o.innerOp}' stroke-width='${o.innerSw ?? 0.7}'/>` : '';
+  let nodes = '';
+  if (o.node) {
+    const r = o.nodeR ?? 6;
+    const dia = (cx: number, cy: number) => `M${cx} ${cy - r} L${cx + r} ${cy} L${cx} ${cy + r} L${cx - r} ${cy} Z`;
+    nodes = [[0, 0], [48, 0], [0, 48], [48, 48]]
+      .map(([x, y]) => `<path d='${dia(x, y)}' fill='${o.nodeC}' fill-opacity='${o.nodeOp}'/>`)
+      .join('');
+  }
+  const dot = o.dot ? `<circle cx='24' cy='24' r='1.7' fill='${o.dot}' fill-opacity='${o.dotOp ?? 0.6}'/>` : '';
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'>${fill}${stroke}${inner}${nodes}${dot}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+const pats = [
+  { n: 1,  name: 'Silver hairline',        o: { strokeC: silver, strokeOp: 0.22, sw: 1.0 } },
+  { n: 2,  name: 'Silver + square nodes',  o: { strokeC: silver, strokeOp: 0.28, sw: 1.2, node: true, nodeC: silver, nodeOp: 0.5, nodeR: 5 } },
+  { n: 3,  name: 'Yellow watermark',       o: { strokeC: yellow, strokeOp: 0.16, sw: 1.0 } },
+  { n: 4,  name: 'Yellow + square nodes',  o: { strokeC: yellow, strokeOp: 0.22, sw: 1.0, node: true, nodeC: yellow, nodeOp: 0.4, nodeR: 6 } },
+  { n: 5,  name: 'Blue watermark',         o: { strokeC: blue, strokeOp: 0.26, sw: 1.0 } },
+  { n: 6,  name: 'Blue double-line',       o: { strokeC: blue, strokeOp: 0.28, sw: 1.0, inner: true, innerC: blue, innerOp: 0.16, innerSw: 0.7 } },
+  { n: 7,  name: 'Silver filled',          o: { fillC: silver, fillOp: 0.10 } },
+  { n: 8,  name: 'Blue filled',            o: { fillC: blue, fillOp: 0.12 } },
+  { n: 9,  name: 'Yellow edge · blue nodes', o: { strokeC: yellow, strokeOp: 0.16, sw: 0.9, node: true, nodeC: blue, nodeOp: 0.55, nodeR: 5 } },
+  { n: 10, name: 'Silver · yellow nodes',  o: { strokeC: silver, strokeOp: 0.20, sw: 1.0, node: true, nodeC: yellow, nodeOp: 0.5, nodeR: 4 } },
+  { n: 11, name: 'Blue bold double',       o: { strokeC: blue, strokeOp: 0.24, sw: 1.4, inner: true, innerC: blue, innerOp: 0.14, innerSw: 0.8 } },
+  { n: 12, name: 'Silver fill · blue edge', o: { fillC: silver, fillOp: 0.07, strokeC: blue, strokeOp: 0.24, sw: 0.9 } },
+  { n: 13, name: 'Yellow whisper · silver nodes', o: { strokeC: yellow, strokeOp: 0.10, sw: 0.8, node: true, nodeC: silver, nodeOp: 0.35, nodeR: 5 } },
+  { n: 14, name: 'Blue fill · silver edge', o: { fillC: blue, fillOp: 0.10, strokeC: silver, strokeOp: 0.18, sw: 0.8 } },
+  { n: 15, name: 'Tri-colour (silver·blue·yellow)', o: { strokeC: silver, strokeOp: 0.22, sw: 0.9, node: true, nodeC: blue, nodeOp: 0.5, nodeR: 6, dot: yellow, dotOp: 0.7 } },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Octagon backgrounds — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="eyebrow">VALORA · Octagon backgrounds</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Fifteen elongated-octagon fields.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Horizontally-stretched octagons in <b>silver</b>, the site <b class="text-[#C0FF00]">yellow</b>, and <b style="color:#6B9FD4">blue</b> — watermark to semi-opaque. Boosted here so each reads; I’ll dial to whisper level when applied. Pick a number.</p>
+      <div class="pgrid">
+        {pats.map((p) => (
+          <div class="pcard">
+            <div class="pcell" style={`background-color:#0e0f10; background-image:${tile(p.o)}; background-size:96px 56px;`}></div>
+            <p class="pname"><b>{p.n}.</b> {p.name}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      .eyebrow { color:#C0FF00; font-size:12px; letter-spacing:0.4em; text-transform:uppercase; margin-bottom:12px; }
+      .pgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:26px 20px; }
+      .pcell { height:170px; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06); }
+      .pname { margin-top:11px; color:var(--ink-primary); font-size:13.5px; }
+      .pname b { color:#C0FF00; }
+    </style>
+  </body>
+</html>

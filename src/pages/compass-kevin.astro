@@ -1,0 +1,147 @@
+---
+/*
+ * "Contact Kevin Mueller" — compass #10 (Bold rose) is the ONLY thing visible at
+ * rest. On hover a shaped panel grows LEFT out of the compass and reveals the
+ * label. The panel's top/bottom lines are sized + coloured to flow straight into
+ * the compass's OUTER RING (same lime, same weight, tangent) so the whole thing
+ * reads as one continuous outline — the compass is the rounded right cap.
+ * Five leading-edge shapes. MOCKUP ONLY until a pick is approved.
+ */
+import '../styles/global.css';
+
+const RAD = Math.PI / 180;
+const pt = (r: number, d: number): [number, number] => [30 + r * Math.cos(d * RAD), 30 + r * Math.sin(d * RAD)];
+const f = (n: number) => n.toFixed(2);
+const teal = '#5BC2C2', cream = '#EDE6D6', lime = '#C0FF00';
+
+function ticks(count: number, rIn: number, rOut: number, o: any = {}) {
+  const { start = -90, sw = 0.8, color = cream, op = 0.7 } = o;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x1, y1] = pt(rIn, a), [x2, y2] = pt(rOut, a);
+    s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function dots(count: number, r: number, o: any = {}) {
+  const { rad = 0.55, start = -90, color = cream, op = 0.7 } = o;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x, y] = pt(r, a);
+    s += `<circle cx="${f(x)}" cy="${f(y)}" r="${rad}" fill="${color}" fill-opacity="${op}"/>`;
+  }
+  return s;
+}
+const RING = (r: number, o: any = {}) => {
+  const { sw = 0.9, color = cream, op = 0.4 } = o;
+  return `<circle cx="30" cy="30" r="${r}" fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}"/>`;
+};
+const FLIGHT = 'M30,30 L29.07,27.75 L30,13 Z M30,30 L30.93,27.75 L35.58,24.42 Z M30,30 L32.25,29.07 L47,30 Z M30,30 L32.25,30.93 L35.58,35.58 Z M30,30 L30.93,32.25 L30,47 Z M30,30 L29.07,32.25 L24.42,35.58 Z M30,30 L27.75,30.93 L13,30 Z M30,30 L27.75,29.07 L24.42,24.42 Z';
+const FDARK  = 'M30,30 L30,13 L30.93,27.75 Z M30,30 L35.58,24.42 L32.25,29.07 Z M30,30 L47,30 L32.25,30.93 Z M30,30 L35.58,35.58 L30.93,32.25 Z M30,30 L30,47 L29.07,32.25 Z M30,30 L24.42,35.58 L27.75,30.93 Z M30,30 L13,30 L27.75,29.07 Z M30,30 L24.42,24.42 L29.07,27.75 Z';
+const STAR = `<path d="${FLIGHT}" fill="${cream}"/><path d="${FDARK}" fill="${teal}"/>`;
+
+// Compass #10 — Bold rose, but the OUTER ring is lime at line-weight so the panel
+// lines flow into it as one. Inner ring + ticks + teal dots + star keep the rose.
+const BOLD_ROSE =
+  RING(28, { sw: 2.1, color: lime, op: 0.95 })   /* outer ring = the button's edge */
+  + RING(20, { sw: 1.0 })
+  + ticks(4, 24, 28, { sw: 1.2, color: lime, op: 0.85 })
+  + ticks(4, 25, 28, { start: -45, sw: 0.7 })
+  + dots(8, 22.3, { rad: 0.4, start: -67.5, color: teal, op: 0.9 })
+  + `<g class="spin">${STAR}</g>`;
+
+const shapes = [
+  { id: 1, cls: 'sh-round',  name: 'Round leading edge (stadium)' },
+  { id: 2, cls: 'sh-semi',   name: 'Semi-round' },
+  { id: 3, cls: 'sh-square', name: 'Square-ish' },
+  { id: 4, cls: 'sh-hex',    name: 'Honeycomb point' },
+  { id: 5, cls: 'sh-oct',    name: 'Elongated octagon' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Kevin Mueller — compass button</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="eyebrow">VALORA · Contact Kevin Mueller · compass #10</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">The lines flow into the compass.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">At rest, only the compass. On hover a panel grows left and its top/bottom lines run straight into the compass’s outer ring — same colour, same weight, tangent — so it reads as one continuous shape. Hover each, then pick a leading edge.</p>
+
+      <div class="kgrid">
+        {shapes.map((s) => (
+          <div class="kcard">
+            <div class="kstage">
+              <button type="button" class={`ck ${s.cls}`} data-action="open-inquiry" aria-label="Contact Kevin Mueller">
+                <span class="panel"><span class="pfill"></span><span class="tx">Contact&#160;Kevin&#160;Mueller</span></span>
+                <span class="ic"><svg viewBox="0 0 60 60" aria-hidden="true" set:html={BOLD_ROSE}></svg></span>
+              </button>
+            </div>
+            <p class="kname"><b>{s.id}.</b> {s.name}</p>
+          </div>
+        ))}
+      </div>
+
+      <p class="text-ink-muted text-sm mt-12">Label reads <b>“Contact Kevin Mueller”</b> per your note — I can shorten to <b>“Contact Kevin”</b> for a tighter corner. Lime now; teal on request.</p>
+    </main>
+
+    <style>
+      :root { --lime:#C0FF00; --teal:#5BC2C2; --base:#0F0E0C; --ink:#EDE6D6; --stage:#141518; --ac:var(--lime); }
+      /* geometry: 54px compass slot, 46px svg → outer ring ≈43px diameter.
+         The panel bar is 43px tall (centred) so its lines are tangent to the ring,
+         and it extends right by 27px (half the slot) so the lines meet the ring. */
+      .eyebrow { color:var(--lime); font-size:12px; letter-spacing:0.4em; text-transform:uppercase; margin-bottom:12px; }
+      .kgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(340px,1fr)); gap:30px 22px; }
+      .kstage { height:132px; border-radius:16px; background:var(--stage); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+        display:flex; align-items:center; justify-content:flex-end; padding-right:28px; }
+      .kname { margin-top:13px; color:var(--ink); font-size:14px; }
+      .kname b { color:var(--lime); }
+
+      .ck { position:relative; display:inline-flex; align-items:center; justify-content:flex-end;
+        height:54px; padding:0; background:transparent; border:0; cursor:pointer; }
+      /* compass — only thing visible at rest, always the bare right terminus, on top */
+      .ck .ic { flex:0 0 54px; width:54px; height:54px; display:grid; place-items:center; position:relative; z-index:3; }
+      .ck .ic svg { width:46px; height:46px; overflow:visible; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.55)); }
+      .ck .spin { transform-box:fill-box; transform-origin:center; animation:kspin 12s linear infinite; }
+      .ck:hover .spin { animation-duration:2.6s; }
+      @keyframes kspin { to { transform:rotate(360deg); } }
+
+      /* panel: 43px tall, tangent to the ring; extends 27px right so lines meet it */
+      .ck .panel { position:relative; z-index:1; order:-1; display:flex; align-items:center;
+        height:43px; width:0; opacity:0; overflow:hidden; margin-right:-27px;
+        transition: width .58s cubic-bezier(.16,1,.3,1), opacity .4s ease .06s; }
+      .ck .tx { white-space:nowrap; padding:0 46px 0 26px;
+        font-size:11.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ac); position:relative; z-index:2; }
+      .ck .pfill { display:none; }
+      .ck:focus-visible { outline:2px solid var(--ac); outline-offset:3px; }
+
+      /* ---- leading-edge shapes; RIGHT side open so lines flow into the ring ---- */
+      .sh-round  .panel { border:2.1px solid var(--ac); border-right:0; border-radius:21.5px 0 0 21.5px; }
+      .sh-semi   .panel { border:2.1px solid var(--ac); border-right:0; border-radius:14px 0 0 14px; }
+      .sh-square .panel { border:2.1px solid var(--ac); border-right:0; border-radius:6px 0 0 6px; }
+      .sh-round:hover .panel  { width:262px; opacity:1; }
+      .sh-semi:hover .panel   { width:262px; opacity:1; }
+      .sh-square:hover .panel { width:262px; opacity:1; }
+
+      /* honeycomb — pointed leading edge, layered clip + inner fill = lime outline */
+      .sh-hex .panel { background:var(--ac); clip-path:polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 50%); }
+      .sh-hex .pfill { display:block; position:absolute; inset:2.1px 0 2.1px 2.1px; z-index:1; background:var(--stage);
+        clip-path:polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 50%); }
+      .sh-hex:hover .panel { width:272px; opacity:1; }
+      /* elongated octagon — cut leading corners */
+      .sh-oct .panel { background:var(--ac); clip-path:polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px), 0 12px); }
+      .sh-oct .pfill { display:block; position:absolute; inset:2.1px 0 2.1px 2.1px; z-index:1; background:var(--stage);
+        clip-path:polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px), 0 12px); }
+      .sh-oct:hover .panel { width:266px; opacity:1; }
+
+      @media (prefers-reduced-motion: reduce) { .ck .spin { animation:none; } }
+    </style>
+  </body>
+</html>

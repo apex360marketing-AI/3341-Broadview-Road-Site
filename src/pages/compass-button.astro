@@ -1,0 +1,203 @@
+---
+/*
+ * Compass "Contact Kevin" buttons — 15 next-level treatments. Each collapses to
+ * a compass in the top-right and OPENS on hover to reveal "CONTACT KEVIN",
+ * every one with its own rose, open-shape, motion + accent. Reuses the brand
+ * faceted star + ring/tick/dot helpers from /compass so it stays on-brand.
+ * MOCKUP ONLY — the live nav is untouched until a pick is approved.
+ */
+import '../styles/global.css';
+
+const RAD = Math.PI / 180;
+const pt = (r: number, d: number): [number, number] => [30 + r * Math.cos(d * RAD), 30 + r * Math.sin(d * RAD)];
+const f = (n: number) => n.toFixed(2);
+const teal = '#5BC2C2';
+const lime = '#C0FF00';
+const cream = '#EDE6D6';
+
+function ticks(count: number, rIn: number, rOut: number, opts: any = {}) {
+  const { start = -90, sw = 0.8, color = cream, op = 0.7 } = opts;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x1, y1] = pt(rIn, a), [x2, y2] = pt(rOut, a);
+    s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function dots(count: number, r: number, opts: any = {}) {
+  const { rad = 0.55, start = -90, color = cream, op = 0.7 } = opts;
+  let s = '';
+  for (let i = 0; i < count; i++) {
+    const a = start + (i * 360) / count;
+    const [x, y] = pt(r, a);
+    s += `<circle cx="${f(x)}" cy="${f(y)}" r="${rad}" fill="${color}" fill-opacity="${op}"/>`;
+  }
+  return s;
+}
+const RING = (r: number, opts: any = {}) => {
+  const { sw = 0.9, color = cream, op = 0.4 } = opts;
+  return `<circle cx="30" cy="30" r="${r}" fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}"/>`;
+};
+
+const FLIGHT = 'M30,30 L29.07,27.75 L30,13 Z M30,30 L30.93,27.75 L35.58,24.42 Z M30,30 L32.25,29.07 L47,30 Z M30,30 L32.25,30.93 L35.58,35.58 Z M30,30 L30.93,32.25 L30,47 Z M30,30 L29.07,32.25 L24.42,35.58 Z M30,30 L27.75,30.93 L13,30 Z M30,30 L27.75,29.07 L24.42,24.42 Z';
+const FDARK  = 'M30,30 L30,13 L30.93,27.75 Z M30,30 L35.58,24.42 L32.25,29.07 Z M30,30 L47,30 L32.25,30.93 Z M30,30 L35.58,35.58 L30.93,32.25 Z M30,30 L30,47 L29.07,32.25 Z M30,30 L24.42,35.58 L27.75,30.93 Z M30,30 L13,30 L27.75,29.07 Z M30,30 L24.42,24.42 L29.07,27.75 Z';
+const OUTLINE = 'M30,13 L30.93,27.75 L35.58,24.42 L32.25,29.07 L47,30 L32.25,30.93 L35.58,35.58 L30.93,32.25 L30,47 L29.07,32.25 L24.42,35.58 L27.75,30.93 L13,30 L27.75,29.07 L24.42,24.42 L29.07,27.75 Z';
+
+const STAR = `<path d="${FLIGHT}" fill="${cream}"/><path d="${FDARK}" fill="${teal}"/>`;
+const STAR_OUT = `<path d="${OUTLINE}" fill="none" stroke="${cream}" stroke-width="0.9" stroke-linejoin="round"/>`;
+const NEEDLE = `<path d="M30 9 L33 30 L30 33 L27 30 Z" fill="${lime}"/><path d="M30 51 L33 30 L30 27 L27 30 Z" fill="${cream}" fill-opacity="0.8"/><circle cx="30" cy="30" r="1.7" fill="#131417" stroke="${lime}" stroke-width="0.7"/>`;
+const SWEEP = `<path class="sweep" d="M30 30 L30 3 A27 27 0 0 1 44.5 8.6 Z" fill="${teal}" fill-opacity="0.28"/>`;
+const ORBIT = `<g class="spinc"><circle cx="30" cy="4.5" r="1.5" fill="${lime}"/></g>`;
+
+// wrap helpers
+const spin = (s: string) => `<g class="spin">${s}</g>`;
+const spinc = (s: string) => `<g class="spinc">${s}</g>`;
+const spinr = (s: string) => `<g class="spinrev">${s}</g>`;
+
+// 15 compass button designs: shape, accent, optional fx, and the compass innerHTML
+const opts = [
+  { n: 1,  name: 'Classic rose · pill',        shape: 'pill',    ac: lime, svg: RING(28)+RING(21)+ticks(4,25,28)+ticks(4,26,28,{start:-45,sw:0.6})+spin(STAR) },
+  { n: 2,  name: 'Dotted bezel · honeycomb',   shape: 'hex',     ac: lime, svg: RING(28)+dots(16,25.5)+spin(STAR) },
+  { n: 3,  name: 'Ticked bezel · rectangle',   shape: 'rect',    ac: lime, svg: RING(28)+RING(21)+ticks(12,25,28,{sw:0.7})+spin(STAR) },
+  { n: 4,  name: 'Teal ring · capsule',        shape: 'pill',    ac: teal, svg: RING(28)+RING(21,{color:teal,op:0.75})+ticks(8,25,28,{sw:0.7})+spin(STAR) },
+  { n: 5,  name: 'Gyroscope · rectangle',      shape: 'rect',    ac: lime, svg: spinr(RING(28)+ticks(12,25,28,{sw:0.7}))+RING(20)+spin(STAR) },
+  { n: 6,  name: 'Needle-snap · rectangle',    shape: 'rect',    ac: lime, fx: 'fx-needle', svg: RING(28)+RING(21)+ticks(4,25,28)+`<g class="needle">${NEEDLE}</g>` },
+  { n: 7,  name: 'Radar sweep · rectangle',    shape: 'rect',    ac: teal, svg: RING(28)+RING(21)+ticks(12,25,28,{sw:0.6})+spinc(SWEEP)+STAR },
+  { n: 8,  name: 'Outline star · brackets',    shape: 'bracket', ac: lime, svg: RING(28)+RING(21)+ticks(8,25,28,{sw:0.7})+spin(STAR_OUT) },
+  { n: 9,  name: 'Dense dots · honeycomb',     shape: 'hex',     ac: teal, svg: RING(28)+RING(20.5)+dots(24,25.8,{rad:0.42})+spin(STAR) },
+  { n: 10, name: 'Bold rose · beveled',        shape: 'bevel',   ac: lime, svg: RING(28,{sw:1.2})+RING(20,{sw:1})+ticks(4,24,28,{sw:1.2})+ticks(4,25,28,{start:-45,sw:0.7})+dots(8,22.3,{rad:0.4,start:-67.5,color:teal,op:0.85})+spin(STAR) },
+  { n: 11, name: 'Orbit · capsule',            shape: 'pill',    ac: lime, svg: RING(28)+RING(21)+ORBIT+spin(STAR) },
+  { n: 12, name: 'Astrolabe · rectangle',      shape: 'rect',    ac: teal, svg: RING(28)+RING(23)+RING(16)+spinc(ticks(8,23,28,{sw:0.6}))+spinr(STAR_OUT) },
+  { n: 13, name: 'Neon pulse · capsule',       shape: 'pill',    ac: lime, fx: 'fx-pulse', svg: RING(28,{sw:1.2,op:0.6})+RING(21)+spin(STAR) },
+  { n: 14, name: 'Engraved · sheen capsule',   shape: 'pill',    ac: cream, fx: 'fx-sheen', svg: RING(28,{sw:0.6,op:0.6})+RING(24,{sw:0.5,op:0.4})+ticks(24,26,28,{sw:0.4,op:0.5})+spin(STAR) },
+  { n: 15, name: 'Conic bezel · rectangle',    shape: 'rect',    ac: lime, fx: 'fx-conic', svg: RING(20,{op:0.5})+spin(STAR) },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Compass buttons — VALORA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@300;400;500&display=swap" />
+  </head>
+  <body class="bg-bg-base text-ink-primary font-sans">
+    <main class="max-w-[1180px] mx-auto px-6 py-16">
+      <p class="eyebrow">VALORA · Compass CTA buttons</p>
+      <h1 class="text-4xl md:text-5xl font-light leading-tight mb-3">Fifteen compasses that open to “Contact Kevin”.</h1>
+      <p class="text-ink-muted max-w-2xl mb-12">Each collapses to a spinning compass in the top-right and opens leftward on hover to reveal <b>CONTACT KEVIN</b> — every one a different rose, shape, motion + accent. Hover to preview, then pick a number.</p>
+      <div class="cgrid">
+        {opts.map((o) => (
+          <div class="ccard">
+            <div class="cstage">
+              <button type="button" class={`ck ${o.shape} ${o.fx ?? ''}`} style={`--ac:${o.ac}`} aria-label="Contact Kevin">
+                <span class="fill"></span>
+                <span class="tx">Contact Kevin</span>
+                <span class="ic"><svg viewBox="0 0 60 60" aria-hidden="true" set:html={o.svg}></svg></span>
+              </button>
+            </div>
+            <p class="cname"><b>{o.n}.</b> {o.name}</p>
+          </div>
+        ))}
+      </div>
+    </main>
+
+    <style>
+      :root { --lime:#C0FF00; --teal:#5BC2C2; --base:#0F0E0C; --ink:#EDE6D6; --stage:#131417; }
+      .eyebrow { color: var(--lime); font-size:12px; letter-spacing:0.4em; text-transform:uppercase; margin-bottom:12px; }
+      .cgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:28px 20px; }
+      .cstage {
+        height:128px; border-radius:14px; background:var(--stage);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        display:flex; align-items:center; justify-content:flex-end; padding-right:24px;
+      }
+      .cname { margin-top:12px; color:var(--ink); font-size:13.5px; }
+      .cname b { color:var(--lime); }
+
+      /* shared: compass anchored right, label reveals to its left */
+      .ck {
+        position:relative; display:inline-flex; align-items:center; justify-content:flex-end;
+        height:52px; padding:0; color:var(--ink); background:transparent; cursor:pointer;
+        overflow:hidden; transition: width .6s cubic-bezier(.16,1,.3,1), box-shadow .4s ease, filter .4s ease;
+      }
+      .ck .ic { flex:0 0 52px; width:52px; height:52px; display:grid; place-items:center; position:relative; z-index:2; }
+      .ck .ic svg { width:34px; height:34px; overflow:visible; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
+      .ck .tx {
+        order:-1; white-space:nowrap; opacity:0; position:relative; z-index:2;
+        font-size:11.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ac);
+        padding-left:16px; transition: opacity .35s ease .14s;
+      }
+      .ck .fill { display:none; }
+      .ck:hover .tx { opacity:1; }
+      .ck:focus-visible { outline:2px solid var(--ac); outline-offset:3px; }
+
+      /* compass motion */
+      .ck .spin  { transform-box:fill-box; transform-origin:center; animation:cspin 12s linear infinite; }
+      .ck .spinc { transform-box:view-box; transform-origin:30px 30px; animation:cspin 12s linear infinite; }
+      .ck .spinrev { transform-box:view-box; transform-origin:30px 30px; animation:cspin 16s linear infinite reverse; }
+      .ck .sweep { }
+      @keyframes cspin { to { transform:rotate(360deg); } }
+      /* on hover the rose spins up */
+      .ck:hover .spin, .ck:hover .spinc { animation-duration:2.6s; }
+      .ck:hover .spinrev { animation-duration:3.4s; }
+
+      /* ---- shapes ---- */
+      .rect { width:52px; border-radius:11px; border:1.5px solid var(--ac); }
+      .rect:hover { width:216px; box-shadow:0 0 10px color-mix(in srgb, var(--ac) 42%, transparent), 0 0 24px color-mix(in srgb, var(--ac) 22%, transparent); }
+
+      .pill { width:52px; border-radius:999px; border:1.5px solid var(--ac); }
+      .pill:hover { width:216px; box-shadow:0 0 10px color-mix(in srgb, var(--ac) 42%, transparent), 0 0 24px color-mix(in srgb, var(--ac) 22%, transparent); }
+
+      .hex { width:58px; background:var(--ac);
+        clip-path:polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%); }
+      .hex .fill { display:block; position:absolute; inset:1.8px; z-index:1; background:var(--stage);
+        clip-path:polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%); }
+      .hex:hover { width:224px; filter:drop-shadow(0 0 8px var(--ac)); }
+
+      .bevel { width:54px; background:var(--ac);
+        clip-path:polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+      .bevel .fill { display:block; position:absolute; inset:1.8px; z-index:1; background:var(--stage);
+        clip-path:polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+      .bevel:hover { width:216px; filter:drop-shadow(0 0 8px var(--ac)); }
+
+      /* bracket — corner frame closes on hover (nav-current family) */
+      .bracket { width:52px; border-radius:11px; }
+      .bracket::before, .bracket::after { content:''; position:absolute; width:15px; height:15px; border:1.6px solid var(--ac); pointer-events:none; z-index:1;
+        transition:width .55s cubic-bezier(.16,1,.3,1), height .55s cubic-bezier(.16,1,.3,1), box-shadow .4s ease; }
+      .bracket::before { top:3px; left:3px; border-right:0; border-bottom:0; border-top-left-radius:8px; }
+      .bracket::after  { bottom:3px; right:3px; border-left:0; border-top:0; border-bottom-right-radius:8px; }
+      .bracket:hover { width:216px; }
+      .bracket:hover::before, .bracket:hover::after { width:calc(100% - 6px); height:calc(100% - 6px); box-shadow:0 0 8px color-mix(in srgb, var(--ac) 50%, transparent); }
+
+      /* ---- fx ---- */
+      /* 6 needle snaps toward the label as it opens */
+      .fx-needle .needle { transform-box:view-box; transform-origin:30px 30px; transition:transform .6s cubic-bezier(.16,1,.3,1); }
+      .fx-needle:hover .needle { transform:rotate(-42deg); }
+
+      /* 13 pulsing neon ring */
+      .fx-pulse:hover { animation:cpulse 1.4s ease-in-out infinite; }
+      @keyframes cpulse { 0%,100% { box-shadow:0 0 8px rgba(192,255,0,.4), 0 0 18px rgba(192,255,0,.22); } 50% { box-shadow:0 0 14px rgba(192,255,0,.7), 0 0 32px rgba(192,255,0,.4); } }
+
+      /* 14 sheen sweep across the capsule */
+      .fx-sheen::after { content:''; position:absolute; top:0; left:-60%; width:40%; height:100%; z-index:3; pointer-events:none;
+        background:linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); transform:skewX(-18deg); transition:left .7s ease; }
+      .fx-sheen:hover::after { left:130%; }
+      .fx-sheen .tx { color:var(--teal); }
+
+      /* 15 conic gradient bezel (replaces the border) */
+      .fx-conic { border:0 !important; background:var(--stage); z-index:0; }
+      .fx-conic::before { content:''; position:absolute; inset:0; border-radius:11px; padding:1.7px; z-index:0;
+        background:conic-gradient(from var(--a), var(--teal), var(--lime), #3FA6A6, var(--teal));
+        -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+      @property --a { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+      .fx-conic:hover::before { animation:cbezel 2.6s linear infinite; }
+      @keyframes cbezel { to { --a:360deg; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .ck .spin, .ck .spinc, .ck .spinrev { animation:none; }
+      }
+    </style>
+  </body>
+</html>
